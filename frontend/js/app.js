@@ -340,8 +340,6 @@ function selectSolution(solutionType) {
     const detailsPanel = document.getElementById('solutionDetails');
     if (solutionType === 'custom' || solutionType === 'none') {
         detailsPanel.style.display = 'none';
-        // Advance to Step 2 even for custom/none selection
-        nextStep();
         return;
     }
     
@@ -411,9 +409,6 @@ function selectSolution(solutionType) {
         document.getElementById('gpuCount').value = gpu.gpu_vms;
         document.getElementById('gpuCountGroup').style.display = 'block';
     }
-    
-    // Advance to Step 2
-    nextStep();
 }
 
 /**
@@ -448,8 +443,6 @@ function selectWorkload(workloadType) {
                 preset.gpu_required ? 'block' : 'none';
         }
     }
-    
-    nextStep();
 }
 
 /**
