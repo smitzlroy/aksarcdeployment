@@ -333,8 +333,8 @@ class ComplianceReportGenerator {
             const checkName = doc.splitTextToSize(check.name, 75);
             doc.text(checkName, 17, yPos);
 
-            // Status
-            const statusText = check.passed ? '✓ Met' : '✗ Gap';
+            // Status (using plain ASCII text instead of special characters)
+            const statusText = check.passed ? 'MET' : 'GAP';
             const statusColor = check.passed ? { r: 16, g: 124, b: 16 } : { r: 164, g: 38, b: 44 };
             doc.setTextColor(statusColor.r, statusColor.g, statusColor.b);
             doc.text(statusText, 95, yPos);
@@ -555,7 +555,7 @@ class ComplianceReportGenerator {
                 }
             } else {
                 doc.setTextColor(16, 124, 16);
-                doc.text('✓ Fully Compliant - No gaps found', 20, yPos);
+                doc.text('[COMPLIANT] Fully Compliant - No gaps found', 20, yPos);
                 doc.setTextColor(0);
                 yPos += 6;
             }

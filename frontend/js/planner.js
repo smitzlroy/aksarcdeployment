@@ -24,6 +24,8 @@ class AKSArcPlanner {
             gpuCount,
             enableAvailabilitySets,
             physicalHostCount,
+            enableDefender,
+            enablePolicy,
             controlPlaneCountOverride,
             minNodesOverride,
             maxNodesOverride,
@@ -73,6 +75,10 @@ class AKSArcPlanner {
                 physicalHostCount,
                 networkPlugin: 'azure',
                 loadBalancerSku: 'Standard'
+            },
+            securityConfig: {
+                enableDefender: enableDefender || false,
+                enablePolicy: enablePolicy !== false // Default true
             },
             availabilitySetConfig,
             validation,

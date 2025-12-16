@@ -541,6 +541,10 @@ function generatePlan() {
         return;
     }
 
+    // Gather security options
+    const enableDefender = document.getElementById('enableDefender')?.checked || false;
+    const enablePolicy = document.getElementById('enablePolicy')?.checked !== false; // Default true if element not found
+
     // Gather configuration with environment overrides
     const config = {
         workloadType: selectedWorkload,
@@ -555,6 +559,9 @@ function generatePlan() {
         gpuCount: parseInt(document.getElementById('gpuCount').value) || 0,
         enableAvailabilitySets: true, // Always enabled by default in AKS Arc
         physicalHostCount: parseInt(document.getElementById('physicalHostCount').value) || 2,
+        // Security configuration
+        enableDefender,
+        enablePolicy,
         // Environment-specific overrides
         controlPlaneCountOverride: envTemplate.control_plane_count,
         minNodesOverride: envTemplate.min_nodes,
@@ -1145,6 +1152,22 @@ function displayComplianceMatrix(complianceMatrix) {
     html += '</tbody></table></div></div>';
     
     container.innerHTML = html;
+}
+
+/**
+ * Toggle security option (Defender, Policy)
+ */
+function toggleSecurityOption(option) {
+    const checkbox = document.getElementById(`enable${option.charAt(0).toUpperCase() + option.slice(1)}`);
+    const card = document.getElementById(`${option}Card`);
+    
+    if (checkbox.checked) {
+        card.style.borderColor = 'var(--success-color)';
+        card.style.background = 'var(--card-bg)';
+    } else {
+        card.style.borderColor = 'var(--border-color)';
+        card.style.background = 'var(--card-bg)';
+    }
 }
 
 /**

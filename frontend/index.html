@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
     <title>AKS Arc Deployment Tool</title>
-    <link rel="stylesheet" href="css/style.css?v=180102">
+    <link rel="stylesheet" href="css/style.css?v=180105">
     <link rel="stylesheet" href="css/polish.css?v=180102">
 </head>
 <body>
@@ -312,6 +312,66 @@
                     </div>
                 </div>
 
+                <!-- Security & Compliance Options -->
+                <h3 style="margin-top: 30px; color: var(--primary-color);">🔒 Security & Compliance (Optional)</h3>
+                <p style="margin-bottom: 20px;">Enable advanced security features for your cluster. These options provide enhanced threat protection and compliance enforcement.</p>
+                
+                <div class="security-options-grid">
+                    <!-- Microsoft Defender for Containers -->
+                    <div class="security-option-card" id="defenderCard">
+                        <div class="security-option-header">
+                            <input type="checkbox" id="enableDefender" onchange="toggleSecurityOption('defender')">
+                            <label for="enableDefender">
+                                <strong>Microsoft Defender for Containers</strong>
+                            </label>
+                        </div>
+                        <div class="security-option-body">
+                            <div class="cost-badge cost-paid">
+                                💰 Costs ~$6.87/vCore/month
+                            </div>
+                            <p class="security-description">
+                                Provides threat protection, vulnerability scanning, and runtime security for containerized workloads.
+                            </p>
+                            <ul class="security-features">
+                                <li>✓ Real-time threat detection</li>
+                                <li>✓ 20 free vulnerability scans per vCore/month</li>
+                                <li>✓ Kubernetes security posture management</li>
+                                <li>✓ 30-day free trial included</li>
+                            </ul>
+                            <p class="security-cost-estimate">
+                                <small><strong>Example:</strong> 8 vCore cluster = ~$55/month (~$660/year)</small>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Azure Policy for Kubernetes -->
+                    <div class="security-option-card" id="policyCard">
+                        <div class="security-option-header">
+                            <input type="checkbox" id="enablePolicy" onchange="toggleSecurityOption('policy')" checked>
+                            <label for="enablePolicy">
+                                <strong>Azure Policy for Kubernetes</strong>
+                            </label>
+                        </div>
+                        <div class="security-option-body">
+                            <div class="cost-badge cost-free">
+                                ✅ FREE - No additional cost
+                            </div>
+                            <p class="security-description">
+                                Enforces regulatory compliance policies and governance standards automatically.
+                            </p>
+                            <ul class="security-features">
+                                <li>✓ Automated compliance enforcement</li>
+                                <li>✓ Pod security standards (PSS)</li>
+                                <li>✓ 100+ built-in policy definitions</li>
+                                <li>✓ Real-time compliance reporting</li>
+                            </ul>
+                            <p class="security-recommendation">
+                                <small><strong>Recommended:</strong> Azure Policy is free and provides essential compliance controls.</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="button-group">
                     <button onclick="previousStep()" class="btn btn-secondary">← Back</button>
                     <button onclick="generatePlan()" class="btn btn-primary">Generate Plan →</button>
@@ -403,11 +463,11 @@
 
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="js/security.js?v=180104"></script>
-    <script src="js/compliance.js?v=180104"></script>
-    <script src="js/compliance-report.js?v=180104"></script>
-    <script src="js/planner.js?v=180104"></script>
-    <script src="js/generator.js?v=180104"></script>
-    <script src="js/app.js?v=180104"></script>
+    <script src="js/security.js?v=180105"></script>
+    <script src="js/compliance.js?v=180105"></script>
+    <script src="js/compliance-report.js?v=180105"></script>
+    <script src="js/planner.js?v=180105"></script>
+    <script src="js/generator.js?v=180105"></script>
+    <script src="js/app.js?v=180105"></script>
 </body>
 </html>
