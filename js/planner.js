@@ -68,6 +68,8 @@ class AKSArcPlanner {
                 resourceGroup,
                 location,
                 customLocation,
+                logicalNetwork: config.logicalNetwork || '',
+                azureLocalClusterIP: config.azureLocalClusterIP || '',
                 kubernetesVersion: k8sVersion,
                 controlPlaneCount,
                 nodePools,
@@ -82,7 +84,7 @@ class AKSArcPlanner {
                 serviceCidr: config.serviceCidr || '10.96.0.0/16',
                 dnsServiceIP: config.dnsServiceIP || '10.96.0.10',
                 loadBalancerSku: config.loadBalancerSku || 'Standard',
-                controlPlaneIP: config.controlPlaneIP || '',
+                controlPlaneIP: config.controlPlaneIP || 'Auto-assigned from logical network',
                 enableNetworkPolicy: config.enableNetworkPolicy || false,
                 enablePrivateCluster: config.enablePrivateCluster || false
             },

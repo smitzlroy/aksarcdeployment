@@ -584,6 +584,7 @@ function generatePlan() {
         location: document.getElementById('location').value,
         customLocation,
         logicalNetwork: document.getElementById('logicalNetwork')?.value || '',
+        azureLocalClusterIP: document.getElementById('azureLocalClusterIP')?.value || '',
         cpuCores: parseInt(document.getElementById('cpuCores').value),
         memoryGb: parseInt(document.getElementById('memoryGb').value),
         gpuRequired: document.getElementById('gpuRequired').checked,

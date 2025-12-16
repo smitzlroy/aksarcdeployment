@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
     <title>AKS Arc Deployment Tool</title>
-    <link rel="stylesheet" href="css/style.css?v=180122">
+    <link rel="stylesheet" href="css/style.css?v=180123">
     <link rel="stylesheet" href="css/polish.css?v=180102">
 </head>
 <body>
@@ -260,14 +260,16 @@
                         <strong>AKS enabled by Azure Arc requires pre-configured Azure Local infrastructure.</strong> Ensure you have:
                     </p>
                     <ul style="margin: 0; padding-left: 20px; opacity: 0.95;">
-                        <li><strong>Logical Network:</strong> Created in Azure Local with static IP pool, DNS, and gateway configured</li>
+                        <li><strong>Azure Local Cluster IP:</strong> Management IP address of your Azure Local cluster (for cloud agent communication on ports 55000, 65000)</li>
+                        <li><strong>Logical Network:</strong> Created in Azure Local with static IP pool (minimum: node VMs + 1 upgrade IP + 1 control plane IP per cluster), DNS, and gateway</li>
                         <li><strong>Storage:</strong> Azure Local storage (CSV volumes) configured for SMB/NFS/iSCSI/local-path</li>
                         <li><strong>Arc Resource Bridge:</strong> Deployed automatically with Azure Local 23H2+</li>
                         <li><strong>Custom Location:</strong> Created for your Azure Local instance</li>
                     </ul>
                     <p style="margin: 10px 0 0 0; font-size: 0.9em; opacity: 0.9;">
                         📚 <a href="https://learn.microsoft.com/en-us/azure/aks/aksarc/aks-hci-network-system-requirements" target="_blank" style="color: white; text-decoration: underline;">Network Requirements</a> | 
-                        <a href="https://learn.microsoft.com/en-us/azure/azure-local/manage/create-logical-networks" target="_blank" style="color: white; text-decoration: underline;">Create Logical Networks</a>
+                        <a href="https://learn.microsoft.com/en-us/azure/azure-local/manage/create-logical-networks" target="_blank" style="color: white; text-decoration: underline;">Create Logical Networks</a> | 
+                        <a href="https://learn.microsoft.com/en-us/azure/aks/aksarc/aks-hci-ip-address-planning" target="_blank" style="color: white; text-decoration: underline;">IP Address Planning</a>
                     </p>
                 </div>
                 
@@ -381,6 +383,12 @@
                         <small>Pre-configured Azure Local logical network (static IPs)</small>
                     </div>
 
+                    <div class="form-group">
+                        <label for="azureLocalClusterIP">Azure Local Cluster IP *</label>
+                        <input type="text" id="azureLocalClusterIP" placeholder="192.168.1.10" required>
+                        <small>Management IP of your Azure Local cluster (use Get-ClusterResource)</small>
+                    </div>
+
                     <div class="form-group" id="cpuGroup">
                         <label for="cpuCores">CPU Cores</label>
                         <input type="number" id="cpuCores" min="4" max="128" step="4" value="8">
@@ -419,7 +427,14 @@
                 
                 <div class="config-section-card" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                     <div class="info-banner" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px 15px; margin-bottom: 15px; border-radius: 4px; color: #856404;">
-                        <strong>⚠️ Azure Local Networking:</strong> IPs are allocated from the logical network configured in Azure Local. Ensure sufficient static IP pool for nodes + control plane VIP.
+                        <strong>⚠️ IP Address Planning:</strong> Reserve static IPs from your logical network:
+                        <ul style="margin: 5px 0 0 20px; font-size: 0.95em;">
+                            <li><strong>Node VMs:</strong> 1 IP per node (e.g., 5 nodes = 5 IPs)</li>
+                            <li><strong>Upgrade Operations:</strong> 1 IP per cluster for rolling upgrades</li>
+                            <li><strong>Control Plane VIP:</strong> 1 IP per cluster (Kubernetes API Server)</li>
+                            <li><strong>Load Balancer:</strong> Separate IP pool outside logical network range for MetalLB/services</li>
+                        </ul>
+                        <small>Example: 5-node cluster = 7 IPs minimum (5 nodes + 1 upgrade + 1 control plane)</small>
                     </div>
                     
                     <div class="form-grid">
@@ -481,9 +496,9 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="controlPlaneIP">Control Plane VIP *</label>
-                                <input type="text" id="controlPlaneIP" placeholder="192.168.1.100">
-                                <small>Virtual IP for API server HA</small>
+                                <label for="controlPlaneIP">Control Plane IP (Optional)</label>
+                                <input type="text" id="controlPlaneIP" placeholder="Auto-assigned from logical network">
+                                <small>Kubernetes API Server IP (KubeVIP). Leave empty for auto-assignment from logical network pool.</small>
                             </div>
                         </div>
                     </div>
@@ -812,12 +827,12 @@
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="js/security.js?v=180120"></script>
-    <script src="js/compliance.js?v=180122"></script>
-    <script src="js/compliance-report.js?v=180122"></script>
-    <script src="js/presets.js?v=180122"></script>
-    <script src="js/cost-calculator.js?v=180122"></script>
-    <script src="js/planner.js?v=180122"></script>
-    <script src="js/generator.js?v=180122"></script>
-    <script src="js/app.js?v=180122"></script>
+    <script src="js/compliance.js?v=180123"></script>
+    <script src="js/compliance-report.js?v=180123"></script>
+    <script src="js/presets.js?v=180123"></script>
+    <script src="js/cost-calculator.js?v=180123"></script>
+    <script src="js/planner.js?v=180123"></script>
+    <script src="js/generator.js?v=180123"></script>
+    <script src="js/app.js?v=180123"></script>
 </body>
 </html>
