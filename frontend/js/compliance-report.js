@@ -15,6 +15,12 @@ class ComplianceReportGenerator {
         // Generate report ID first
         const reportId = this.generateReportId();
         
+        // DEBUG: Log the entire deploymentPlan structure
+        console.log('🔍 DEBUG deploymentPlan:', deploymentPlan);
+        console.log('🔍 DEBUG deploymentPlan.clusterConfig:', deploymentPlan?.clusterConfig);
+        console.log('🔍 DEBUG clusterName value:', deploymentPlan?.clusterConfig?.clusterName);
+        console.log('🔍 DEBUG clusterName type:', typeof deploymentPlan?.clusterConfig?.clusterName);
+        
         // Extract cluster name from deployment plan (it's always a string in clusterConfig)
         const clusterName = deploymentPlan?.clusterConfig?.clusterName || 'N/A';
 
