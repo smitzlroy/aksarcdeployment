@@ -471,18 +471,29 @@ function previousStep() {
  * Generate deployment plan
  */
 function generatePlan() {
+    console.log('Generate Plan clicked');
+    console.log('Planner:', planner);
+    console.log('Catalog:', catalog);
+    console.log('Selected environment:', selectedEnvironment);
+    
     // Validate required fields
     const clusterName = document.getElementById('clusterName').value.trim();
     const resourceGroup = document.getElementById('resourceGroup').value.trim();
     const customLocation = document.getElementById('customLocation').value.trim();
     
     if (!clusterName || !resourceGroup || !customLocation) {
-        alert('Please fill in all required fields');
+        alert('Please fill in all required fields (Cluster Name, Resource Group, Custom Location)');
         return;
     }
 
     // Get environment template
     const envTemplate = catalog.environment_templates[selectedEnvironment];
+    
+    if (!envTemplate) {
+        console.error('Environment template not found for:', selectedEnvironment);
+        alert('Environment template not found. Please select an environment in Step 1.');
+        return;
+    }
 
     // Gather configuration with environment overrides
     const config = {
