@@ -18,13 +18,25 @@ class ComplianceReportGenerator {
         // Extract cluster name safely (handle both string and potential HTML element)
         let clusterName = 'N/A';
         if (deploymentPlan?.clusterConfig?.clusterName) {
-            clusterName = typeof deploymentPlan.clusterConfig.clusterName === 'string' 
-                ? deploymentPlan.clusterConfig.clusterName 
-                : String(deploymentPlan.clusterConfig.clusterName);
+            const value = deploymentPlan.clusterConfig.clusterName;
+            if (typeof value === 'string') {
+                clusterName = value;
+            } else if (value?.value) {
+                // It's an HTML element, get its value property
+                clusterName = String(value.value);
+            } else {
+                clusterName = String(value);
+            }
         } else if (deploymentPlan?.clusterName) {
-            clusterName = typeof deploymentPlan.clusterName === 'string'
-                ? deploymentPlan.clusterName
-                : String(deploymentPlan.clusterName);
+            const value = deploymentPlan.clusterName;
+            if (typeof value === 'string') {
+                clusterName = value;
+            } else if (value?.value) {
+                // It's an HTML element, get its value property
+                clusterName = String(value.value);
+            } else {
+                clusterName = String(value);
+            }
         }
 
         this.reportData = {
