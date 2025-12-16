@@ -88,6 +88,18 @@ class AKSArcPlanner {
                 enableNetworkPolicy: config.enableNetworkPolicy || false,
                 enablePrivateCluster: config.enablePrivateCluster || false
             },
+            arcGatewayConfig: {
+                enabled: config.enableArcGateway || false,
+                resourceId: config.arcGatewayResourceId || '',
+                gatewayUrl: config.arcGatewayUrl || '',
+                endpointReduction: config.enableArcGateway ? '~65% (from 80+ to <30 endpoints)' : 'N/A'
+            },
+            firewallConfig: {
+                azureRegion: config.azureRegion || 'westeurope',
+                regionName: this.getRegionName(config.azureRegion || 'westeurope'),
+                totalEndpoints: config.enableArcGateway ? '<30' : '80+',
+                documentationUrl: this.getRegionEndpointUrl(config.azureRegion || 'westeurope')
+            },
             storageConfig: {
                 defaultStorageClass: config.defaultStorageClass || 'local-path',
                 enableVolumeEncryption: config.enableVolumeEncryption || false,
@@ -324,6 +336,42 @@ class AKSArcPlanner {
             warnings,
             recommendations
         };
+    }
+
+    /**
+     * Get human-readable region name
+     */
+    getRegionName(region) {
+        const regionMap = {
+            'eastus': 'East US',
+            'westeurope': 'West Europe',
+            'australiaeast': 'Australia East',
+            'canadacentral': 'Canada Central',
+            'indiacentral': 'India Central',
+            'southeastasia': 'Southeast Asia',
+            'japaneast': 'Japan East',
+            'southcentralus': 'South Central US',
+            'usgovvirginia': 'US Gov Virginia'
+        };
+        return regionMap[region] || region;
+    }
+
+    /**
+     * Get region-specific endpoint documentation URL
+     */
+    getRegionEndpointUrl(region) {
+        const urlMap = {
+            'eastus': 'https://github.com/Azure/AzureStack-Tools/blob/master/HCI/EastUSendpoints/eastus-hci-endpoints.md',
+            'westeurope': 'https://github.com/Azure/AzureStack-Tools/blob/master/HCI/WestEuropeendpoints/westeurope-hci-endpoints.md',
+            'australiaeast': 'https://github.com/Azure/AzureStack-Tools/blob/master/HCI/AustraliaEastendpoints/AustraliaEast-hci-endpoints.md',
+            'canadacentral': 'https://github.com/Azure/AzureStack-Tools/blob/master/HCI/CanadaCentralEndpoints/canadacentral-hci-endpoints.md',
+            'indiacentral': 'https://github.com/Azure/AzureStack-Tools/blob/master/HCI/IndiaCentralEndpoints/IndiaCentral-hci-endpoints.md',
+            'southeastasia': 'https://github.com/Azure/AzureStack-Tools/blob/master/HCI/SouthEastAsiaEndpoints/southeastasia-hci-endpoints.md',
+            'japaneast': 'https://github.com/Azure/AzureStack-Tools/blob/master/HCI/JapanEastEndpoints/japaneast-hci-endpoints.md',
+            'southcentralus': 'https://github.com/Azure/AzureStack-Tools/blob/master/HCI/SouthCentralUSEndpoints/southcentralus-hci-endpoints.md',
+            'usgovvirginia': 'https://github.com/CristianEdwards/AzureStack-Tools/blob/master/HCI/usgovvirginia-hci-endpoints/usgovvirginia-hci-endpoints.md'
+        };
+        return urlMap[region] || 'https://github.com/Azure/AzureStack-Tools/tree/master/HCI';
     }
 }
 

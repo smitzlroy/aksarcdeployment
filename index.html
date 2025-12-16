@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
     <title>AKS Arc Deployment Tool</title>
-    <link rel="stylesheet" href="css/style.css?v=180123">
+    <link rel="stylesheet" href="css/style.css?v=180124">
     <link rel="stylesheet" href="css/polish.css?v=180102">
 </head>
 <body>
@@ -597,6 +597,163 @@
                     <div id="entraIdSettings" class=\"info-banner\" style=\"display: none; background: #e3f2fd; padding: 12px; border-radius: 4px; margin-top: 15px;\">\n                        <strong>\u2139\ufe0f Entra ID Integration:</strong> Provides enterprise-grade authentication with conditional access, MFA, and Azure RBAC integration. Recommended for production environments.\n                    </div>
                 </div>
 
+                <!-- Arc Gateway & Network Connectivity -->
+                <h3 style="margin-top: 30px; color: var(--primary-color);">🌐 Arc Gateway & Network Connectivity</h3>
+                
+                <div class="config-section-card" style="background: linear-gradient(135deg, #43e97b15 0%, #38f9d715 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div class="info-banner" style="background: #d1ecf1; border-left: 4px solid #0c5460; padding: 12px 15px; margin-bottom: 15px; border-radius: 4px; color: #0c5460;">
+                        <strong>🚀 Arc Gateway Benefits:</strong> Reduces required firewall endpoints from <strong>80+</strong> to <strong>&lt;30</strong>. Simplifies network security, enhances compliance, and provides centralized outbound connectivity management.
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group checkbox-group" style="grid-column: 1 / -1;">
+                            <label>
+                                <input type="checkbox" id="enableArcGateway" onchange="toggleArcGatewayFields()">
+                                <strong>Enable Arc Gateway (Recommended)</strong> - Simplify network configuration and reduce firewall rules
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="arcGatewaySettings" style="display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.5); border-radius: 6px;">
+                        <div class="info-banner" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px 15px; margin-bottom: 15px; border-radius: 4px; color: #856404;">
+                            <strong>⏱️ Gateway Creation Time:</strong> Arc Gateway resource creation typically takes 9-10 minutes, but may take up to 2 hours due to Azure Front Door provisioning. If creation fails, retry after a few hours.
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label for="arcGatewayResourceId">Arc Gateway Resource ID *</label>
+                                <input type="text" id="arcGatewayResourceId" placeholder="/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.HybridCompute/gateways/{gatewayName}">
+                                <small>Your Arc Gateway must be created before deployment. Use the resource ID from Azure portal or CLI.</small>
+                            </div>
+
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label for="arcGatewayUrl">Arc Gateway URL *</label>
+                                <input type="text" id="arcGatewayUrl" placeholder="yourgatewayid.gw.arc.azure.com">
+                                <small>The unique gateway endpoint provided after resource creation (format: {your-id}.gw.arc.azure.com)</small>
+                            </div>
+                        </div>
+
+                        <button type="button" class="toggle-advanced-btn" onclick="toggleAdvancedSection('arcGatewayCommands')" style="margin-top: 10px; background: none; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                            💻 Show Arc Gateway Creation Commands
+                        </button>
+                        
+                        <div id="arcGatewayCommands" class="advanced-section" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                            <h5 style="margin-top: 0; color: var(--primary-color);">Azure CLI Command:</h5>
+                            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 13px;"><code># Install Arc Gateway extension
+az extension add -n arcgateway
+
+# Create Arc Gateway resource
+az arcgateway create \
+  --name "my-arc-gateway" \
+  --resource-group "my-rg" \
+  --location "westeurope" \
+  --gateway-type public \
+  --allowed-features * \
+  --subscription "my-subscription"
+
+# Get gateway URL after creation
+az arcgateway list --resource-group "my-rg" --query "[].{Name:name, URL:gatewayUrl}" -o table</code></pre>
+                            
+                            <h5 style="margin-top: 15px; color: var(--primary-color);">Azure PowerShell Command:</h5>
+                            <pre style="background: #012456; color: #e3e3e3; padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 13px;"><code># Install Arc Gateway module
+Install-Module -Name Az.ArcGateway -Force
+
+# Create Arc Gateway resource
+New-AzArcGateway `
+  -Name "my-arc-gateway" `
+  -ResourceGroupName "my-rg" `
+  -Location "westeurope" `
+  -GatewayType "public" `
+  -AllowedFeatures "*" `
+  -SubscriptionId "my-subscription"
+
+# Get gateway URL
+Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</code></pre>
+                        </div>
+
+                        <div class="info-banner" style="background: #e7f3ff; border-left: 4px solid #2196F3; padding: 12px 15px; margin-top: 15px; border-radius: 4px; color: #0c5460;">
+                            <strong>📖 How Arc Gateway Works:</strong>
+                            <ul style="margin: 8px 0 0 20px; padding: 0;">
+                                <li><strong>Azure Local Cluster IP (Port 40343):</strong> AKS control plane and worker VMs proxy through infrastructure cluster</li>
+                                <li><strong>Arc Proxy:</strong> Runs on each Azure Local node, securely tunnels HTTPS to Azure</li>
+                                <li><strong>Allowed Traffic:</strong> Routed through gateway tunnel; non-allowed traffic goes to enterprise firewall</li>
+                                <li><strong>Traffic Types:</strong> OS, Arc Resource Bridge, AKS clusters, Azure Local VMs all use gateway</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Firewall Requirements -->
+                <h3 style="margin-top: 30px; color: var(--primary-color);">🔥 Firewall Requirements</h3>
+                
+                <div class="config-section-card" style="background: linear-gradient(135deg, #fa709a15 0%, #fee14015 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div class="info-banner" style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 12px 15px; margin-bottom: 15px; border-radius: 4px; color: #721c24;">
+                        <strong>⚠️ Critical:</strong> Ensure all required endpoints are allowed in your firewall/proxy <strong>before</strong> deployment. Missing endpoints will cause deployment or operational failures.
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="azureRegion">Azure Region for Endpoint List *</label>
+                            <select id="azureRegion" onchange="updateFirewallEndpoints()">
+                                <option value="eastus">East US</option>
+                                <option value="westeurope" selected>West Europe</option>
+                                <option value="australiaeast">Australia East</option>
+                                <option value="canadacentral">Canada Central</option>
+                                <option value="indiacentral">India Central</option>
+                                <option value="southeastasia">Southeast Asia</option>
+                                <option value="japaneast">Japan East</option>
+                                <option value="southcentralus">South Central US</option>
+                                <option value="usgovvirginia">US Gov Virginia</option>
+                            </select>
+                            <small>Region-specific endpoints vary. Select your deployment region to see accurate requirements.</small>
+                        </div>
+                    </div>
+
+                    <div id="firewallSummary" style="margin-top: 15px;">
+                        <!-- Dynamically populated by firewall.js -->
+                    </div>
+
+                    <button type="button" class="toggle-advanced-btn" onclick="toggleAdvancedSection('firewallDetails')" style="margin-top: 15px; background: none; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        📋 Show Detailed Endpoint List
+                    </button>
+                    
+                    <div id="firewallDetails" class="advanced-section" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #ccc;">
+                        <!-- Detailed endpoint list will be populated here -->
+                        <p style="color: #666; font-style: italic;">Loading endpoint details...</p>
+                    </div>
+
+                    <div class="info-banner" style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 12px 15px; margin-top: 15px; border-radius: 4px; color: #0c5460;">
+                        <strong>📚 Complete Endpoint Documentation:</strong>
+                        <ul style="margin: 8px 0 0 20px; padding: 0;">
+                            <li><a href="https://learn.microsoft.com/en-us/azure/azure-local/concepts/firewall-requirements?view=azloc-2511" target="_blank" style="color: #0c5460; text-decoration: underline;">Azure Local Firewall Requirements (Official Docs)</a></li>
+                            <li><a href="https://github.com/Azure/AzureStack-Tools/tree/master/HCI" target="_blank" style="color: #0c5460; text-decoration: underline;">Region-Specific Endpoint Lists (GitHub)</a></li>
+                            <li><a href="https://learn.microsoft.com/en-us/azure/aks/aksarc/aks-hci-network-system-requirements" target="_blank" style="color: #0c5460; text-decoration: underline;">AKS Arc Network Requirements</a></li>
+                            <li><a href="https://learn.microsoft.com/en-us/azure/azure-arc/resource-bridge/network-requirements" target="_blank" style="color: #0c5460; text-decoration: underline;">Arc Resource Bridge Network Requirements</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- AKS Separated Subnet Requirements -->
+                    <div id="aksSubnetRequirements" style="display: none; margin-top: 20px; padding: 15px; background: rgba(255,193,7,0.1); border: 2px solid #ffc107; border-radius: 6px;">
+                        <h5 style="margin-top: 0; color: #f57c00;">⚠️ AKS on Separated Subnet - Additional Firewall Rules Required</h5>
+                        <p style="margin-bottom: 12px; color: #555;">
+                            When AKS VMs are on a different subnet than Azure Local infrastructure, you <strong>must</strong> configure firewall rules for cross-VLAN communication:
+                        </p>
+                        
+                        <h6 style="margin-top: 15px; margin-bottom: 8px; color: var(--primary-color);">Required Bidirectional Ports (AKS Subnet ↔ Infrastructure Subnet):</h6>
+                        <ul style="margin: 0 0 15px 20px; padding: 0;">
+                            <li><strong>Port 40343 (TCP):</strong> Arc Gateway proxy communication (HTTP + HTTPS Connect)</li>
+                            <li><strong>Port 55000 (TCP):</strong> Cloud agent gRPC server communication</li>
+                            <li><strong>Port 65000 (TCP):</strong> Cloud agent gRPC authentication</li>
+                            <li><strong>Port 22 (TCP):</strong> SSH access for management and troubleshooting</li>
+                            <li><strong>Port 6443 (TCP):</strong> Kubernetes API Server communication</li>
+                        </ul>
+
+                        <div class="info-banner" style="background: #fff3cd; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                            <small><strong>💡 Important:</strong> Even with Arc Gateway enabled, AKS on a separated subnet still requires direct access to some Azure endpoints that cannot use the gateway. See <a href="https://learn.microsoft.com/en-us/azure/aks/aksarc/arc-gateway-aks-arc#confirm-access-to-required-urls" target="_blank" style="color: #856404; text-decoration: underline;">AKS Arc Gateway endpoint list</a> for details.</small>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Monitoring & Observability -->
                 <h3 style="margin-top: 30px; color: var(--primary-color);">📊 Monitoring & Observability</h3>
                 <p style="margin-bottom: 20px;">Configure monitoring, logging, and alerting for your cluster.</p>
@@ -774,6 +931,83 @@
 
                 <div class="plan-summary" id="planSummary"></div>
 
+                <!-- Network Architecture Diagram -->
+                <div class="network-diagram-section" id="networkDiagramSection" style="display: none; margin: 30px 0; padding: 25px; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 8px;">
+                    <h3 style="margin-top: 0; color: var(--primary-color);">🌐 Network Architecture & Traffic Flows</h3>
+                    <p style="color: #666; margin-bottom: 20px;">
+                        Understanding how your deployment communicates with Azure is critical for firewall configuration and troubleshooting.
+                    </p>
+
+                    <div id="networkDiagram" style="background: white; border-radius: 6px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <!-- Network diagram will be rendered here -->
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 20px;">
+                        <div style="background: #fff; padding: 15px; border-radius: 6px; border-left: 4px solid #3498db;">
+                            <h5 style="margin: 0 0 8px 0; color: #3498db;">🔵 OS Traffic Bypass</h5>
+                            <p style="margin: 0; font-size: 13px; color: #666;">
+                                Node-to-node, cluster internal, intranet traffic - bypasses proxy entirely
+                            </p>
+                        </div>
+                        
+                        <div style="background: #fff; padding: 15px; border-radius: 6px; border-left: 4px solid #f39c12;">
+                            <h5 style="margin: 0 0 8px 0; color: #f39c12;">🟡 HTTP via Enterprise Proxy</h5>
+                            <p style="margin: 0; font-size: 13px; color: #666;">
+                                Windows Update, CRLs - routed to your firewall/proxy (Arc Gateway does NOT support HTTP)
+                            </p>
+                        </div>
+                        
+                        <div style="background: #fff; padding: 15px; border-radius: 6px; border-left: 4px solid #27ae60;">
+                            <h5 style="margin: 0 0 8px 0; color: #27ae60;">🟢 HTTPS via Arc Proxy</h5>
+                            <p style="margin: 0; font-size: 13px; color: #666;">
+                                Allowed Azure endpoints - tunneled securely through Arc Gateway
+                            </p>
+                        </div>
+                        
+                        <div style="background: #fff; padding: 15px; border-radius: 6px; border-left: 4px solid #e74c3c;">
+                            <h5 style="margin: 0 0 8px 0; color: #e74c3c;">🔴 Third-Party HTTPS</h5>
+                            <p style="margin: 0; font-size: 13px; color: #666;">
+                                OEM endpoints, hardware vendors - redirected to your firewall (not Arc Gateway)
+                            </p>
+                        </div>
+                        
+                        <div style="background: #fff; padding: 15px; border-radius: 6px; border-left: 4px solid #9b59b6;">
+                            <h5 style="margin: 0 0 8px 0; color: #9b59b6;">🟣 Arc Resource Bridge</h5>
+                            <p style="margin: 0; font-size: 13px; color: #666;">
+                                ARB appliance VM uses Cluster IP proxy (port 40343) → Arc Gateway tunnel
+                            </p>
+                        </div>
+                        
+                        <div style="background: #fff; padding: 15px; border-radius: 6px; border-left: 4px solid #16a085;">
+                            <h5 style="margin: 0 0 8px 0; color: #16a085;">🔷 AKS Clusters</h5>
+                            <p style="margin: 0; font-size: 13px; color: #666;">
+                                Control plane & worker VMs proxy through Cluster IP (ports 40343, 55000, 65000)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-left: 4px solid #2196F3; border-radius: 4px;">
+                        <h5 style="margin: 0 0 10px 0; color: #1976D2;">📖 Key Ports & Protocols</h5>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #0c5460; line-height: 1.8;">
+                            <li><strong>Port 40343 (TCP):</strong> Arc Gateway proxy communication (HTTP Connect tunnel for HTTPS)</li>
+                            <li><strong>Port 55000 (TCP):</strong> Cloud agent gRPC server (Azure Local → AKS communication)</li>
+                            <li><strong>Port 65000 (TCP):</strong> Cloud agent gRPC authentication</li>
+                            <li><strong>Port 22 (TCP):</strong> SSH for AKS management (if separated subnet)</li>
+                            <li><strong>Port 6443 (TCP):</strong> Kubernetes API Server (if separated subnet)</li>
+                            <li><strong>Port 443 (TCP):</strong> HTTPS for all Azure service endpoints</li>
+                            <li><strong>Port 80 (TCP/HTTP):</strong> Windows Update, CRL checks (not via Arc Gateway)</li>
+                            <li><strong>Port 123 (UDP):</strong> NTP time synchronization</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+                        <strong>📚 Complete Documentation:</strong> For detailed traffic flow diagrams, subnet separation requirements, and troubleshooting guidance, see:
+                        <a href="https://github.com/Azure/AzureLocal-Supportability/blob/main/TSG/Networking/Arc-Gateway-Outbound-Connectivity/DeepDive-ArcGateway-Outbound-Traffic.md" target="_blank" style="color: #856404; text-decoration: underline; font-weight: bold;">
+                            Arc Gateway Outbound Connectivity Deep Dive
+                        </a>
+                    </div>
+                </div>
+
                 <div class="export-section">
                     <h3>Export Templates</h3>
                     <div class="button-group">
@@ -826,13 +1060,14 @@
 
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="js/security.js?v=180120"></script>
-    <script src="js/compliance.js?v=180123"></script>
-    <script src="js/compliance-report.js?v=180123"></script>
-    <script src="js/presets.js?v=180123"></script>
-    <script src="js/cost-calculator.js?v=180123"></script>
-    <script src="js/planner.js?v=180123"></script>
-    <script src="js/generator.js?v=180123"></script>
-    <script src="js/app.js?v=180123"></script>
+    <script src="js/security.js?v=180124"></script>
+    <script src="js/compliance.js?v=180124"></script>
+    <script src="js/compliance-report.js?v=180124"></script>
+    <script src="js/presets.js?v=180124"></script>
+    <script src="js/cost-calculator.js?v=180124"></script>
+    <script src="js/firewall.js?v=180124"></script>
+    <script src="js/planner.js?v=180124"></script>
+    <script src="js/generator.js?v=180124"></script>
+    <script src="js/app.js?v=180124"></script>
 </body>
 </html>

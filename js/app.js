@@ -602,6 +602,14 @@ function generatePlan() {
         enableNetworkPolicy: document.getElementById('enableNetworkPolicy')?.checked || false,
         enablePrivateCluster: document.getElementById('enablePrivateCluster')?.checked || false,
         
+        // Arc Gateway configuration
+        enableArcGateway: document.getElementById('enableArcGateway')?.checked || false,
+        arcGatewayResourceId: document.getElementById('arcGatewayResourceId')?.value || '',
+        arcGatewayUrl: document.getElementById('arcGatewayUrl')?.value || '',
+        
+        // Firewall configuration
+        azureRegion: document.getElementById('azureRegion')?.value || 'westeurope',
+        
         // Storage configuration
         defaultStorageClass: document.getElementById('defaultStorageClass')?.value || 'local-path',
         enableVolumeEncryption: document.getElementById('enableVolumeEncryption')?.checked || false,
@@ -690,6 +698,9 @@ function generatePlan() {
         displaySecurityScore(securityResult);
         displayValidationResults(deploymentPlan.validation);
         displayPlanSummary(deploymentPlan);
+        
+        // Show network diagram if Arc Gateway is enabled
+        displayNetworkDiagram(deploymentPlan);
         
         // Remove loading state
         if (generateBtn) {
@@ -847,6 +858,36 @@ function displayPlanSummary(plan) {
     html += `<tr><td>Availability Sets:</td><td>Enabled (${availabilitySetConfig.faultDomains} physical hosts)</td></tr>`;
     html += '</table>';
     html += '</div>';
+
+    // Arc Gateway & Firewall Configuration
+    if (plan.arcGatewayConfig || plan.firewallConfig) {
+        html += '<div class="summary-section" style="background: linear-gradient(135deg, #43e97b15 0%, #38f9d715 100%);">';
+        html += '<h4>🌐 Network Connectivity</h4>';
+        html += '<table class="summary-table">';
+        
+        if (plan.arcGatewayConfig) {
+            html += `<tr><td>Arc Gateway:</td><td><strong style="color: ${plan.arcGatewayConfig.enabled ? '#28a745' : '#dc3545'};">${plan.arcGatewayConfig.enabled ? '✅ Enabled' : '❌ Not Enabled'}</strong></td></tr>`;
+            if (plan.arcGatewayConfig.enabled) {
+                html += `<tr><td>Gateway URL:</td><td>${plan.arcGatewayConfig.gatewayUrl || 'Not specified'}</td></tr>`;
+                html += `<tr><td>Endpoint Reduction:</td><td><strong style="color: #28a745;">${plan.arcGatewayConfig.endpointReduction}</strong></td></tr>`;
+            }
+        }
+        
+        if (plan.firewallConfig) {
+            html += `<tr><td>Azure Region:</td><td>${plan.firewallConfig.regionName}</td></tr>`;
+            html += `<tr><td>Required Endpoints:</td><td><strong>${plan.firewallConfig.totalEndpoints}</strong> ${plan.arcGatewayConfig?.enabled ? '(with Arc Gateway)' : '(without Arc Gateway)'}</td></tr>`;
+            html += `<tr><td>Endpoint Documentation:</td><td><a href="${plan.firewallConfig.documentationUrl}" target="_blank" style="color: var(--primary-color); text-decoration: underline;">View Complete List</a></td></tr>`;
+        }
+        
+        html += '</table>';
+        
+        // Show network diagram link
+        html += '<div style="margin-top: 12px; padding: 10px; background: rgba(33, 150, 243, 0.1); border-left: 3px solid #2196F3; border-radius: 4px;">';
+        html += '<small><strong>💡 Tip:</strong> Scroll down to view the <strong>Network Architecture & Traffic Flows</strong> diagram for detailed connectivity information.</small>';
+        html += '</div>';
+        
+        html += '</div>';
+    }
 
     // Node pools
     html += '<div class="summary-section">';
@@ -1293,5 +1334,131 @@ function setTheme(theme) {
     } else {
         icon.textContent = '🌙';
         label.textContent = 'Dark';
+    }
+}
+
+/**
+ * Display network architecture diagram
+ */
+function displayNetworkDiagram(plan) {
+    const diagramSection = document.getElementById('networkDiagramSection');
+    const diagramContainer = document.getElementById('networkDiagram');
+    
+    // Show diagram section if Arc Gateway is enabled or firewall config exists
+    if (plan.arcGatewayConfig || plan.firewallConfig) {
+        diagramSection.style.display = 'block';
+        
+        // Create simplified network diagram using HTML/CSS
+        const arcGatewayEnabled = plan.arcGatewayConfig?.enabled || false;
+        const regionName = plan.firewallConfig?.regionName || 'West Europe';
+        const totalEndpoints = plan.firewallConfig?.totalEndpoints || '80+';
+        
+        let html = `
+            <div style="text-align: center; padding: 20px;">
+                <h4 style="margin-bottom: 20px; color: var(--primary-color);">Azure Local + AKS Arc → Azure Connectivity</h4>
+                
+                <!-- Visual Flow Diagram -->
+                <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;">
+                    <!-- Azure Local Cluster -->
+                    <div style="flex: 0 0 180px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🏢</div>
+                        <div style="font-weight: bold; margin-bottom: 4px;">Azure Local Cluster</div>
+                        <div style="font-size: 11px; opacity: 0.9;">Nodes + AKS VMs + ARB</div>
+                    </div>
+                    
+                    <!-- Arrow -->
+                    <div style="font-size: 32px; color: #666;">→</div>
+                    
+                    <!-- Arc Proxy/Gateway (if enabled) -->
+                    ${arcGatewayEnabled ? `
+                    <div style="flex: 0 0 180px; padding: 20px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🚪</div>
+                        <div style="font-weight: bold; margin-bottom: 4px;">Arc Gateway</div>
+                        <div style="font-size: 11px; opacity: 0.9;">Port 40343 Tunnel</div>
+                    </div>
+                    
+                    <div style="font-size: 32px; color: #28a745;">→</div>
+                    ` : `
+                    <div style="flex: 0 0 180px; padding: 20px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🔥</div>
+                        <div style="font-weight: bold; margin-bottom: 4px;">Enterprise Firewall</div>
+                        <div style="font-size: 11px; opacity: 0.9;">${totalEndpoints} Endpoints</div>
+                    </div>
+                    
+                    <div style="font-size: 32px; color: #dc3545;">→</div>
+                    `}
+                    
+                    <!-- Azure Cloud -->
+                    <div style="flex: 0 0 180px; padding: 20px; background: linear-gradient(135deg, #0078D4 0%, #00BCF2 100%); color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <div style="font-size: 32px; margin-bottom: 8px;">☁️</div>
+                        <div style="font-weight: bold; margin-bottom: 4px;">Azure Cloud</div>
+                        <div style="font-size: 11px; opacity: 0.9;">${regionName}</div>
+                    </div>
+                </div>
+                
+                <!-- Key Statistics -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div style="padding: 15px; background: ${arcGatewayEnabled ? '#d4edda' : '#fff3cd'}; border-left: 4px solid ${arcGatewayEnabled ? '#28a745' : '#ffc107'}; border-radius: 4px; text-align: left;">
+                        <div style="font-size: 24px; font-weight: bold; color: ${arcGatewayEnabled ? '#155724' : '#856404'}; margin-bottom: 4px;">
+                            ${totalEndpoints}
+                        </div>
+                        <div style="font-size: 13px; color: #666;">
+                            Firewall Endpoints Required
+                        </div>
+                    </div>
+                    
+                    ${arcGatewayEnabled ? `
+                    <div style="padding: 15px; background: #d4edda; border-left: 4px solid #28a745; border-radius: 4px; text-align: left;">
+                        <div style="font-size: 24px; font-weight: bold; color: #155724; margin-bottom: 4px;">
+                            ~65%
+                        </div>
+                        <div style="font-size: 13px; color: #666;">
+                            Endpoint Reduction with Gateway
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div style="padding: 15px; background: #e3f2fd; border-left: 4px solid #2196F3; border-radius: 4px; text-align: left;">
+                        <div style="font-size: 24px; font-weight: bold; color: #1976D2; margin-bottom: 4px;">
+                            ${plan.clusterConfig.nodePools.reduce((sum, pool) => sum + pool.nodeCount, 0)}
+                        </div>
+                        <div style="font-size: 13px; color: #666;">
+                            AKS Nodes Connecting to Azure
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Traffic Flow Explanation -->
+                <div style="margin-top: 25px; text-align: left; padding: 15px; background: rgba(255,255,255,0.8); border-radius: 6px; border: 1px solid #ddd;">
+                    <h5 style="margin-top: 0; color: var(--primary-color); margin-bottom: 12px;">📊 Traffic Flow Summary:</h5>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #555;">
+                        ${arcGatewayEnabled ? `
+                        <li><strong>✅ HTTPS via Arc Gateway:</strong> Most Azure endpoints (ARM, Key Vault, Arc services) tunnel securely through gateway</li>
+                        <li><strong>⚠️ HTTP via Firewall:</strong> Windows Update, CRLs still require direct firewall access (Arc Gateway doesn't support HTTP)</li>
+                        <li><strong>🔒 AKS Clusters:</strong> Control plane and worker VMs proxy through Cluster IP (port 40343) to Arc Gateway</li>
+                        <li><strong>🔄 Arc Resource Bridge:</strong> Uses Cluster IP as proxy for all Azure connectivity</li>
+                        ` : `
+                        <li><strong>🔓 All Traffic via Firewall:</strong> Every endpoint (80+) must be explicitly allowed in firewall rules</li>
+                        <li><strong>⚠️ Management Overhead:</strong> Maintaining firewall rules for all Azure services, Arc agents, AKS, ARB</li>
+                        <li><strong>💡 Recommendation:</strong> Enable Arc Gateway to reduce endpoints by ~65% and simplify management</li>
+                        `}
+                        <li><strong>🌐 Required Ports:</strong> 40343 (Arc Gateway), 55000/65000 (gRPC), 443 (HTTPS), 80 (HTTP), 123 (NTP)</li>
+                    </ul>
+                </div>
+                
+                ${!arcGatewayEnabled ? `
+                <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px; text-align: left;">
+                    <strong>💡 Consider enabling Arc Gateway:</strong> Reduce required endpoints from ${totalEndpoints} to <30, simplify firewall management, and improve security posture.
+                    <a href="#" onclick="document.getElementById('step2').scrollIntoView({behavior: 'smooth'}); return false;" style="color: #856404; text-decoration: underline; font-weight: bold;">
+                        Go back to configure Arc Gateway
+                    </a>
+                </div>
+                ` : ''}
+            </div>
+        `;
+        
+        diagramContainer.innerHTML = html;
+    } else {
+        diagramSection.style.display = 'none';
     }
 }
