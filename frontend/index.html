@@ -10,6 +10,10 @@
 <body>
     <div class="container">
         <header>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                <span class="icon" id="themeIcon">🌙</span>
+                <span id="themeLabel">Dark</span>
+            </button>
             <h1>🚀 AKS Arc Deployment Tool</h1>
             <p class="subtitle">Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511</p>
         </header>
@@ -116,16 +120,14 @@
                         <input type="number" id="gpuCount" min="1" max="8" value="1">
                     </div>
 
-                    <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" id="enableRackAwareness" checked>
-                            Enable Rack Awareness
-                        </label>
+                    <div class="info-banner" style="background: #e3f2fd; padding: 12px; border-radius: 4px; margin: 16px 0;">
+                        <strong>ℹ️ High Availability:</strong> Availability sets are enabled by default in AKS Arc. VMs automatically spread across physical hosts with anti-affinity rules.
                     </div>
 
-                    <div class="form-group" id="rackCountGroup">
-                        <label for="rackCount">Rack Count</label>
-                        <input type="number" id="rackCount" min="1" max="16" value="3">
+                    <div class="form-group">
+                        <label for="physicalHostCount">Physical Host Count</label>
+                        <input type="number" id="physicalHostCount" min="2" max="16" value="3">
+                        <small>Number of physical hosts in your Azure Local cluster</small>
                     </div>
                 </div>
 

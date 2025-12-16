@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadCatalog();
     initializeEventListeners();
     updateCatalogBanner();
+    initializeTheme();
 });
 
 /**
@@ -224,10 +225,8 @@ function generatePlan() {
         memoryGb: parseInt(document.getElementById('memoryGb').value),
         gpuRequired: document.getElementById('gpuRequired').checked,
         gpuCount: parseInt(document.getElementById('gpuCount').value) || 0,
-        enableRackAwareness: document.getElementById('enableRackAwareness').checked,
-        rackCount: document.getElementById('enableRackAwareness').checked 
-            ? parseInt(document.getElementById('rackCount').value) 
-            : null
+        enableAvailabilitySets: true, // Always enabled by default in AKS Arc
+        physicalHostCount: parseInt(document.getElementById('physicalHostCount').value) || 2
     };
 
     // Create plan
@@ -284,7 +283,7 @@ function displayValidationResults(validation) {
  */
 function displayPlanSummary(plan) {
     const container = document.getElementById('planSummary');
-    const { clusterConfig, rackTopology } = plan;
+    const { clusterConfig, availabilitySetConfig } = plan;
 
     let html = '<div class="summary-grid">';
     
@@ -297,7 +296,7 @@ function displayPlanSummary(plan) {
     html += `<tr><td>Location:</td><td>${clusterConfig.location}</td></tr>`;
     html += `<tr><td>K8s Version:</td><td>${clusterConfig.kubernetesVersion}</td></tr>`;
     html += `<tr><td>Control Plane:</td><td>${clusterConfig.controlPlaneCount} node(s)</td></tr>`;
-    html += `<tr><td>Rack Awareness:</td><td>${clusterConfig.enableRackAwareness ? `Enabled (${clusterConfig.rackCount} racks)` : 'Disabled'}</td></tr>`;
+    html += `<tr><td>Availability Sets:</td><td>Enabled (${availabilitySetConfig.faultDomains} physical hosts)</td></tr>`;
     html += '</table>';
     html += '</div>';
 
@@ -381,8 +380,7 @@ function startOver() {
     document.getElementById('memoryGb').value = '32';
     document.getElementById('gpuRequired').checked = false;
     document.getElementById('gpuCount').value = '1';
-    document.getElementById('enableRackAwareness').checked = true;
-    document.getElementById('rackCount').value = '3';
+    document.getElementById('physicalHostCount').value = '3';
     document.getElementById('gpuCountGroup').style.display = 'none';
     
     selectedWorkload = null;
@@ -398,10 +396,57 @@ function showAbout() {
 A production-grade tool for planning and generating deployment artifacts for Azure Kubernetes Service on Azure Local 2511.
 
 Features:
-• Rack-aware topology planning
+• Availability set configuration with anti-affinity rules
 • GPU workload support
 • Bicep, ARM, and Terraform export
 • Client-side processing (no backend required)
+• Dark/Light theme
 
 GitHub: https://github.com/smitzlroy/aksarcdeployment`);
+}
+
+/**
+ * Initialize theme from localStorage or system preference
+ */
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+    setTheme(theme);
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) {
+            setTheme(e.matches ? 'dark' : 'light');
+        }
+    });
+}
+
+/**
+ * Toggle between light and dark theme
+ */
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+}
+
+/**
+ * Set theme and update UI
+ */
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    
+    if (theme === 'dark') {
+        icon.textContent = '☀️';
+        label.textContent = 'Light';
+    } else {
+        icon.textContent = '🌙';
+        label.textContent = 'Dark';
+    }
 }

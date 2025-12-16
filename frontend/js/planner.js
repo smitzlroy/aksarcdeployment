@@ -21,8 +21,8 @@ class AKSArcPlanner {
             memoryGb,
             gpuRequired,
             gpuCount,
-            enableRackAwareness,
-            rackCount
+            enableAvailabilitySets,
+            physicalHostCount
         } = config;
 
         // Select Kubernetes version
@@ -40,16 +40,14 @@ class AKSArcPlanner {
             workloadType
         });
 
-        // Generate rack topology if enabled
-        const rackTopology = enableRackAwareness && rackCount 
-            ? this.generateRackTopology(rackCount, nodePools)
-            : null;
+        // Generate availability set configuration (enabled by default in AKS Arc)
+        const availabilitySetConfig = this.generateAvailabilitySetConfig(physicalHostCount, nodePools);
 
         // Validate the plan
         const validation = this.validatePlan({
             controlPlaneCount,
             nodePools,
-            rackCount
+            physicalHostCount
         });
 
         return {
@@ -61,12 +59,12 @@ class AKSArcPlanner {
                 kubernetesVersion: k8sVersion,
                 controlPlaneCount,
                 nodePools,
-                enableRackAwareness,
-                rackCount,
+                enableAvailabilitySets: true, // Always enabled by default in AKS Arc
+                physicalHostCount,
                 networkPlugin: 'azure',
                 loadBalancerSku: 'Standard'
             },
-            rackTopology,
+            availabilitySetConfig,
             validation,
             timestamp: new Date().toISOString()
         };
@@ -156,33 +154,64 @@ class AKSArcPlanner {
     }
 
     /**
-     * Generate rack-aware topology
+     * Generate availability set configuration
+     * AKS Arc automatically creates availability sets for control plane and each node pool
+     * VMs are spread across physical hosts using anti-affinity rules
      */
-    generateRackTopology(rackCount, nodePools) {
-        const topologies = [];
-        
-        for (let i = 0; i < rackCount; i++) {
-            const rackId = `rack-${i + 1}`;
-            const faultDomain = `fd-${i + 1}`;
-            
-            topologies.push({
-                rackId,
-                faultDomain,
-                nodeLabels: {
-                    'topology.kubernetes.io/zone': faultDomain,
-                    'rack': rackId
-                },
-                spreadConstraints: [
-                    {
-                        maxSkew: 1,
-                        topologyKey: 'topology.kubernetes.io/zone',
-                        whenUnsatisfiable: 'DoNotSchedule'
+    generateAvailabilitySetConfig(physicalHostCount, nodePools) {
+        const config = {
+            enabled: true, // Always enabled by default in AKS Arc
+            description: 'Availability sets ensure VMs spread evenly across physical hosts with automatic rebalancing',
+            controlPlaneAvailabilitySet: {
+                name: 'control-plane-as',
+                antiAffinityRule: 'DifferentNode',
+                description: 'Control plane VMs distributed across physical hosts'
+            },
+            nodePoolAvailabilitySets: [],
+            podAntiAffinityRecommendation: {
+                enabled: true,
+                description: 'Use pod anti-affinity rules in workload deployments for additional resilience',
+                example: {
+                    spec: {
+                        affinity: {
+                            podAntiAffinity: {
+                                preferredDuringSchedulingIgnoredDuringExecution: [
+                                    {
+                                        weight: 100,
+                                        podAffinityTerm: {
+                                            labelSelector: {
+                                                matchExpressions: [
+                                                    {
+                                                        key: 'app',
+                                                        operator: 'In',
+                                                        values: ['your-app']
+                                                    }
+                                                ]
+                                            },
+                                            topologyKey: 'kubernetes.io/hostname'
+                                        }
+                                    }
+                                ]
+                            }
+                        }
                     }
-                ]
+                }
+            },
+            physicalHostCount: physicalHostCount || 2,
+            faultDomains: physicalHostCount || 2
+        };
+
+        // Create availability set config for each node pool
+        nodePools.forEach(pool => {
+            config.nodePoolAvailabilitySets.push({
+                nodePoolName: pool.name,
+                availabilitySetName: `${pool.name}-as`,
+                antiAffinityRule: 'DifferentNode',
+                description: `VMs in ${pool.name} distributed across ${config.faultDomains} physical hosts`
             });
-        }
+        });
         
-        return topologies;
+        return config;
     }
 
     /**
@@ -223,9 +252,12 @@ class AKSArcPlanner {
             warnings.push('Single control plane node is not recommended for production');
         }
 
-        if (plan.rackCount && plan.rackCount < 3) {
-            recommendations.push('Consider using at least 3 racks for better fault tolerance');
+        if (plan.physicalHostCount && plan.physicalHostCount < 3) {
+            recommendations.push('Consider using at least 3 physical hosts for better fault tolerance with availability sets');
         }
+
+        recommendations.push('Availability sets are enabled by default - VMs will automatically spread across physical hosts');
+        recommendations.push('Use pod anti-affinity rules in your workload deployments for additional resilience');
 
         return {
             isValid: errors.length === 0,
