@@ -20,7 +20,7 @@ const ConfigurationPresets = {
             // Storage
             defaultStorageClass: 'smb',
             enableVolumeEncryption: true,
-            enableVolumeSnapshots: true,
+            enableVolumeSnapshots: false,
             storageQuotaGb: 500,
             
             // Identity & Access
@@ -61,7 +61,7 @@ const ConfigurationPresets = {
             // Storage
             defaultStorageClass: 'iscsi',
             enableVolumeEncryption: true,
-            enableVolumeSnapshots: true,
+            enableVolumeSnapshots: false,
             storageQuotaGb: 200,
             
             // Identity & Access
@@ -102,7 +102,7 @@ const ConfigurationPresets = {
             // Storage
             defaultStorageClass: 'local-path',
             enableVolumeEncryption: true,
-            enableVolumeSnapshots: true,
+            enableVolumeSnapshots: false,
             storageQuotaGb: 100,
             
             // Identity & Access
@@ -143,7 +143,7 @@ const ConfigurationPresets = {
             // Storage
             defaultStorageClass: 'iscsi',
             enableVolumeEncryption: true,
-            enableVolumeSnapshots: true,
+            enableVolumeSnapshots: false,
             storageQuotaGb: 1000,
             
             // Identity & Access
@@ -184,7 +184,7 @@ const ConfigurationPresets = {
             // Storage
             defaultStorageClass: 'local-path',
             enableVolumeEncryption: true,
-            enableVolumeSnapshots: true,
+            enableVolumeSnapshots: false,
             storageQuotaGb: 200,
             
             // Identity & Access

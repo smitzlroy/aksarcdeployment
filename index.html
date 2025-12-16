@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
     <title>AKS Arc Deployment Tool</title>
-    <link rel="stylesheet" href="css/style.css?v=180121">
+    <link rel="stylesheet" href="css/style.css?v=180122">
     <link rel="stylesheet" href="css/polish.css?v=180102">
 </head>
 <body>
@@ -253,6 +253,24 @@
             <section class="wizard-step" id="step2">
                 <h2>Step 2: Configure Your Deployment</h2>
                 
+                <!-- Azure Local Prerequisites Banner -->
+                <div class="info-banner" style="background: linear-gradient(135deg, #0078d4 0%, #00bcf2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #0063b1;">
+                    <h3 style="margin: 0 0 10px 0; color: white;">📋 Azure Local Prerequisites</h3>
+                    <p style="margin: 0 0 10px 0; opacity: 0.95;">
+                        <strong>AKS enabled by Azure Arc requires pre-configured Azure Local infrastructure.</strong> Ensure you have:
+                    </p>
+                    <ul style="margin: 0; padding-left: 20px; opacity: 0.95;">
+                        <li><strong>Logical Network:</strong> Created in Azure Local with static IP pool, DNS, and gateway configured</li>
+                        <li><strong>Storage:</strong> Azure Local storage (CSV volumes) configured for SMB/NFS/iSCSI/local-path</li>
+                        <li><strong>Arc Resource Bridge:</strong> Deployed automatically with Azure Local 23H2+</li>
+                        <li><strong>Custom Location:</strong> Created for your Azure Local instance</li>
+                    </ul>
+                    <p style="margin: 10px 0 0 0; font-size: 0.9em; opacity: 0.9;">
+                        📚 <a href="https://learn.microsoft.com/en-us/azure/aks/aksarc/aks-hci-network-system-requirements" target="_blank" style="color: white; text-decoration: underline;">Network Requirements</a> | 
+                        <a href="https://learn.microsoft.com/en-us/azure/azure-local/manage/create-logical-networks" target="_blank" style="color: white; text-decoration: underline;">Create Logical Networks</a>
+                    </p>
+                </div>
+                
                 <!-- Compliance Configuration Presets -->
                 <div class="preset-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
                     <h3 style="margin: 0 0 10px 0; color: white;">⚡ Quick Start: Compliance Configuration Presets</h3>
@@ -352,8 +370,15 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="customLocation">Custom Location *</label>
+                        <label for="customLocation">Custom Location (Azure Local) *</label>
                         <input type="text" id="customLocation" placeholder="arc-custom-location" required>
+                        <small>Created automatically when Azure Local deployed</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="logicalNetwork">Logical Network Name *</label>
+                        <input type="text" id="logicalNetwork" placeholder="aks-logical-network" required>
+                        <small>Pre-configured Azure Local logical network (static IPs)</small>
                     </div>
 
                     <div class="form-group" id="cpuGroup">
@@ -393,6 +418,10 @@
                 <h3 style="margin-top: 30px; color: var(--primary-color);">🌐 Network Configuration</h3>
                 
                 <div class="config-section-card" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div class="info-banner" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px 15px; margin-bottom: 15px; border-radius: 4px; color: #856404;">
+                        <strong>⚠️ Azure Local Networking:</strong> IPs are allocated from the logical network configured in Azure Local. Ensure sufficient static IP pool for nodes + control plane VIP.
+                    </div>
+                    
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="networkPlugin">Network Plugin (CNI) *</label>
@@ -464,29 +493,35 @@
                 <h3 style="margin-top: 30px; color: var(--primary-color);">💾 Storage Configuration</h3>
                 
                 <div class="config-section-card" style="background: linear-gradient(135deg, #f093fb15 0%, #f5576c15 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div class="info-banner" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px 15px; margin-bottom: 15px; border-radius: 4px; color: #856404;">
+                        <strong>⚠️ Azure Local Storage:</strong> Persistent volumes use Azure Local Cluster Shared Volumes (CSV). Ensure storage is configured in Azure Local before deployment.
+                    </div>
+                    
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="defaultStorageClass">Default Storage Class *</label>
+                            <label for="defaultStorageClass">Storage Class (Azure Local CSV) *</label>
                             <select id="defaultStorageClass">
-                                <option value="local-path">Local Path (Node Storage)</option>
-                                <option value="smb">SMB (Windows File Shares)</option>
-                                <option value="nfs">NFS (Network File System)</option>
-                                <option value="iscsi">iSCSI (Block Storage)</option>
+                                <option value="local-path">Local Path (Node-local storage)</option>
+                                <option value="smb">SMB (Azure Local file shares)</option>
+                                <option value="nfs">NFS (Azure Local NFS export)</option>
+                                <option value="iscsi">iSCSI (Azure Local block storage)</option>
                             </select>
+                            <small>Backed by Azure Local Cluster Shared Volumes</small>
                         </div>
 
                         <div class="form-group checkbox-group" style="grid-column: 1 / -1;">
                             <label>
                                 <input type="checkbox" id="enableVolumeEncryption" checked>
-                                <strong>Volume Encryption at Rest</strong> - Required for compliance (PCI DSS, HIPAA)
+                                <strong>Volume Encryption at Rest</strong> - BitLocker encryption on Azure Local CSV
                             </label>
                         </div>
 
                         <div class="form-group checkbox-group" style="grid-column: 1 / -1;">
                             <label>
-                                <input type="checkbox" id="enableVolumeSnapshots" checked>
-                                <strong>Volume Snapshots</strong> - Backup and disaster recovery via CSI
+                                <input type="checkbox" id="enableVolumeSnapshots" disabled>
+                                <strong>Volume Snapshots</strong> - ⏳ Coming soon (roadmap feature)
                             </label>
+                            <small style="display: block; margin-top: 5px; color: #666;">CSI snapshot support is not yet available in AKS Arc. Use Azure Local VSS snapshots for backup.</small>
                         </div>
                     </div>
 
@@ -777,12 +812,12 @@
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="js/security.js?v=180120"></script>
-    <script src="js/compliance.js?v=180121"></script>
-    <script src="js/compliance-report.js?v=180121"></script>
-    <script src="js/presets.js?v=180121"></script>
-    <script src="js/cost-calculator.js?v=180121"></script>
-    <script src="js/planner.js?v=180121"></script>
-    <script src="js/generator.js?v=180121"></script>
-    <script src="js/app.js?v=180121"></script>
+    <script src="js/compliance.js?v=180122"></script>
+    <script src="js/compliance-report.js?v=180122"></script>
+    <script src="js/presets.js?v=180122"></script>
+    <script src="js/cost-calculator.js?v=180122"></script>
+    <script src="js/planner.js?v=180122"></script>
+    <script src="js/generator.js?v=180122"></script>
+    <script src="js/app.js?v=180122"></script>
 </body>
 </html>

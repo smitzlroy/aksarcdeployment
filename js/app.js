@@ -583,6 +583,7 @@ function generatePlan() {
         resourceGroup,
         location: document.getElementById('location').value,
         customLocation,
+        logicalNetwork: document.getElementById('logicalNetwork')?.value || '',
         cpuCores: parseInt(document.getElementById('cpuCores').value),
         memoryGb: parseInt(document.getElementById('memoryGb').value),
         gpuRequired: document.getElementById('gpuRequired').checked,
