@@ -484,23 +484,31 @@ function previousStep() {
  * Generate deployment plan
  */
 function generatePlan() {
-    console.log('=== Generate Plan Clicked ===');
-    console.log('Selected Industry:', selectedIndustry);
-    console.log('Selected Environment:', selectedEnvironment);
-    console.log('Selected Solution:', selectedSolution);
-    console.log('Selected Workload:', selectedWorkload);
-    console.log('Planner available:', !!planner);
-    console.log('Catalog available:', !!catalog);
-    console.log('SecurityValidator available:', !!securityValidator);
-    console.log('ComplianceAnalyzer available:', typeof ComplianceAnalyzer !== 'undefined');
-    
-    // Validate required fields
-    const clusterName = document.getElementById('clusterName').value.trim();
-    const resourceGroup = document.getElementById('resourceGroup').value.trim();
-    const customLocation = document.getElementById('customLocation').value.trim();
-    
-    if (!clusterName || !resourceGroup || !customLocation) {
-        alert('Please fill in all required fields (Cluster Name, Resource Group, Custom Location)');
+    try {
+        console.log('=== Generate Plan Clicked ===');
+        console.log('Selected Industry:', selectedIndustry);
+        console.log('Selected Environment:', selectedEnvironment);
+        console.log('Selected Solution:', selectedSolution);
+        console.log('Selected Workload:', selectedWorkload);
+        console.log('Planner available:', !!planner);
+        console.log('Catalog available:', !!catalog);
+        console.log('SecurityValidator available:', !!securityValidator);
+        console.log('ComplianceAnalyzer available:', typeof ComplianceAnalyzer !== 'undefined');
+        
+        // Validate required fields
+        const clusterName = document.getElementById('clusterName').value.trim();
+        const resourceGroup = document.getElementById('resourceGroup').value.trim();
+        const customLocation = document.getElementById('customLocation').value.trim();
+        
+        console.log('Form values - Cluster:', clusterName, 'RG:', resourceGroup, 'CL:', customLocation);
+        
+        if (!clusterName || !resourceGroup || !customLocation) {
+            alert('Please fill in all required fields (Cluster Name, Resource Group, Custom Location)');
+            return;
+        }
+    } catch (error) {
+        console.error('ERROR in generatePlan (early):', error);
+        alert('An error occurred at the start of generatePlan: ' + error.message);
         return;
     }
 
@@ -586,12 +594,19 @@ function generatePlan() {
     }
     
     // Display results (these always run)
-    displaySecurityScore(securityResult);
-    displayValidationResults(deploymentPlan.validation);
-    displayPlanSummary(deploymentPlan);
-    
-    // Move to next step
-    nextStep();
+    try {
+        displaySecurityScore(securityResult);
+        displayValidationResults(deploymentPlan.validation);
+        displayPlanSummary(deploymentPlan);
+        
+        // Move to next step
+        nextStep();
+        console.log('✅ Generate Plan completed successfully');
+    } catch (error) {
+        console.error('ERROR in generatePlan (display):', error);
+        alert('An error occurred while displaying results: ' + error.message + '\n\nCheck the console for details.');
+        throw error;
+    }
 }
 
 /**
