@@ -105,8 +105,7 @@ class ComplianceReportGenerator {
         this.addHeadersAndFooters(doc);
 
         // Save PDF
-        const clusterName = deploymentPlan.clusterConfig?.clusterName || deploymentPlan.clusterName || 'AKSArc';
-        const fileName = `Compliance_Attestation_${clusterName}_${this.getDateString()}.pdf`;
+        const fileName = `Compliance_Attestation_${this.reportData.clusterName}_${this.getDateString()}.pdf`;
         doc.save(fileName);
 
         console.log('✅ Compliance attestation report generated:', fileName);
