@@ -863,8 +863,9 @@ async function downloadComplianceReport() {
 
     try {
         // Check if ComplianceReportGenerator is available
-        if (typeof ComplianceReportGenerator === 'undefined') {
+        if (typeof ComplianceReportGenerator === 'undefined' || typeof window.ComplianceReportGenerator === 'undefined') {
             console.error('ComplianceReportGenerator not loaded');
+            console.log('Available globals:', Object.keys(window).filter(k => k.includes('Compliance')));
             alert('Compliance report generator not available. Please refresh the page and try again.');
             return;
         }
@@ -897,7 +898,7 @@ async function downloadComplianceReport() {
         });
 
         // Generate report
-        const generator = new ComplianceReportGenerator();
+        const generator = new window.ComplianceReportGenerator();
         const filename = await generator.generateReport(
             deploymentPlan,
             securityResult,
