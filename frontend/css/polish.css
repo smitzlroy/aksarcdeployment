@@ -1,0 +1,222 @@
+/* Additional UI Polish and Loading States */
+
+/* Button Loading State */
+.btn.loading {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+}
+
+.btn.loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spinner 0.6s linear infinite;
+}
+
+@keyframes spinner {
+    to {transform: rotate(360deg);}
+}
+
+/* Smooth Transitions */
+.wizard-step {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.wizard-step:not(.active) {
+    opacity: 0;
+    transform: translateX(-20px);
+    pointer-events: none;
+}
+
+.wizard-step.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Card Hover Effects */
+.card, .solution-card, .env-card, .industry-card {
+    transition: all 0.2s ease;
+}
+
+.card:hover, .solution-card:hover, .env-card:hover, .industry-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card:active, .solution-card:active, .env-card:active, .industry-card:active {
+    transform: translateY(-2px);
+}
+
+/* Selection Animation */
+.card.selected, .solution-card.selected, .env-card.selected, .industry-card.selected {
+    animation: selectPulse 0.3s ease;
+}
+
+@keyframes selectPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Input Focus States */
+input:focus, select:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-color: var(--primary-color);
+}
+
+/* Error State Animation */
+.form-error {
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* Success Checkmark Animation */
+.success-checkmark {
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Progress Indicator */
+.step-progress {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.step-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.step-indicator.active {
+    background: var(--primary-color);
+    transform: scale(1.3);
+}
+
+.step-indicator.completed {
+    background: var(--success-color);
+}
+
+/* Tooltip Enhancement */
+[title] {
+    position: relative;
+}
+
+/* Improved Disabled State */
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spinner 0.8s linear infinite;
+}
+
+/* Form Validation Visual Feedback */
+input.valid {
+    border-color: var(--success-color);
+}
+
+input.invalid {
+    border-color: var(--error-color);
+}
+
+/* Badge Pulse Animation */
+.badge-new {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* Smooth Panel Expansion */
+.panel-expandable {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out;
+}
+
+.panel-expandable.expanded {
+    max-height: 2000px;
+}
+
+/* Dark Mode Transition */
+* {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Skip transitions for certain elements */
+.no-transition,
+.no-transition * {
+    transition: none !important;
+}

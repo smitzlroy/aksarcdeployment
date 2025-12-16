@@ -484,7 +484,17 @@ function previousStep() {
  * Generate deployment plan
  */
 function generatePlan() {
+    // Get button and add loading state
+    const generateBtn = event?.target || document.querySelector('button[onclick="generatePlan()"]');
+    const originalText = generateBtn?.textContent;
+    
     try {
+        // Add loading state
+        if (generateBtn) {
+            generateBtn.classList.add('loading');
+            generateBtn.disabled = true;
+        }
+        
         console.log('=== Generate Plan Clicked ===');
         console.log('Selected Industry:', selectedIndustry);
         console.log('Selected Environment:', selectedEnvironment);
@@ -503,11 +513,21 @@ function generatePlan() {
         console.log('Form values - Cluster:', clusterName, 'RG:', resourceGroup, 'CL:', customLocation);
         
         if (!clusterName || !resourceGroup || !customLocation) {
+            // Remove loading state before showing alert
+            if (generateBtn) {
+                generateBtn.classList.remove('loading');
+                generateBtn.disabled = false;
+            }
             alert('Please fill in all required fields (Cluster Name, Resource Group, Custom Location)');
             return;
         }
     } catch (error) {
         console.error('ERROR in generatePlan (early):', error);
+        // Remove loading state
+        if (generateBtn) {
+            generateBtn.classList.remove('loading');
+            generateBtn.disabled = false;
+        }
         alert('An error occurred at the start of generatePlan: ' + error.message);
         return;
     }
@@ -599,11 +619,22 @@ function generatePlan() {
         displayValidationResults(deploymentPlan.validation);
         displayPlanSummary(deploymentPlan);
         
+        // Remove loading state
+        if (generateBtn) {
+            generateBtn.classList.remove('loading');
+            generateBtn.disabled = false;
+        }
+        
         // Move to next step
         nextStep();
         console.log('✅ Generate Plan completed successfully');
     } catch (error) {
         console.error('ERROR in generatePlan (display):', error);
+        // Remove loading state
+        if (generateBtn) {
+            generateBtn.classList.remove('loading');
+            generateBtn.disabled = false;
+        }
         alert('An error occurred while displaying results: ' + error.message + '\n\nCheck the console for details.');
         throw error;
     }
