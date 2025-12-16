@@ -543,11 +543,7 @@ function generatePlan() {
         return;
     }
 
-    // Gather security options
-    const enableDefender = document.getElementById('enableDefender')?.checked || false;
-    const enablePolicy = document.getElementById('enablePolicy')?.checked !== false; // Default true if element not found
-
-    // Gather configuration with environment overrides
+    // Gather all configuration options
     const config = {
         workloadType: selectedWorkload,
         environment: selectedEnvironment,
@@ -561,9 +557,39 @@ function generatePlan() {
         gpuCount: parseInt(document.getElementById('gpuCount').value) || 0,
         enableAvailabilitySets: true, // Always enabled by default in AKS Arc
         physicalHostCount: parseInt(document.getElementById('physicalHostCount').value) || 2,
-        // Security configuration
-        enableDefender,
-        enablePolicy,
+        
+        // Network configuration
+        networkPlugin: document.getElementById('networkPlugin')?.value || 'azure',
+        podCidr: document.getElementById('podCidr')?.value || '10.244.0.0/16',
+        serviceCidr: document.getElementById('serviceCidr')?.value || '10.96.0.0/16',
+        dnsServiceIP: document.getElementById('dnsServiceIP')?.value || '10.96.0.10',
+        loadBalancerSku: document.getElementById('loadBalancerSku')?.value || 'Standard',
+        controlPlaneIP: document.getElementById('controlPlaneIP')?.value || '',
+        enableNetworkPolicy: document.getElementById('enableNetworkPolicy')?.checked || false,
+        enablePrivateCluster: document.getElementById('enablePrivateCluster')?.checked || false,
+        
+        // Storage configuration
+        defaultStorageClass: document.getElementById('defaultStorageClass')?.value || 'local-path',
+        enableVolumeEncryption: document.getElementById('enableVolumeEncryption')?.checked || false,
+        enableVolumeSnapshots: document.getElementById('enableVolumeSnapshots')?.checked || false,
+        storageQuotaGb: parseInt(document.getElementById('storageQuotaGb')?.value) || 100,
+        
+        // Identity & Access
+        rbacMode: document.getElementById('rbacMode')?.value || 'enabled',
+        enableWorkloadIdentity: document.getElementById('enableWorkloadIdentity')?.checked || false,
+        enableAzureAD: document.getElementById('enableAzureAD')?.checked || false,
+        enablePodSecurityStandards: document.getElementById('enablePodSecurityStandards')?.checked || false,
+        
+        // Monitoring & Observability
+        enableAzureMonitor: document.getElementById('enableAzureMonitor')?.checked || false,
+        enablePrometheus: document.getElementById('enablePrometheus')?.checked || false,
+        logRetentionDays: parseInt(document.getElementById('logRetentionDays')?.value) || 90,
+        enableAuditLogs: document.getElementById('enableAuditLogs')?.checked || false,
+        
+        // Security & Compliance
+        enableDefender: document.getElementById('enableDefender')?.checked || false,
+        enablePolicy: document.getElementById('enablePolicy')?.checked !== false,
+        
         // Environment-specific overrides
         controlPlaneCountOverride: envTemplate.control_plane_count,
         minNodesOverride: envTemplate.min_nodes,

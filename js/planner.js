@@ -73,12 +73,40 @@ class AKSArcPlanner {
                 nodePools,
                 enableAvailabilitySets: true, // Always enabled by default in AKS Arc
                 physicalHostCount,
-                networkPlugin: 'azure',
-                loadBalancerSku: 'Standard'
+                networkPlugin: config.networkPlugin || 'azure',
+                loadBalancerSku: config.loadBalancerSku || 'Standard'
+            },
+            networkConfig: {
+                networkPlugin: config.networkPlugin || 'azure',
+                podCidr: config.podCidr || '10.244.0.0/16',
+                serviceCidr: config.serviceCidr || '10.96.0.0/16',
+                dnsServiceIP: config.dnsServiceIP || '10.96.0.10',
+                loadBalancerSku: config.loadBalancerSku || 'Standard',
+                controlPlaneIP: config.controlPlaneIP || '',
+                enableNetworkPolicy: config.enableNetworkPolicy || false,
+                enablePrivateCluster: config.enablePrivateCluster || false
+            },
+            storageConfig: {
+                defaultStorageClass: config.defaultStorageClass || 'local-path',
+                enableVolumeEncryption: config.enableVolumeEncryption || false,
+                enableVolumeSnapshots: config.enableVolumeSnapshots || false,
+                storageQuotaGb: config.storageQuotaGb || 100
+            },
+            identityConfig: {
+                rbacMode: config.rbacMode || 'enabled',
+                enableWorkloadIdentity: config.enableWorkloadIdentity || false,
+                enableAzureAD: config.enableAzureAD || false,
+                enablePodSecurityStandards: config.enablePodSecurityStandards || false
+            },
+            monitoringConfig: {
+                enableAzureMonitor: config.enableAzureMonitor || false,
+                enablePrometheus: config.enablePrometheus || false,
+                logRetentionDays: config.logRetentionDays || 90,
+                enableAuditLogs: config.enableAuditLogs || false
             },
             securityConfig: {
-                enableDefender: enableDefender || false,
-                enablePolicy: enablePolicy !== false // Default true
+                enableDefender: config.enableDefender || false,
+                enablePolicy: config.enablePolicy !== false // Default true
             },
             availabilitySetConfig,
             validation,

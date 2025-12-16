@@ -50,7 +50,7 @@ class SecurityValidator {
      * Evaluate individual security check
      */
     evaluateCheck(check, plan, environment) {
-        const { clusterConfig } = plan;
+        const { clusterConfig, networkConfig, storageConfig, identityConfig, monitoringConfig, securityConfig } = plan;
         
         switch (check.id) {
             case 'ha-control-plane':
@@ -70,32 +70,46 @@ class SecurityValidator {
                 return totalNodes >= 3;
             
             case 'monitoring':
-                return environment?.enable_monitoring === true;
+                return monitoringConfig?.enableAzureMonitor === true || 
+                       monitoringConfig?.enablePrometheus === true;
             
             case 'backup':
-                return environment?.backup_enabled === true;
+                return storageConfig?.enableVolumeSnapshots === true;
             
             case 'network-policies':
-                // Check if network policies would be configured
-                return environment?.name === 'Production' || 
-                       clusterConfig.networkPlugin === 'azure';
+                return networkConfig?.enableNetworkPolicy === true;
             
             case 'rbac':
-                // RBAC should be enabled for production
-                return environment?.name === 'Production';
+                return identityConfig?.rbacMode === 'enabled';
             
             case 'encryption-at-rest':
-                // Assume encryption enabled for production
-                return environment?.name === 'Production';
+                return storageConfig?.enableVolumeEncryption === true;
             
             case 'network-segmentation':
-                // Network segmentation for production and manufacturing/energy
-                return environment?.name === 'Production' && 
-                       (plan.industry === 'manufacturing' || plan.industry === 'energy');
+                return networkConfig?.enablePrivateCluster === true || 
+                       networkConfig?.networkPlugin === 'azure';
             
             case 'audit-logging':
-                // Audit logging for production
-                return environment?.name === 'Production' && environment?.enable_monitoring;
+                return monitoringConfig?.enableAuditLogs === true && 
+                       monitoringConfig?.logRetentionDays >= 90;
+            
+            case 'defender-enabled':
+                return securityConfig?.enableDefender === true;
+            
+            case 'policy-enabled':
+                return securityConfig?.enablePolicy === true;
+            
+            case 'pod-security-standards':
+                return identityConfig?.enablePodSecurityStandards === true;
+            
+            case 'workload-identity':
+                return identityConfig?.enableWorkloadIdentity === true;
+            
+            case 'private-cluster':
+                return networkConfig?.enablePrivateCluster === true;
+            
+            case 'standard-load-balancer':
+                return networkConfig?.loadBalancerSku === 'Standard';
             
             default:
                 return false;

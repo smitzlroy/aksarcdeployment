@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
     <title>AKS Arc Deployment Tool</title>
-    <link rel="stylesheet" href="css/style.css?v=180118">
+    <link rel="stylesheet" href="css/style.css?v=180119">
     <link rel="stylesheet" href="css/polish.css?v=180102">
 </head>
 <body>
@@ -312,6 +312,185 @@
                     </div>
                 </div>
 
+                <!-- Network Configuration -->
+                <h3 style="margin-top: 30px; color: var(--primary-color);">🌐 Network Configuration</h3>
+                <p style="margin-bottom: 20px;">Configure networking for your Kubernetes cluster and workloads.</p>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="networkPlugin">Network Plugin (CNI) *</label>
+                        <select id="networkPlugin">
+                            <option value="azure">Azure CNI (Recommended)</option>
+                            <option value="calico">Calico</option>
+                            <option value="flannel">Flannel</option>
+                        </select>
+                        <small>Azure CNI provides native Azure networking with network policies</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="podCidr">Pod CIDR *</label>
+                        <input type="text" id="podCidr" value="10.244.0.0/16" placeholder="10.244.0.0/16">
+                        <small>IP range for pod networking (must not overlap with existing networks)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="serviceCidr">Service CIDR *</label>
+                        <input type="text" id="serviceCidr" value="10.96.0.0/16" placeholder="10.96.0.0/16">
+                        <small>IP range for Kubernetes services (must not overlap with pod CIDR)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dnsServiceIP">DNS Service IP *</label>
+                        <input type="text" id="dnsServiceIP" value="10.96.0.10" placeholder="10.96.0.10">
+                        <small>Must be within service CIDR range</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loadBalancerSku">Load Balancer SKU *</label>
+                        <select id="loadBalancerSku">
+                            <option value="Standard">Standard (Recommended)</option>
+                            <option value="Basic">Basic</option>
+                        </select>
+                        <small>Standard LB supports zone redundancy and more features</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="controlPlaneIP">Control Plane VIP *</label>
+                        <input type="text" id="controlPlaneIP" placeholder="192.168.1.100">
+                        <small>Virtual IP for Kubernetes API server high availability</small>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="enableNetworkPolicy" checked>
+                            Enable Network Policies (Recommended for Production)
+                        </label>
+                        <small style="display: block; margin-top: 5px;">Control pod-to-pod communication for security</small>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="enablePrivateCluster">
+                            Private Cluster (No Public API Endpoint)
+                        </label>
+                        <small style="display: block; margin-top: 5px;">API server accessible only from private network</small>
+                    </div>
+                </div>
+
+                <!-- Storage Configuration -->
+                <h3 style="margin-top: 30px; color: var(--primary-color);">💾 Storage Configuration</h3>
+                <p style="margin-bottom: 20px;">Configure persistent storage for your containerized workloads.</p>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="defaultStorageClass">Default Storage Class *</label>
+                        <select id="defaultStorageClass">
+                            <option value="local-path">Local Path (Node local storage)</option>
+                            <option value="smb">SMB (Windows file shares)</option>
+                            <option value="nfs">NFS (Network file system)</option>
+                            <option value="iscsi">iSCSI (Block storage)</option>
+                        </select>
+                        <small>Storage backend for persistent volume claims</small>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="enableVolumeEncryption" checked>
+                            Enable Volume Encryption at Rest
+                        </label>
+                        <small style="display: block; margin-top: 5px;">Required for PCI DSS, HIPAA, GDPR compliance</small>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="enableVolumeSnapshots" checked>
+                            Enable Volume Snapshots
+                        </label>
+                        <small style="display: block; margin-top: 5px;">CSI snapshots for backup and disaster recovery</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="storageQuotaGb">Storage Quota (GB per namespace)</label>
+                        <input type="number" id="storageQuotaGb" min="10" max="10000" value="100" step="10">
+                        <small>Resource quota for persistent volume claims</small>
+                    </div>
+                </div>
+
+                <!-- Identity & Security -->
+                <h3 style="margin-top: 30px; color: var(--primary-color);">🔐 Identity & Access Control</h3>
+                <p style="margin-bottom: 20px;">Configure authentication and authorization for cluster access.</p>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="rbacMode">RBAC Mode *</label>
+                        <select id="rbacMode">
+                            <option value="enabled">Enabled (Recommended)</option>
+                            <option value="disabled">Disabled (Dev/Test only)</option>
+                        </select>
+                        <small>Role-Based Access Control for Kubernetes API authorization</small>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="enableWorkloadIdentity">
+                            Enable Workload Identity
+                        </label>
+                        <small style="display: block; margin-top: 5px;">Pod-level managed identities for Azure resource access</small>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="enableAzureAD">
+                            Enable Azure AD Integration
+                        </label>
+                        <small style="display: block; margin-top: 5px;">Use Azure AD for cluster authentication</small>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="enablePodSecurityStandards" checked>
+                            Enable Pod Security Standards (PSS)
+                        </label>
+                        <small style="display: block; margin-top: 5px;">Enforce baseline pod security policies</small>
+                    </div>
+                </div>
+
+                <!-- Monitoring & Observability -->
+                <h3 style="margin-top: 30px; color: var(--primary-color);">📊 Monitoring & Observability</h3>
+                <p style="margin-bottom: 20px;">Configure monitoring, logging, and alerting for your cluster.</p>
+                
+                <div class="form-grid">
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="enableAzureMonitor" checked>
+                            Enable Azure Monitor Container Insights
+                        </label>
+                        <small style="display: block; margin-top: 5px;">Metrics, logs, and performance monitoring</small>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="enablePrometheus">
+                            Enable Prometheus & Grafana
+                        </label>
+                        <small style="display: block; margin-top: 5px;">Open-source monitoring stack</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="logRetentionDays">Log Retention (Days) *</label>
+                        <input type="number" id="logRetentionDays" min="7" max="730" value="90">
+                        <small>Audit log retention (PCI DSS requires 90+ days)</small>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="enableAuditLogs" checked>
+                            Enable Kubernetes Audit Logs
+                        </label>
+                        <small style="display: block; margin-top: 5px;">Required for compliance (HIPAA, PCI DSS, SOC 2)</small>
+                    </div>
+                </div>
+
                 <!-- Security & Compliance Options -->
                 <h3 style="margin-top: 30px; color: var(--primary-color);">🔒 Security & Compliance (Optional)</h3>
                 <p style="margin-bottom: 20px;">Enable advanced security features for your cluster. These options provide enhanced threat protection and compliance enforcement.</p>
@@ -505,11 +684,11 @@
 
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="js/security.js?v=180118"></script>
-    <script src="js/compliance.js?v=180118"></script>
-    <script src="js/compliance-report.js?v=180118"></script>
-    <script src="js/planner.js?v=180118"></script>
-    <script src="js/generator.js?v=180118"></script>
-    <script src="js/app.js?v=180118"></script>
+    <script src="js/security.js?v=180119"></script>
+    <script src="js/compliance.js?v=180119"></script>
+    <script src="js/compliance-report.js?v=180119"></script>
+    <script src="js/planner.js?v=180119"></script>
+    <script src="js/generator.js?v=180119"></script>
+    <script src="js/app.js?v=180119"></script>
 </body>
 </html>
