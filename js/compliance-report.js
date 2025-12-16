@@ -15,14 +15,22 @@ class ComplianceReportGenerator {
         // Generate report ID first
         const reportId = this.generateReportId();
         
-        // DEBUG: Log the entire deploymentPlan structure
-        console.log('🔍 DEBUG deploymentPlan:', deploymentPlan);
-        console.log('🔍 DEBUG deploymentPlan.clusterConfig:', deploymentPlan?.clusterConfig);
-        console.log('🔍 DEBUG clusterName value:', deploymentPlan?.clusterConfig?.clusterName);
-        console.log('🔍 DEBUG clusterName type:', typeof deploymentPlan?.clusterConfig?.clusterName);
+        // Helper function to safely extract string values (handles both strings and HTMLInputElement)
+        const extractStringValue = (value, defaultValue = 'N/A') => {
+            if (!value) return defaultValue;
+            if (typeof value === 'string') return value;
+            if (value.value && typeof value.value === 'string') return value.value.trim();
+            if (value.textContent) return value.textContent.trim();
+            return String(value);
+        };
         
-        // Extract cluster name from deployment plan (it's always a string in clusterConfig)
-        const clusterName = deploymentPlan?.clusterConfig?.clusterName || 'N/A';
+        // Extract values safely from deployment plan
+        const clusterName = extractStringValue(deploymentPlan?.clusterConfig?.clusterName);
+        const resourceGroup = extractStringValue(deploymentPlan?.clusterConfig?.resourceGroup);
+        const customLocation = extractStringValue(deploymentPlan?.clusterConfig?.customLocation);
+        const location = extractStringValue(deploymentPlan?.clusterConfig?.location);
+        
+        console.log('✅ Extracted values:', { clusterName, resourceGroup, customLocation, location });
 
         this.reportData = {
             deploymentPlan,
@@ -34,6 +42,9 @@ class ComplianceReportGenerator {
             reportTitle: 'Kubernetes Compliance & Security Assessment Report',
             reportId: reportId,
             clusterName: clusterName,
+            resourceGroup: resourceGroup,
+            customLocation: customLocation,
+            location: location,
             environment: deploymentPlan?.environment?.name || 'Production'
         };
 
@@ -153,18 +164,18 @@ class ComplianceReportGenerator {
         doc.setFont('helvetica', 'bold');
         doc.text('Cluster Name:', 20, yPos);
         doc.setFont('helvetica', 'normal');
-        doc.text(plan.clusterName || 'N/A', 65, yPos);
+        doc.text(this.reportData.clusterName || 'N/A', 65, yPos);
         
         doc.setFont('helvetica', 'bold');
         doc.text('Location:', 110, yPos);
         doc.setFont('helvetica', 'normal');
-        doc.text(plan.location || plan.customLocation || 'N/A', 140, yPos);
+        doc.text(this.reportData.location || this.reportData.customLocation || 'N/A', 140, yPos);
         yPos += 7;
 
         doc.setFont('helvetica', 'bold');
         doc.text('Resource Group:', 20, yPos);
         doc.setFont('helvetica', 'normal');
-        doc.text(plan.resourceGroup || 'N/A', 65, yPos);
+        doc.text(this.reportData.resourceGroup || 'N/A', 65, yPos);
         
         doc.setFont('helvetica', 'bold');
         doc.text('Environment:', 110, yPos);
