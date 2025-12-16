@@ -317,6 +317,16 @@ function selectEnvironment(envType) {
  * Select Edge AI solution
  */
 function selectSolution(solutionType) {
+    // Toggle if clicking the same solution again (deselect)
+    if (selectedSolution === solutionType && solutionType !== 'custom') {
+        selectedSolution = null;
+        document.querySelectorAll('.solution-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        document.getElementById('solutionDetails').style.display = 'none';
+        return;
+    }
+    
     selectedSolution = solutionType;
     
     // Update UI
