@@ -207,6 +207,8 @@ function refreshCatalog() {
  * Reset wizard to start
  */
 function resetWizard() {
+    console.log('resetWizard called');
+    
     // Reset state
     selectedIndustry = null;
     selectedEnvironment = 'production';
@@ -215,7 +217,11 @@ function resetWizard() {
     deploymentPlan = null;
     
     // Clear form
-    document.getElementById('clusterForm').reset();
+    try {
+        document.getElementById('clusterForm').reset();
+    } catch (e) {
+        console.log('Error resetting form:', e);
+    }
     
     // Clear industry selection
     document.querySelectorAll('.industry-card').forEach(card => {
@@ -240,14 +246,18 @@ function resetWizard() {
     });
     
     // Go to step 1
+    console.log('Navigating to step 1, current step was:', currentStep);
     document.querySelectorAll('.wizard-step').forEach(step => {
         step.classList.remove('active');
     });
     currentStep = 1;
     document.getElementById('step1').classList.add('active');
+    console.log('Navigation complete, current step now:', currentStep);
     
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    console.log('resetWizard completed');
 }
 
 /**
