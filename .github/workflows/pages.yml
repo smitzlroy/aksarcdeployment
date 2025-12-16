@@ -23,15 +23,19 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
     
     - name: Setup Pages
       uses: actions/configure-pages@v4
     
-    - name: Build frontend
+    - name: Build site
       run: |
         mkdir -p _site
         cp -r frontend/* _site/
+        ls -la _site/
+        echo "Files copied to _site:"
+        find _site -type f
     
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
@@ -41,3 +45,6 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
+    
+    - name: Output deployment URL
+      run: echo "Deployed to ${{ steps.deployment.outputs.page_url }}"
