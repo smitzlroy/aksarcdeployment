@@ -12,6 +12,9 @@ class ComplianceReportGenerator {
      * Generate compliance attestation report
      */
     async generateReport(deploymentPlan, securityResult, categoryBreakdown, gapAnalysis) {
+        // Generate report ID first
+        const reportId = this.generateReportId();
+        
         this.reportData = {
             deploymentPlan,
             securityResult,
@@ -19,7 +22,10 @@ class ComplianceReportGenerator {
             gapAnalysis,
             generatedDate: new Date().toISOString(),
             reportVersion: '2.0',
-            reportTitle: 'Kubernetes Compliance & Security Assessment Report'
+            reportTitle: 'Kubernetes Compliance & Security Assessment Report',
+            reportId: reportId,
+            clusterName: deploymentPlan?.clusterConfig?.clusterName || deploymentPlan?.clusterName || 'N/A',
+            environment: deploymentPlan?.environment?.name || 'Production'
         };
 
         // Check if jsPDF is loaded
