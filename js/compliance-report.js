@@ -153,7 +153,7 @@ class ComplianceReportGenerator {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
         doc.setTextColor(0, 120, 212);
-        doc.text('📋 Deployment Information', 20, yPos);
+        doc.text('Deployment Information', 20, yPos);
         yPos += 10;
         
         doc.setFont('helvetica', 'normal');
@@ -216,7 +216,7 @@ class ComplianceReportGenerator {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
         doc.setTextColor(scoreColor.r, scoreColor.g, scoreColor.b);
-        doc.text('🎯 Overall Compliance Score', 20, yPos);
+        doc.text('Overall Compliance Score', 20, yPos);
         yPos += 15;
 
         // Large score display
@@ -644,7 +644,7 @@ class ComplianceReportGenerator {
 
                 const gaps = framework.controls.filter(c => c.status === 'non-compliant');
                 gaps.slice(0, 5).forEach(gap => {
-                    doc.text(`• ${gap.controlId}: ${gap.checkName}`, 25, yPos);
+                    doc.text(`- ${gap.controlId}: ${gap.checkName}`, 25, yPos);
                     yPos += 5;
                 });
 
@@ -732,7 +732,7 @@ class ComplianceReportGenerator {
 
             doc.setFont('helvetica', 'normal');
             section.items.forEach(item => {
-                const lines = doc.splitTextToSize(`• ${item}`, 170);
+                const lines = doc.splitTextToSize(`- ${item}`, 170);
                 doc.text(lines, 25, yPos);
                 yPos += lines.length * 5;
             });
@@ -818,7 +818,7 @@ class ComplianceReportGenerator {
             }
 
             doc.setFont('helvetica', 'bold');
-            doc.text(`• ${source.name}`, 22, yPos);
+            doc.text(`- ${source.name}`, 22, yPos);
             yPos += 5;
             doc.setFont('helvetica', 'normal');
             doc.text(`  Source: ${source.org}`, 25, yPos);
@@ -873,7 +873,7 @@ class ComplianceReportGenerator {
             }
 
             doc.setFont('helvetica', 'bold');
-            doc.text(`• ${service.name}`, 22, yPos);
+            doc.text(`- ${service.name}`, 22, yPos);
             yPos += 5;
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(0, 0, 255);
@@ -1076,7 +1076,7 @@ class ComplianceReportGenerator {
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(139, 87, 0);
-        doc.text('⚠ CONFIDENTIAL - Internal Use Only', 105, 167, { align: 'center' });
+        doc.text('[WARNING] CONFIDENTIAL - Internal Use Only', 105, 167, { align: 'center' });
 
         // Report details
         doc.setTextColor(80, 80, 80);
@@ -1106,12 +1106,12 @@ class ComplianceReportGenerator {
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         const frameworks = [
-            '• PCI DSS 4.0 - Payment Card Industry Data Security Standard',
-            '• HIPAA - Health Insurance Portability and Accountability Act',
-            '• ISO 27001 - Information Security Management',
-            '• SOC 2 Type II - Service Organization Control',
-            '• NIST CSF - Cybersecurity Framework',
-            '• FedRAMP - Federal Risk and Authorization Management Program'
+            '- PCI DSS 4.0 - Payment Card Industry Data Security Standard',
+            '- HIPAA - Health Insurance Portability and Accountability Act',
+            '- ISO 27001 - Information Security Management',
+            '- SOC 2 Type II - Service Organization Control',
+            '- NIST CSF - Cybersecurity Framework',
+            '- FedRAMP - Federal Risk and Authorization Management Program'
         ];
 
         let yPos = 245;
