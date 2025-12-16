@@ -863,7 +863,7 @@ async function downloadComplianceReport() {
 
     try {
         // Check if ComplianceReportGenerator is available
-        if (typeof ComplianceReportGenerator === 'undefined' || typeof window.ComplianceReportGenerator === 'undefined') {
+        if (typeof window.ComplianceReportGenerator === 'undefined') {
             console.error('ComplianceReportGenerator not loaded');
             console.log('Available globals:', Object.keys(window).filter(k => k.includes('Compliance')));
             alert('Compliance report generator not available. Please refresh the page and try again.');
