@@ -73,29 +73,31 @@ header {
     gap: 8px;
 }
 
-.home-button {
+.home-button,
+.theme-toggle {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.15);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 500;
     color: white;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     backdrop-filter: blur(10px);
 }
 
-.home-button:hover {
-    background: rgba(255, 255, 255, 0.25);
-    border-color: rgba(255, 255, 255, 0.5);
-    transform: translateY(-1px);
+.home-button:hover,
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
 }
 
-.home-button .icon {
+.home-button .icon,
+.theme-toggle .icon {
     font-size: 1.2rem;
 }
 
@@ -501,31 +503,7 @@ footer a:hover {
 }
 
 /* Theme Toggle */
-.theme-toggle {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-}
-
-.theme-toggle:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
-}
-
-.theme-toggle .icon {
-    font-size: 1.2rem;
-}
+/* Theme toggle specific positioning removed - now handled by shared styles above */
 
 /* Responsive */
 @media (max-width: 768px) {
