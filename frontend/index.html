@@ -132,8 +132,76 @@
 
                 <hr style="margin: 30px 0; border: none; border-top: 1px solid var(--border-color);">
 
-                <h3>Workload Type</h3>
-                <p>Select a workload preset or customize your requirements</p>
+                <!-- Edge AI Solutions Selector -->
+                <div class="solution-selector">
+                    <h3>Edge AI Solution (Optional)</h3>
+                    <p>Select an Azure Arc extension solution to auto-configure cluster requirements</p>
+                    
+                    <div class="solution-cards">
+                        <div class="solution-card" onclick="selectSolution('video-indexer-arc')" id="solution-video-indexer">
+                            <div class="solution-icon">🎥</div>
+                            <h4>Video Indexer Arc</h4>
+                            <p>Video & audio AI analysis on edge</p>
+                            <div class="solution-tags">
+                                <span class="tag">64+ cores</span>
+                                <span class="tag">256GB RAM</span>
+                                <span class="tag">GPU optional</span>
+                            </div>
+                            <div class="solution-industries">
+                                <small>Manufacturing • Retail • Energy</small>
+                            </div>
+                        </div>
+                        
+                        <div class="solution-card" onclick="selectSolution('edge-rag-arc')" id="solution-edge-rag">
+                            <div class="solution-icon">💬</div>
+                            <h4>Edge RAG Arc</h4>
+                            <p>AI-powered document search & chat</p>
+                            <div class="solution-tags">
+                                <span class="tag">64+ cores</span>
+                                <span class="tag">256GB RAM</span>
+                                <span class="tag">GPU/CPU</span>
+                            </div>
+                            <div class="solution-industries">
+                                <small>Manufacturing • Retail • Energy</small>
+                            </div>
+                        </div>
+                        
+                        <div class="solution-card" onclick="selectSolution('custom')" id="solution-custom">
+                            <div class="solution-icon">⚙️</div>
+                            <h4>Custom / None</h4>
+                            <p>Manual configuration</p>
+                            <div class="solution-tags">
+                                <span class="tag">Flexible</span>
+                            </div>
+                            <div class="solution-industries">
+                                <small>Any workload</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Solution Details Panel -->
+                    <div class="solution-details" id="solutionDetails" style="display: none;">
+                        <div class="solution-info">
+                            <h4 id="solutionName"></h4>
+                            <p id="solutionDescription"></p>
+                            
+                            <div class="solution-requirements">
+                                <h5>Requirements</h5>
+                                <div id="solutionRequirements"></div>
+                            </div>
+                            
+                            <div class="solution-use-cases">
+                                <h5>Use Cases</h5>
+                                <div id="solutionUseCases"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr style="margin: 30px 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <h3>Workload Type (Optional)</h3>
+                <p>Select a workload preset or skip for manual configuration</p>
                 
                 <div class="workload-cards">
                     <div class="card" onclick="selectWorkload('video-analytics')">

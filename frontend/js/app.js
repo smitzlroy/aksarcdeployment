@@ -9,6 +9,7 @@ let currentStep = 1;
 let selectedWorkload = null;
 let selectedEnvironment = 'production'; // Default to production
 let selectedIndustry = null; // No default industry
+let selectedSolution = null; // No default Edge AI solution
 let deploymentPlan = null;
 
 // Initialize app
@@ -209,6 +210,7 @@ function resetWizard() {
     // Reset state
     selectedIndustry = null;
     selectedEnvironment = 'production';
+    selectedSolution = null;
     selectedWorkload = null;
     deploymentPlan = null;
     
@@ -225,6 +227,12 @@ function resetWizard() {
     document.querySelectorAll('.env-card').forEach(card => {
         card.classList.remove('selected');
     });
+    
+    // Clear solution selection
+    document.querySelectorAll('.solution-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    document.getElementById('solutionDetails').style.display = 'none';
     
     // Clear workload selection
     document.querySelectorAll('.workload-card').forEach(card => {
@@ -306,22 +314,108 @@ function selectEnvironment(envType) {
 }
 
 /**
+ * Select Edge AI solution
+ */
+function selectSolution(solutionType) {
+    selectedSolution = solutionType;
+    
+    // Update UI
+    document.querySelectorAll('.solution-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    document.getElementById(`solution-${solutionType === 'custom' ? 'custom' : solutionType.replace('_', '-')}`).classList.add('selected');
+    
+    // Show solution details
+    const detailsPanel = document.getElementById('solutionDetails');
+    if (solutionType === 'custom' || solutionType === 'none') {
+        detailsPanel.style.display = 'none';
+        return;
+    }
+    
+    const solution = catalog.edge_ai_solutions[solutionType];
+    if (!solution) return;
+    
+    // Populate details
+    document.getElementById('solutionName').textContent = solution.name;
+    document.getElementById('solutionDescription').textContent = solution.description;
+    
+    // Requirements
+    const reqsContainer = document.getElementById('solutionRequirements');
+    let reqsHtml = '<ul>';
+    
+    if (solution.requirements.gpu_setup) {
+        const gpu = solution.requirements.gpu_setup;
+        reqsHtml += `<li><strong>GPU Setup:</strong> ${gpu.gpu_vms} GPU VMs (${gpu.gpu_vm_size}) + ${gpu.cpu_vms} CPU VMs</li>`;
+        reqsHtml += `<li><strong>Total Resources:</strong> ${gpu.total_cores} cores, ${gpu.total_memory_gb}GB RAM</li>`;
+    } else {
+        reqsHtml += `<li><strong>Cores:</strong> ${solution.requirements.min_cores} (min) - ${solution.requirements.recommended_cores} (recommended)</li>`;
+        reqsHtml += `<li><strong>Memory:</strong> ${solution.requirements.min_memory_gb}GB (min) - ${solution.requirements.recommended_memory_gb}GB (recommended)</li>`;
+    }
+    
+    reqsHtml += `<li><strong>Storage:</strong> ${solution.requirements.min_storage_gb}GB minimum</li>`;
+    reqsHtml += `<li><strong>Kubernetes:</strong> v${solution.requirements.kubernetes_version}</li>`;
+    
+    if (solution.requirements.storage_class_requirements) {
+        reqsHtml += `<li><strong>Storage Classes:</strong> ${solution.requirements.storage_class_requirements.join(', ')}</li>`;
+    }
+    
+    reqsHtml += '</ul>';
+    reqsContainer.innerHTML = reqsHtml;
+    
+    // Use cases for selected industry
+    const useCasesContainer = document.getElementById('solutionUseCases');
+    let useCasesHtml = '<ul>';
+    
+    const industryKey = selectedIndustry || 'manufacturing';
+    if (solution.industry_use_cases && solution.industry_use_cases[industryKey]) {
+        solution.industry_use_cases[industryKey].forEach(useCase => {
+            useCasesHtml += `<li>${useCase}</li>`;
+        });
+    }
+    
+    useCasesHtml += '</ul>';
+    useCasesContainer.innerHTML = useCasesHtml;
+    
+    detailsPanel.style.display = 'block';
+    
+    // Auto-configure based on solution
+    if (solutionType === 'video-indexer-arc') {
+        // Auto-fill for Video Indexer
+        document.getElementById('cpuCores').value = solution.requirements.recommended_cores || 64;
+        document.getElementById('memoryGb').value = solution.requirements.recommended_memory_gb || 256;
+        document.getElementById('gpuRequired').checked = solution.requirements.gpu_recommended || false;
+        document.getElementById('gpuCount').value = solution.requirements.gpu_recommended ? 2 : 0;
+        document.getElementById('gpuCountGroup').style.display = solution.requirements.gpu_recommended ? 'block' : 'none';
+    } else if (solutionType === 'edge-rag-arc') {
+        // Auto-fill for Edge RAG with GPU setup
+        const gpu = solution.requirements.gpu_setup;
+        document.getElementById('cpuCores').value = gpu.total_cores;
+        document.getElementById('memoryGb').value = gpu.total_memory_gb;
+        document.getElementById('gpuRequired').checked = true;
+        document.getElementById('gpuCount').value = gpu.gpu_vms;
+        document.getElementById('gpuCountGroup').style.display = 'block';
+    }
+}
+
+/**
  * Select workload type
  */
 function selectWorkload(workloadType) {
     selectedWorkload = workloadType;
     
-    // Apply preset values if available
-    if (workloadType !== 'custom' && catalog.workload_presets[workloadType]) {
-        const preset = catalog.workload_presets[workloadType];
-        document.getElementById('cpuCores').value = preset.cpu_cores;
-        document.getElementById('memoryGb').value = preset.memory_gb;
-        document.getElementById('gpuRequired').checked = preset.gpu_required;
-        document.getElementById('gpuCount').value = preset.gpu_count;
-        
-        // Show/hide GPU fields
-        document.getElementById('gpuCountGroup').style.display = 
-            preset.gpu_required ? 'block' : 'none';
+    // Apply preset values if available (only if no solution selected)
+    if (!selectedSolution || selectedSolution === 'custom') {
+        if (workloadType !== 'custom' && catalog.workload_presets[workloadType]) {
+            const preset = catalog.workload_presets[workloadType];
+            document.getElementById('cpuCores').value = preset.cpu_cores;
+            document.getElementById('memoryGb').value = preset.memory_gb;
+            document.getElementById('gpuRequired').checked = preset.gpu_required;
+            document.getElementById('gpuCount').value = preset.gpu_count;
+            
+            // Show/hide GPU fields
+            document.getElementById('gpuCountGroup').style.display = 
+                preset.gpu_required ? 'block' : 'none';
+        }
     }
     
     nextStep();
@@ -397,6 +491,12 @@ function generatePlan() {
     deploymentPlan.industry = selectedIndustry;
     deploymentPlan.industryDetails = selectedIndustry && selectedIndustry !== 'none' 
         ? catalog.industry_compliance[selectedIndustry] 
+        : null;
+    
+    // Add Edge AI solution info
+    deploymentPlan.edgeAISolution = selectedSolution;
+    deploymentPlan.solutionDetails = selectedSolution && selectedSolution !== 'custom' 
+        ? catalog.edge_ai_solutions[selectedSolution]
         : null;
     
     // Run security validation
@@ -521,6 +621,19 @@ function displayPlanSummary(plan) {
     const { clusterConfig, availabilitySetConfig } = plan;
 
     let html = '<div class="summary-grid">';
+    
+    // Edge AI Solution info (if selected)
+    if (plan.solutionDetails) {
+        html += '<div class="summary-section solution-summary">';
+        html += '<h4>🎯 Edge AI Solution</h4>';
+        html += `<div class="solution-badge">${plan.solutionDetails.icon} ${plan.solutionDetails.name}</div>`;
+        html += `<p>${plan.solutionDetails.description}</p>`;
+        html += '<div class="solution-deployment">';
+        html += '<strong>Deployment Command:</strong>';
+        html += `<pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 0.85rem;">${plan.solutionDetails.deployment.extension_install_command.replace(/\{cluster_name\}/g, clusterConfig.clusterName).replace(/\{resource_group\}/g, clusterConfig.resourceGroup)}</pre>`;
+        html += '</div>';
+        html += '</div>';
+    }
     
     // Cluster info
     html += '<div class="summary-section">';

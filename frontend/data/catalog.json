@@ -122,6 +122,199 @@
       "storage_gb": 200
     }
   },
+  "edge_ai_solutions": {
+    "video-indexer-arc": {
+      "name": "Azure Video Indexer enabled by Arc",
+      "description": "Video and audio analysis with AI on edge devices. Process camera feeds, extract insights, and generate summaries locally.",
+      "icon": "🎥",
+      "arc_extension_type": "Microsoft.VideoIndexer",
+      "requirements": {
+        "min_cores": 32,
+        "recommended_cores": 64,
+        "min_memory_gb": 64,
+        "recommended_memory_gb": 256,
+        "min_storage_gb": 50,
+        "recommended_storage_gb": 100,
+        "min_nodes": 1,
+        "recommended_nodes": 2,
+        "gpu_required": false,
+        "gpu_recommended": true,
+        "kubernetes_version": "1.29",
+        "os": "Ubuntu 22.04 or Linux Compatible",
+        "azure_local_version": "2511",
+        "storage_class_requirements": ["ReadWriteMany"],
+        "network_endpoints": [
+          "api.videoindexer.ai:443",
+          "*.blob.core.windows.net:443",
+          "*.monitoring.core.windows.net:443",
+          "linuxgeneva-microsoft.azurecr.io:443",
+          "*.azureedge.net:443",
+          "*.data.microsoft.com:443"
+        ]
+      },
+      "capabilities": {
+        "ai_presets": ["Transcription", "Translation", "Captioning", "Object Detection", "Scene Detection", "Summarization"],
+        "language_models": ["Phi (included)"],
+        "supported_formats": {
+          "video": ["AVI", "FLV", "MP4", "MKV", "MOV", "WMV"],
+          "audio": ["AAC", "MP3", "WAV", "FLAC"]
+        },
+        "max_file_size_mb": 2048,
+        "max_resolution": "1920x1080"
+      },
+      "industry_use_cases": {
+        "manufacturing": [
+          "Quality control and inspection video analysis",
+          "Worker safety monitoring (PPE detection)",
+          "Production line efficiency analytics",
+          "Equipment maintenance video logging",
+          "Training video indexing and search"
+        ],
+        "retail": [
+          "Customer flow and behavior analytics",
+          "Queue management and wait time analysis",
+          "Shelf monitoring and planogram compliance",
+          "Loss prevention and security monitoring",
+          "Store operations optimization"
+        ],
+        "energy": [
+          "Pipeline and infrastructure visual inspection",
+          "Safety compliance video monitoring",
+          "Incident investigation and forensics",
+          "Remote site surveillance and analytics",
+          "Equipment inspection video cataloging"
+        ]
+      },
+      "deployment": {
+        "extension_install_command": "az k8s-extension create --name video-indexer --extension-type Microsoft.VideoIndexer --cluster-name {cluster_name} --resource-group {resource_group} --cluster-type connectedClusters",
+        "prerequisites": [
+          "Azure subscription approved for Video Indexer Arc (apply at aka.ms/vi-register)",
+          "Arc-enabled Kubernetes cluster on Azure Local",
+          "ReadWriteMany storage class configured",
+          "Network firewall rules for required endpoints",
+          "Azure CLI 2.64.0+"
+        ],
+        "post_deployment_steps": [
+          "Verify extension status: az k8s-extension show",
+          "Obtain extension access token",
+          "Configure video indexing presets",
+          "Test with sample video file",
+          "Set up monitoring and alerting"
+        ]
+      },
+      "compliance_alignment": ["ISO 27001", "IEC 62443", "GDPR", "NERC CIP"],
+      "estimated_monthly_cost": {
+        "poc": 850,
+        "pilot": 2100,
+        "production": 2800
+      }
+    },
+    "edge-rag-arc": {
+      "name": "Edge RAG enabled by Arc",
+      "description": "Search on-premises data with generative AI using Retrieval Augmented Generation. Build custom chat assistants for local documents.",
+      "icon": "💬",
+      "arc_extension_type": "Microsoft.EdgeRAG",
+      "requirements": {
+        "gpu_setup": {
+          "gpu_vms": 4,
+          "gpu_vm_size": "Standard_NC8_A2 or Standard_NC8_A16",
+          "gpu_vcpus": 8,
+          "gpu_memory_gb": 28,
+          "cpu_vms": 4,
+          "cpu_vm_size": "Standard_D8s_v3",
+          "cpu_vcpus": 8,
+          "cpu_memory_gb": 32,
+          "total_cores": 64,
+          "total_memory_gb": 256
+        },
+        "cpu_only_setup": {
+          "vms": 4,
+          "vm_size": "Standard_D8s_v3",
+          "vcpus": 8,
+          "memory_gb": 32,
+          "total_cores": 32,
+          "total_memory_gb": 128,
+          "limitations": "Max file size 5MB (vs 30MB with GPU)"
+        },
+        "min_storage_gb": 100,
+        "recommended_storage_gb": 150,
+        "kubernetes_version": "1.29",
+        "os": "Ubuntu 22.04 or Linux Compatible",
+        "azure_local_version": "2504",
+        "storage_class_requirements": ["ReadWriteMany", "NFS v3.0 or v4.1"],
+        "network_requirements": [
+          "MetalLB load balancer with static IP",
+          "NFS share accessible from cluster"
+        ],
+        "network_endpoints": [
+          "management.azure.com:443",
+          "*.dp.kubernetesconfiguration.azure.com:443",
+          "mcr.microsoft.com:443",
+          "{nfs_server}:2049"
+        ]
+      },
+      "capabilities": {
+        "language_models": ["Microsoft/Phi-3.5-mini-instruct", "mistralai/Mistral-7B-Instruct-v0.2"],
+        "supported_formats": {
+          "documents": ["PDF", "DOCX", "TXT", "MHTML", "MD"],
+          "images": ["JPG", "JPEG", "PNG"]
+        },
+        "max_file_size_mb_gpu": 30,
+        "max_file_size_mb_cpu": 5,
+        "search_types": ["Vector search", "Full text search", "Hybrid search", "Deep search", "Hybrid multimodal search"],
+        "data_sources": ["NFS v3.0", "NFS v4.1 (AUTH_SYS only)"]
+      },
+      "industry_use_cases": {
+        "manufacturing": [
+          "Technical manual and SOP Q&A assistant",
+          "Equipment troubleshooting chatbot",
+          "Quality standards and procedures lookup",
+          "Training material knowledge base",
+          "Maintenance procedure guidance"
+        ],
+        "retail": [
+          "Policy and compliance assistant",
+          "Product knowledge chatbot",
+          "Customer service AI helper",
+          "Inventory procedure lookup",
+          "Employee training assistant"
+        ],
+        "energy": [
+          "Safety procedure instant lookup",
+          "Regulatory compliance Q&A",
+          "Equipment manual assistant",
+          "Incident response guidance",
+          "Technical documentation search"
+        ]
+      },
+      "deployment": {
+        "extension_install_command": "az k8s-extension create --name edge-rag --extension-type Microsoft.EdgeRAG --cluster-name {cluster_name} --resource-group {resource_group} --cluster-type connectedClusters --configuration-settings nfsServer={nfs_server} nfsPath={nfs_path}",
+        "prerequisites": [
+          "Azure subscription with Edge RAG preview access",
+          "Arc-enabled Kubernetes cluster on Azure Local 2504+",
+          "NFS v3.0/v4.1 server with document repository",
+          "MetalLB configured with static routable IP",
+          "GPU drivers installed (for GPU setup)",
+          "TLS certificate (recommended for production)"
+        ],
+        "post_deployment_steps": [
+          "Verify extension status and endpoint availability",
+          "Configure data source (NFS connection)",
+          "Set up document ingestion pipeline",
+          "Configure chunking and embedding settings",
+          "Test with sample queries",
+          "Deploy custom chat UI or integrate API",
+          "Set up Azure RBAC for access control"
+        ]
+      },
+      "compliance_alignment": ["ISO 27001", "GDPR", "CCPA", "NERC CIP", "NIST CSF"],
+      "estimated_monthly_cost": {
+        "cpu_only": 1200,
+        "gpu_pilot": 3500,
+        "gpu_production": 4500
+      }
+    }
+  },
   "environment_templates": {
     "poc": {
       "name": "POC / Development",
