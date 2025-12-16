@@ -18,7 +18,8 @@ class ComplianceReportGenerator {
             categoryBreakdown,
             gapAnalysis,
             generatedDate: new Date().toISOString(),
-            reportVersion: '1.0'
+            reportVersion: '2.0',
+            reportTitle: 'Kubernetes Compliance & Security Assessment Report'
         };
 
         // Check if jsPDF is loaded
@@ -32,53 +33,58 @@ class ComplianceReportGenerator {
         const doc = new jsPDF();
         let yPos = 20;
 
-        // Page 1: Executive Summary
+        // Page 1: Professional Cover Page
+        this.addCoverPage(doc);
+        
+        // Page 2: Executive Summary
+        doc.addPage();
+        yPos = 20;
         yPos = this.addExecutiveSummary(doc, yPos);
         
-        // Page 2: Compliance Overview
+        // Page 3: Compliance Overview
         doc.addPage();
         yPos = 20;
         yPos = this.addComplianceOverview(doc, yPos);
 
-        // Page 3: Control Evidence Matrix
+        // Page 4: Control Evidence Matrix
         doc.addPage();
         yPos = 20;
         yPos = this.addControlEvidenceMatrix(doc, yPos);
 
-        // Page 4: Security Configuration Details
+        // Page 5: Security Configuration Details
         doc.addPage();
         yPos = 20;
         yPos = this.addSecurityConfiguration(doc, yPos);
 
-        // Page 5: Category Breakdown
+        // Page 6: Category Breakdown
         doc.addPage();
         yPos = 20;
         yPos = this.addCategoryBreakdown(doc, yPos);
 
-        // Page 6: Gap Analysis
+        // Page 7: Gap Analysis
         if (gapAnalysis && gapAnalysis.frameworks.length > 0) {
             doc.addPage();
             yPos = 20;
             yPos = this.addGapAnalysis(doc, yPos);
         }
 
-        // Page 7: Continuous Compliance Plan
+        // Page 8: Continuous Compliance Plan
         doc.addPage();
         yPos = 20;
         yPos = this.addContinuousCompliancePlan(doc, yPos);
 
-        // Page 8: Data Sources & Methodology
+        // Page 9: Data Sources & Methodology
         doc.addPage();
         yPos = 20;
         yPos = this.addDataSourcesPage(doc, yPos);
 
-        // Page 9: Attestation & Signatures
+        // Page 10: Attestation & Signatures
         doc.addPage();
         yPos = 20;
         yPos = this.addAttestationPage(doc, yPos);
 
-        // Add footer to all pages
-        this.addFooters(doc);
+        // Add professional headers and footers to all pages
+        this.addHeadersAndFooters(doc);
 
         // Save PDF
         const clusterName = deploymentPlan.clusterConfig?.clusterName || deploymentPlan.clusterName || 'AKSArc';
@@ -96,95 +102,165 @@ class ComplianceReportGenerator {
         const plan = this.reportData.deploymentPlan.clusterConfig || this.reportData.deploymentPlan;
         const security = this.reportData.securityResult;
 
-        // Title
-        doc.setFontSize(22);
+        // Title with accent
+        doc.setFillColor(0, 120, 212);
+        doc.rect(15, yPos, 180, 12, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(18);
         doc.setFont('helvetica', 'bold');
-        doc.text('Compliance Attestation Report', 105, yPos, { align: 'center' });
-        yPos += 15;
-
-        doc.setFontSize(14);
-        doc.setTextColor(100);
-        doc.text('Azure Kubernetes Service Arc-enabled Deployment', 105, yPos, { align: 'center' });
-        yPos += 20;
+        doc.text('Executive Summary', 20, yPos + 8);
+        yPos += 18;
 
         // Reset color
-        doc.setTextColor(0);
-        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(11);
         doc.setFont('helvetica', 'normal');
+        doc.text('This report provides a comprehensive assessment of the Kubernetes cluster\'s security and compliance posture.', 20, yPos);
+        yPos += 15;
 
-        // Deployment Information Box
+        // Deployment Information Box - Enhanced
         doc.setDrawColor(0, 120, 212);
-        doc.setFillColor(240, 248, 255);
+        doc.setLineWidth(1.5);
+        doc.setFillColor(245, 250, 255);
+        doc.rect(15, yPos, 180, 55, 'FD');
+        yPos += 8;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(0, 120, 212);
+        doc.text('📋 Deployment Information', 20, yPos);
+        yPos += 10;
+        
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        
+        // Two-column layout
+        doc.setFont('helvetica', 'bold');
+        doc.text('Cluster Name:', 20, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.text(plan.clusterName || 'N/A', 65, yPos);
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text('Location:', 110, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.text(plan.location || plan.customLocation || 'N/A', 140, yPos);
+        yPos += 7;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('Resource Group:', 20, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.text(plan.resourceGroup || 'N/A', 65, yPos);
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text('Environment:', 110, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.text(this.reportData.deploymentPlan.environment?.name || 'Custom', 140, yPos);
+        yPos += 7;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('Industry:', 20, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.text(this.reportData.deploymentPlan.industryDetails?.name || 'Not specified', 65, yPos);
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text('Report ID:', 110, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.text(this.reportData.reportId, 140, yPos);
+        yPos += 7;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('Generated:', 20, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.text(new Date().toLocaleDateString(), 65, yPos);
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text('Version:', 110, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.text(this.reportData.reportVersion, 140, yPos);
+        yPos += 18;
+
+        // Compliance Score Box - Enhanced with visual prominence
+        const scoreColor = this.getScoreColor(security.score);
+        doc.setDrawColor(scoreColor.r, scoreColor.g, scoreColor.b);
+        doc.setLineWidth(2);
+        doc.setFillColor(scoreColor.r, scoreColor.g, scoreColor.b, 0.15);
         doc.rect(15, yPos, 180, 45, 'FD');
         yPos += 10;
 
         doc.setFont('helvetica', 'bold');
-        doc.text('Deployment Information', 20, yPos);
-        yPos += 8;
-        doc.setFont('helvetica', 'normal');
-        
-        doc.text(`Cluster Name: ${plan.clusterName || 'N/A'}`, 20, yPos);
-        yPos += 6;
-        doc.text(`Resource Group: ${plan.resourceGroup || 'N/A'}`, 20, yPos);
-        yPos += 6;
-        doc.text(`Location: ${plan.location || plan.customLocation || 'N/A'}`, 20, yPos);
-        yPos += 6;
-        doc.text(`Environment: ${this.reportData.deploymentPlan.environment?.name || 'Custom'}`, 20, yPos);
-        yPos += 6;
-        doc.text(`Industry: ${this.reportData.deploymentPlan.industryDetails?.name || 'Not specified'}`, 20, yPos);
-        yPos += 15;
-
-        // Compliance Score Box
-        const scoreColor = this.getScoreColor(security.score);
-        doc.setDrawColor(scoreColor.r, scoreColor.g, scoreColor.b);
-        doc.setFillColor(scoreColor.r, scoreColor.g, scoreColor.b, 0.1);
-        doc.rect(15, yPos, 180, 35, 'FD');
-        yPos += 10;
-
-        doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
-        doc.text('Overall Compliance Score', 20, yPos);
-        yPos += 10;
-
-        doc.setFontSize(32);
         doc.setTextColor(scoreColor.r, scoreColor.g, scoreColor.b);
-        doc.text(`${security.score}/100`, 105, yPos, { align: 'center' });
-        
-        doc.setFontSize(14);
-        doc.setTextColor(0);
-        yPos += 10;
-        doc.text(`Rating: ${this.getRatingText(security.rating)}`, 105, yPos, { align: 'center' });
+        doc.text('🎯 Overall Compliance Score', 20, yPos);
         yPos += 15;
+
+        // Large score display
+        doc.setFontSize(36);
+        doc.text(`${security.score}`, 85, yPos, { align: 'center' });
+        doc.setFontSize(20);
+        doc.text('/100', 110, yPos);
+        
+        // Rating badge
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        const rating = this.getRatingText(security.rating);
+        doc.text(rating, 145, yPos);
+        yPos += 25;
 
         // Reset
-        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
 
-        // Summary Statistics
+        // Summary Statistics - Professional table format
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        
+        // Table header
+        doc.setFillColor(240, 240, 240);
+        doc.rect(15, yPos, 180, 10, 'FD');
         doc.setFont('helvetica', 'bold');
-        doc.text('Compliance Summary', 20, yPos);
-        yPos += 8;
-        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        doc.text('Compliance Metrics', 20, yPos + 7);
+        yPos += 15;
 
-        doc.text(`Security Checks Passed: ${security.passedChecks} / ${security.totalChecks}`, 20, yPos);
-        yPos += 6;
-        doc.text(`Security Points Earned: ${security.totalPoints} / ${security.maxPoints}`, 20, yPos);
-        yPos += 6;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+
+        // Metrics rows
+        const metrics = [
+            { label: 'Security Checks Passed', value: `${security.passedChecks} / ${security.totalChecks}`, pct: `${Math.round((security.passedChecks / security.totalChecks) * 100)}%` },
+            { label: 'Security Points Earned', value: `${security.totalPoints} / ${security.maxPoints}`, pct: `${Math.round((security.totalPoints / security.maxPoints) * 100)}%` }
+        ];
 
         if (this.reportData.gapAnalysis) {
-            const totalControls = this.reportData.gapAnalysis.frameworks.reduce(
-                (sum, fw) => sum + fw.totalCount, 0
-            );
-            const compliantControls = this.reportData.gapAnalysis.frameworks.reduce(
-                (sum, fw) => sum + fw.compliantCount, 0
-            );
-            doc.text(`Regulatory Controls Met: ${compliantControls} / ${totalControls}`, 20, yPos);
-            yPos += 6;
+            const totalControls = this.reportData.gapAnalysis.frameworks.reduce((sum, fw) => sum + fw.totalCount, 0);
+            const compliantControls = this.reportData.gapAnalysis.frameworks.reduce((sum, fw) => sum + fw.compliantCount, 0);
+            metrics.push({ 
+                label: 'Regulatory Controls Met', 
+                value: `${compliantControls} / ${totalControls}`, 
+                pct: `${Math.round((compliantControls / totalControls) * 100)}%` 
+            });
         }
 
-        doc.text(`Report Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, 20, yPos);
-        yPos += 6;
-        doc.text(`Report Version: ${this.reportData.reportVersion}`, 20, yPos);
+        metrics.forEach((metric, idx) => {
+            const rowY = yPos + (idx * 10);
+            if (idx % 2 === 0) {
+                doc.setFillColor(250, 250, 250);
+                doc.rect(15, rowY - 3, 180, 10, 'F');
+            }
+            
+            doc.text(metric.label, 20, rowY + 4);
+            doc.text(metric.value, 120, rowY + 4);
+            
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(scoreColor.r, scoreColor.g, scoreColor.b);
+            doc.text(metric.pct, 180, rowY + 4, { align: 'right' });
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(0, 0, 0);
+        });
+
+        yPos += (metrics.length * 10) + 5;
 
         return yPos;
     }
@@ -916,17 +992,162 @@ class ComplianceReportGenerator {
     }
 
     /**
-     * Add footers to all pages
+     * Add professional cover page
      */
-    addFooters(doc) {
+    addCoverPage(doc) {
+        // Page background accent
+        doc.setFillColor(0, 120, 212); // Microsoft blue
+        doc.rect(0, 0, 210, 40, 'F');
+
+        // Document title
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(28);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Kubernetes Compliance &', 105, 20, { align: 'center' });
+        doc.text('Security Assessment Report', 105, 32, { align: 'center' });
+
+        // Reset text color
+        doc.setTextColor(0, 0, 0);
+
+        // Subtitle
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(80, 80, 80);
+        doc.text('Microsoft Azure Kubernetes Service Arc-enabled', 105, 55, { align: 'center' });
+
+        // Blue accent line
+        doc.setDrawColor(0, 120, 212);
+        doc.setLineWidth(2);
+        doc.line(30, 65, 180, 65);
+
+        // Cluster information box
+        doc.setFillColor(245, 245, 245);
+        doc.rect(30, 80, 150, 60, 'F');
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Cluster Information', 40, 90);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        const clusterName = this.reportData.clusterName || 'Not Specified';
+        const environment = this.reportData.environment || 'Production';
+        
+        doc.text(`Cluster Name: ${clusterName}`, 40, 102);
+        doc.text(`Environment: ${environment}`, 40, 112);
+        doc.text(`Report Date: ${new Date().toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        })}`, 40, 122);
+        doc.text(`Report Version: ${this.reportData.reportVersion}`, 40, 132);
+
+        // Report classification
+        doc.setFillColor(255, 243, 205);
+        doc.setDrawColor(255, 185, 0);
+        doc.rect(30, 155, 150, 20, 'FD');
+        
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(139, 87, 0);
+        doc.text('⚠ CONFIDENTIAL - Internal Use Only', 105, 167, { align: 'center' });
+
+        // Report details
+        doc.setTextColor(80, 80, 80);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        
+        doc.text('Report ID:', 40, 195);
+        doc.setFont('helvetica', 'bold');
+        doc.text(this.reportData.reportId, 70, 195);
+
+        doc.setFont('helvetica', 'normal');
+        doc.text('Generated By:', 40, 205);
+        doc.setFont('helvetica', 'bold');
+        doc.text('AKS Arc Deployment Tool', 70, 205);
+
+        doc.setFont('helvetica', 'normal');
+        doc.text('Generated At:', 40, 215);
+        doc.setFont('helvetica', 'bold');
+        doc.text(new Date().toLocaleString('en-US'), 70, 215);
+
+        // Compliance frameworks covered
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Compliance Frameworks Assessed:', 40, 235);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        const frameworks = [
+            '• PCI DSS 4.0 - Payment Card Industry Data Security Standard',
+            '• HIPAA - Health Insurance Portability and Accountability Act',
+            '• ISO 27001 - Information Security Management',
+            '• SOC 2 Type II - Service Organization Control',
+            '• NIST CSF - Cybersecurity Framework',
+            '• FedRAMP - Federal Risk and Authorization Management Program'
+        ];
+
+        let yPos = 245;
+        frameworks.forEach(framework => {
+            doc.text(framework, 45, yPos);
+            yPos += 7;
+        });
+
+        // Footer with professional statement
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.setFont('helvetica', 'italic');
+        doc.text('This report provides a comprehensive assessment of Kubernetes security and compliance posture.', 105, 290, { align: 'center' });
+        doc.text('Results are based on configured policies and should be reviewed by qualified security professionals.', 105, 295, { align: 'center' });
+    }
+
+    /**
+     * Add professional headers and footers to all pages
+     */
+    addHeadersAndFooters(doc) {
         const pageCount = doc.internal.getNumberOfPages();
         
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
+            
+            // Skip header on cover page (page 1)
+            if (i > 1) {
+                // Header - blue accent line
+                doc.setDrawColor(0, 120, 212);
+                doc.setLineWidth(0.5);
+                doc.line(20, 12, 190, 12);
+
+                // Header text
+                doc.setFontSize(9);
+                doc.setTextColor(80, 80, 80);
+                doc.setFont('helvetica', 'normal');
+                doc.text(this.reportData.reportTitle, 20, 10);
+                
+                doc.setFont('helvetica', 'bold');
+                doc.text(`Page ${i} of ${pageCount}`, 190, 10, { align: 'right' });
+            }
+
+            // Footer - classification and metadata
             doc.setFontSize(8);
-            doc.setTextColor(150);
-            doc.text(`Page ${i} of ${pageCount}`, 105, 285, { align: 'center' });
-            doc.text('CONFIDENTIAL - Compliance Documentation', 20, 285);
+            doc.setTextColor(150, 150, 150);
+            doc.setFont('helvetica', 'italic');
+            
+            if (i === 1) {
+                // Cover page footer
+                doc.text('Generated by AKS Arc Deployment Tool | Microsoft Azure', 105, 285, { align: 'center' });
+            } else {
+                // Standard footer with classification
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(139, 87, 0);
+                doc.text('CONFIDENTIAL', 20, 285);
+                
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(150, 150, 150);
+                doc.text(`Report ${this.reportData.reportId} | Generated ${new Date().toLocaleDateString()}`, 105, 285, { align: 'center' });
+                doc.text(`v${this.reportData.reportVersion}`, 190, 285, { align: 'right' });
+            }
         }
     }
 

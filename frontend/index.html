@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
     <title>AKS Arc Deployment Tool</title>
-    <link rel="stylesheet" href="css/style.css?v=180106">
+    <link rel="stylesheet" href="css/style.css?v=180107">
     <link rel="stylesheet" href="css/polish.css?v=180102">
 </head>
 <body>
@@ -330,16 +330,37 @@
                                 💰 Costs ~$6.87/vCore/month
                             </div>
                             <p class="security-description">
-                                Provides threat protection, vulnerability scanning, and runtime security for containerized workloads.
+                                <strong>Enterprise-grade threat protection and vulnerability management</strong> powered by Microsoft Security Response Center (MSRC) threat intelligence.
                             </p>
+                            
+                            <h5 style="margin-top: 15px; margin-bottom: 8px; color: var(--primary-color);">🛡️ Security Capabilities</h5>
                             <ul class="security-features">
-                                <li>✓ Real-time threat detection</li>
-                                <li>✓ 20 free vulnerability scans per vCore/month</li>
-                                <li>✓ Kubernetes security posture management</li>
-                                <li>✓ 30-day free trial included</li>
+                                <li><strong>Real-time threat detection:</strong> Identifies cryptomining, backdoors, lateral movement, and privilege escalation</li>
+                                <li><strong>Vulnerability scanning:</strong> 20 free scans/vCore/month with CVE correlation and prioritization</li>
+                                <li><strong>Runtime protection:</strong> Monitors file integrity, process execution, and network connections</li>
+                                <li><strong>Security alerts:</strong> Integration with Azure Security Center and SIEM tools</li>
+                                <li><strong>Kubernetes posture:</strong> CIS Kubernetes Benchmark compliance assessment</li>
                             </ul>
+                            
+                            <h5 style="margin-top: 12px; margin-bottom: 8px; color: var(--success-color);">📋 Compliance & Regulatory Benefits</h5>
+                            <ul class="security-features">
+                                <li><strong>PCI DSS 4.0:</strong> Requirement 6.3 (vulnerability management), 11.5 (intrusion detection)</li>
+                                <li><strong>HIPAA:</strong> §164.308(a)(1)(ii)(D) incident response, §164.312(b) audit controls</li>
+                                <li><strong>ISO 27001:</strong> A.12.6.1 (technical vulnerability management), A.16.1.2 (security events)</li>
+                                <li><strong>SOC 2 Type II:</strong> CC6.1 (logical access), CC7.2 (system monitoring)</li>
+                                <li><strong>NIST CSF:</strong> DE.CM-1 (monitoring), DE.CM-7 (monitoring for unauthorized activity)</li>
+                            </ul>
+                            
+                            <h5 style="margin-top: 12px; margin-bottom: 8px; color: var(--info-color);">💼 Audit & Documentation</h5>
+                            <ul class="security-features">
+                                <li><strong>Audit reports:</strong> Pre-built templates for SOC 2, ISO, and PCI auditors</li>
+                                <li><strong>Evidence collection:</strong> Automated logging of security events and findings</li>
+                                <li><strong>Compliance dashboard:</strong> Real-time regulatory compliance scores and trends</li>
+                                <li><strong>30-day free trial:</strong> Test with your auditor before committing</li>
+                            </ul>
+                            
                             <p class="security-cost-estimate">
-                                <small><strong>Example:</strong> 8 vCore cluster = ~$55/month (~$660/year)</small>
+                                <small><strong>Cost Example:</strong> 8 vCore cluster = ~$55/month (~$660/year) | <strong>Value:</strong> Replaces $15K-50K/year vulnerability scanning + SIEM tools</small>
                             </p>
                         </div>
                     </div>
@@ -357,16 +378,37 @@
                                 ✅ FREE - No additional cost
                             </div>
                             <p class="security-description">
-                                Enforces regulatory compliance policies and governance standards automatically.
+                                <strong>Automated policy-as-code enforcement</strong> with built-in regulatory frameworks and real-time compliance reporting. Essential for production Kubernetes governance.
                             </p>
+                            
+                            <h5 style="margin-top: 15px; margin-bottom: 8px; color: var(--primary-color);">⚙️ Governance Capabilities</h5>
                             <ul class="security-features">
-                                <li>✓ Automated compliance enforcement</li>
-                                <li>✓ Pod security standards (PSS)</li>
-                                <li>✓ 100+ built-in policy definitions</li>
-                                <li>✓ Real-time compliance reporting</li>
+                                <li><strong>Pod Security Standards (PSS):</strong> Enforces baseline, restricted, and privileged policies</li>
+                                <li><strong>100+ built-in policies:</strong> Image sources, resource limits, service mesh, network policies</li>
+                                <li><strong>Custom policy authoring:</strong> Rego-based constraints for organization-specific requirements</li>
+                                <li><strong>Deny/Audit/Disabled modes:</strong> Flexible enforcement for dev vs production</li>
+                                <li><strong>Real-time compliance:</strong> Continuous assessment with Azure Resource Graph queries</li>
                             </ul>
+                            
+                            <h5 style="margin-top: 12px; margin-bottom: 8px; color: var(--success-color);">📋 Compliance & Regulatory Benefits</h5>
+                            <ul class="security-features">
+                                <li><strong>PCI DSS 4.0:</strong> Requirement 2.2 (secure configurations), 6.5.1 (least privilege)</li>
+                                <li><strong>HIPAA:</strong> §164.308(a)(4)(ii)(A) access authorization, §164.312(a)(1) unique user IDs</li>
+                                <li><strong>ISO 27001:</strong> A.9.4.1 (access restriction), A.13.1.3 (network segregation)</li>
+                                <li><strong>SOC 2:</strong> CC6.6 (logical access controls), CC6.7 (restricted privileged access)</li>
+                                <li><strong>FedRAMP:</strong> AC-3 (access enforcement), CM-7 (least functionality)</li>
+                            </ul>
+                            
+                            <h5 style="margin-top: 12px; margin-bottom: 8px; color: var(--info-color);">💼 Audit & Documentation</h5>
+                            <ul class="security-features">
+                                <li><strong>Audit logs:</strong> Complete policy evaluation history in Azure Activity Log</li>
+                                <li><strong>Compliance dashboard:</strong> Resource compliance percentage by policy</li>
+                                <li><strong>Remediation tasks:</strong> Automated or manual fix deployment for non-compliant resources</li>
+                                <li><strong>Export capabilities:</strong> CSV/JSON exports for auditor evidence packages</li>
+                            </ul>
+                            
                             <p class="security-recommendation">
-                                <small><strong>Recommended:</strong> Azure Policy is free and provides essential compliance controls.</small>
+                                <small><strong>✅ Strongly Recommended:</strong> Azure Policy is FREE and provides essential compliance controls required by most regulatory frameworks. Enable for all production clusters.</small>
                             </p>
                         </div>
                     </div>
@@ -463,11 +505,11 @@
 
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="js/security.js?v=180105"></script>
-    <script src="js/compliance.js?v=180105"></script>
-    <script src="js/compliance-report.js?v=180105"></script>
-    <script src="js/planner.js?v=180105"></script>
-    <script src="js/generator.js?v=180105"></script>
-    <script src="js/app.js?v=180105"></script>
+    <script src="js/security.js?v=180107"></script>
+    <script src="js/compliance.js?v=180107"></script>
+    <script src="js/compliance-report.js?v=180107"></script>
+    <script src="js/planner.js?v=180107"></script>
+    <script src="js/generator.js?v=180107"></script>
+    <script src="js/app.js?v=180107"></script>
 </body>
 </html>
