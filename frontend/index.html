@@ -10,17 +10,27 @@
 <body>
     <div class="container">
         <header>
-            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
-                <span class="icon" id="themeIcon">🌙</span>
-                <span id="themeLabel">Dark</span>
-            </button>
+            <div class="header-actions">
+                <button class="home-button" onclick="resetWizard()" aria-label="Start over" title="Start Over">
+                    <span class="icon">🏠</span>
+                    <span>Start Over</span>
+                </button>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                    <span class="icon" id="themeIcon">🌙</span>
+                    <span id="themeLabel">Dark</span>
+                </button>
+            </div>
             <h1>🚀 AKS Arc Deployment Tool</h1>
             <p class="subtitle">Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511</p>
         </header>
 
-        <div class="catalog-banner" id="catalogBanner">
-            <span id="catalogInfo"></span>
-            <button onclick="refreshCatalog()" class="btn-link">Refresh Catalog</button>
+        <div class="catalog-notification" id="catalogNotification" style="display: none;">
+            <div class="notification-content">
+                <span class="notification-icon">ℹ️</span>
+                <span id="catalogInfo"></span>
+                <button onclick="refreshCatalog()" class="btn-link">Refresh</button>
+            </div>
+            <button class="notification-close" onclick="dismissCatalogNotification()" aria-label="Dismiss">&times;</button>
         </div>
 
         <main id="wizard">

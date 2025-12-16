@@ -166,31 +166,77 @@ function initializeEventListeners() {
 function updateCatalogBanner() {
     if (!catalog) return;
 
+    const notification = document.getElementById('catalogNotification');
     const banner = document.getElementById('catalogInfo');
     const lastUpdated = new Date(catalog.metadata.last_updated);
     const daysOld = Math.floor((Date.now() - lastUpdated) / (1000 * 60 * 60 * 24));
     
-    let message = `Catalog: ${catalog.metadata.target} (v${catalog.metadata.version})`;
-    message += ` • Last updated: ${daysOld} days ago`;
+    // Only show notification if catalog is outdated (>30 days) and not dismissed
+    const dismissed = localStorage.getItem('catalogNotificationDismissed');
     
-    banner.textContent = message;
-    
-    // Show warning if outdated
-    const bannerEl = document.getElementById('catalogBanner');
-    if (daysOld > 30) {
-        bannerEl.classList.add('warning');
-        message += ' ⚠️ Consider refreshing';
+    if (daysOld > 30 && !dismissed) {
+        let message = `Catalog data is ${daysOld} days old. Consider refreshing for latest Azure Local 2511 configurations.`;
+        banner.textContent = message;
+        notification.style.display = 'flex';
     } else {
-        bannerEl.classList.remove('warning');
+        notification.style.display = 'none';
     }
+}
+
+/**
+ * Dismiss catalog notification
+ */
+function dismissCatalogNotification() {
+    const notification = document.getElementById('catalogNotification');
+    notification.style.display = 'none';
+    localStorage.setItem('catalogNotificationDismissed', 'true');
 }
 
 /**
  * Refresh catalog (in this static version, just reload)
  */
 function refreshCatalog() {
+    localStorage.removeItem('catalogNotificationDismissed');
     alert('In the static version, catalog data is embedded. In production, this would fetch latest data from Azure APIs.');
     loadCatalog();
+    updateCatalogBanner();
+}
+
+/**
+ * Reset wizard to start
+ */
+function resetWizard() {
+    // Reset state
+    selectedIndustry = null;
+    selectedEnvironment = 'production';
+    selectedWorkload = null;
+    deploymentPlan = null;
+    
+    // Clear form
+    document.getElementById('clusterForm').reset();
+    
+    // Clear industry selection
+    document.querySelectorAll('.industry-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    document.getElementById('complianceDetails').style.display = 'none';
+    
+    // Clear environment selection
+    document.querySelectorAll('.env-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Clear workload selection
+    document.querySelectorAll('.workload-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Go to step 1
+    currentStep = 1;
+    showStep(1);
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /**
