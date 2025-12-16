@@ -399,6 +399,9 @@ function selectSolution(solutionType) {
         document.getElementById('gpuCount').value = gpu.gpu_vms;
         document.getElementById('gpuCountGroup').style.display = 'block';
     }
+    
+    // Advance to Step 2
+    nextStep();
 }
 
 /**
