@@ -4,8 +4,10 @@
 
 let catalog = null;
 let planner = null;
+let securityValidator = null;
 let currentStep = 1;
 let selectedWorkload = null;
+let selectedEnvironment = 'production'; // Default to production
 let deploymentPlan = null;
 
 // Initialize app
@@ -85,6 +87,24 @@ const EMBEDDED_CATALOG = {
       "gpu_count": 0,
       "storage_gb": 200
     }
+  },
+  "environment_templates": {
+    "poc": {"name":"POC / Development","control_plane_count":1,"min_nodes":2,"max_nodes":3,"enable_auto_scaling":false,"enable_monitoring":false,"backup_enabled":false,"estimated_monthly_cost":247},
+    "pilot": {"name":"Pilot / Testing","control_plane_count":3,"min_nodes":3,"max_nodes":10,"enable_auto_scaling":true,"enable_monitoring":true,"backup_enabled":true,"estimated_monthly_cost":1834},
+    "production": {"name":"Production","control_plane_count":3,"min_nodes":3,"max_nodes":100,"enable_auto_scaling":true,"enable_monitoring":true,"backup_enabled":true,"estimated_monthly_cost":4291}
+  },
+  "security_baseline": {
+    "checks": [
+      {"id":"ha-control-plane","name":"High Availability Control Plane","description":"Control plane should have 3+ nodes for production","category":"availability","severity":"high","points":15},
+      {"id":"availability-sets","name":"Availability Sets Enabled","description":"VMs spread across physical hosts with anti-affinity","category":"availability","severity":"high","points":10},
+      {"id":"auto-scaling","name":"Node Pool Auto-scaling","description":"Enable auto-scaling to handle variable workloads","category":"resilience","severity":"medium","points":8},
+      {"id":"min-nodes","name":"Minimum Node Count","description":"At least 3 worker nodes for workload distribution","category":"availability","severity":"medium","points":10},
+      {"id":"monitoring","name":"Monitoring Enabled","description":"Azure Monitor for observability and alerting","category":"operations","severity":"high","points":12},
+      {"id":"backup","name":"Backup Configuration","description":"Regular backups for disaster recovery","category":"data-protection","severity":"high","points":10},
+      {"id":"network-policies","name":"Network Policies","description":"Network policies for pod-to-pod communication control","category":"security","severity":"high","points":15},
+      {"id":"rbac","name":"RBAC Configuration","description":"Role-based access control for cluster security","category":"security","severity":"critical","points":20}
+    ],
+    "score_thresholds": {"excellent":90,"good":70,"fair":50,"poor":0}
   }
 };
 
@@ -103,6 +123,7 @@ async function loadCatalog() {
         console.log('Using embedded catalog data');
         catalog = EMBEDDED_CATALOG;
         planner = new AKSArcPlanner(catalog);
+        securityValidator = new SecurityValidator(catalog);
     }
 }
 
@@ -154,6 +175,26 @@ function updateCatalogBanner() {
 function refreshCatalog() {
     alert('In the static version, catalog data is embedded. In production, this would fetch latest data from Azure APIs.');
     loadCatalog();
+}
+
+/**
+ * Select environment template
+ */
+function selectEnvironment(envType) {
+    selectedEnvironment = envType;
+    
+    // Update visual selection
+    document.querySelectorAll('.env-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    document.getElementById(`env-${envType}`).classList.add('selected');
+    
+    // Apply environment template settings
+    const template = catalog.environment_templates[envType];
+    if (template) {
+        // These will be applied during plan generation
+        console.log(`Selected environment: ${template.name}`);
+    }
 }
 
 /**
@@ -214,9 +255,13 @@ function generatePlan() {
         return;
     }
 
-    // Gather configuration
+    // Get environment template
+    const envTemplate = catalog.environment_templates[selectedEnvironment];
+
+    // Gather configuration with environment overrides
     const config = {
         workloadType: selectedWorkload,
+        environment: selectedEnvironment,
         clusterName,
         resourceGroup,
         location: document.getElementById('location').value,
@@ -226,18 +271,74 @@ function generatePlan() {
         gpuRequired: document.getElementById('gpuRequired').checked,
         gpuCount: parseInt(document.getElementById('gpuCount').value) || 0,
         enableAvailabilitySets: true, // Always enabled by default in AKS Arc
-        physicalHostCount: parseInt(document.getElementById('physicalHostCount').value) || 2
+        physicalHostCount: parseInt(document.getElementById('physicalHostCount').value) || 2,
+        // Environment-specific overrides
+        controlPlaneCountOverride: envTemplate.control_plane_count,
+        minNodesOverride: envTemplate.min_nodes,
+        maxNodesOverride: envTemplate.max_nodes,
+        enableAutoScaling: envTemplate.enable_auto_scaling,
+        enableMonitoring: envTemplate.enable_monitoring,
+        backupEnabled: envTemplate.backup_enabled
     };
 
     // Create plan
     deploymentPlan = planner.createPlan(config);
     
+    // Add environment info to plan
+    deploymentPlan.environment = envTemplate;
+    
+    // Run security validation
+    const securityResult = securityValidator.validate(deploymentPlan, envTemplate);
+    deploymentPlan.securityScore = securityResult;
+    
     // Display results
+    displaySecurityScore(securityResult);
     displayValidationResults(deploymentPlan.validation);
     displayPlanSummary(deploymentPlan);
     
     // Move to next step
     nextStep();
+}
+
+/**
+ * Display security score
+ */
+function displaySecurityScore(securityResult) {
+    const scoreNumber = document.getElementById('scoreNumber');
+    const scoreCircle = document.getElementById('scoreCircle');
+    const scoreRating = document.getElementById('scoreRating');
+    const checksContainer = document.getElementById('securityChecks');
+    
+    // Update score display
+    scoreNumber.textContent = securityResult.score;
+    
+    // Update rating and circle color
+    scoreCircle.className = `score-circle ${securityResult.rating}`;
+    scoreRating.className = `score-rating ${securityResult.rating}`;
+    scoreRating.textContent = securityValidator.getRatingText(securityResult.rating);
+    
+    // Display individual checks
+    let checksHtml = '';
+    securityResult.checks.forEach(check => {
+        const icon = check.passed ? '✅' : '❌';
+        const statusClass = check.passed ? 'passed' : 'failed';
+        const recommendation = check.passed ? '' : 
+            `<div class="check-recommendation">💡 ${securityValidator.getRecommendationAction(check.id)}</div>`;
+        
+        checksHtml += `
+            <div class="security-check ${statusClass}">
+                <div class="check-icon">${icon}</div>
+                <div class="check-content">
+                    <div class="check-name">${check.name}</div>
+                    <div class="check-description">${check.description}</div>
+                    ${recommendation}
+                </div>
+                <div class="check-points">${check.pointsEarned}/${check.points} pts</div>
+            </div>
+        `;
+    });
+    
+    checksContainer.innerHTML = checksHtml;
 }
 
 /**

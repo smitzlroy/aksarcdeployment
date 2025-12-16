@@ -26,8 +26,50 @@
         <main id="wizard">
             <!-- Step 1: Workload Selection -->
             <section class="wizard-step active" id="step1">
-                <h2>Step 1: Choose Your Workload</h2>
-                <p>Select a workload type or customize your requirements</p>
+                <h2>Step 1: Choose Your Environment & Workload</h2>
+                
+                <!-- Environment Selector -->
+                <div class="environment-selector">
+                    <h3>Deployment Stage</h3>
+                    <p>Select your target environment to automatically configure appropriate settings</p>
+                    
+                    <div class="environment-cards">
+                        <div class="env-card" onclick="selectEnvironment('poc')" id="env-poc">
+                            <div class="env-icon">🧪</div>
+                            <h4>POC / Dev</h4>
+                            <p>Minimal resources for testing</p>
+                            <div class="env-details">
+                                <small>1 control plane • 2-3 nodes</small>
+                                <div class="cost-badge">~$247/mo</div>
+                            </div>
+                        </div>
+                        
+                        <div class="env-card" onclick="selectEnvironment('pilot')" id="env-pilot">
+                            <div class="env-icon">🚀</div>
+                            <h4>Pilot / Test</h4>
+                            <p>Basic HA for pre-production</p>
+                            <div class="env-details">
+                                <small>3 control planes • 3-10 nodes</small>
+                                <div class="cost-badge">~$1,834/mo</div>
+                            </div>
+                        </div>
+                        
+                        <div class="env-card selected" onclick="selectEnvironment('production')" id="env-production">
+                            <div class="env-icon">⚡</div>
+                            <h4>Production</h4>
+                            <p>Full HA with auto-scaling</p>
+                            <div class="env-details">
+                                <small>3 control planes • 3-100 nodes</small>
+                                <div class="cost-badge">~$4,291/mo</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr style="margin: 30px 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <h3>Workload Type</h3>
+                <p>Select a workload preset or customize your requirements</p>
                 
                 <div class="workload-cards">
                     <div class="card" onclick="selectWorkload('video-analytics')">
@@ -141,6 +183,22 @@
             <section class="wizard-step" id="step3">
                 <h2>Step 3: Review Your Deployment Plan</h2>
                 
+                <!-- Security Score Card -->
+                <div class="security-scorecard" id="securityScorecard">
+                    <h3>🔒 Security & Compliance Score</h3>
+                    <div class="score-display">
+                        <div class="score-circle" id="scoreCircle">
+                            <span class="score-number" id="scoreNumber">--</span>
+                            <span class="score-label">/100</span>
+                        </div>
+                        <div class="score-details" id="scoreDetails">
+                            <div class="score-rating" id="scoreRating">Calculating...</div>
+                            <div class="score-subtitle">Based on 8 security checks</div>
+                        </div>
+                    </div>
+                    <div class="security-checks" id="securityChecks"></div>
+                </div>
+
                 <div id="validationResults"></div>
 
                 <div class="plan-summary" id="planSummary"></div>
@@ -176,6 +234,7 @@
         </footer>
     </div>
 
+    <script src="js/security.js"></script>
     <script src="js/planner.js"></script>
     <script src="js/generator.js"></script>
     <script src="js/app.js"></script>

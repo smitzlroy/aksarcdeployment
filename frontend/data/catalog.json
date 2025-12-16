@@ -121,5 +121,136 @@
       "gpu_count": 0,
       "storage_gb": 200
     }
+  },
+  "environment_templates": {
+    "poc": {
+      "name": "POC / Development",
+      "description": "Minimal resources for proof-of-concept and development testing",
+      "icon": "🧪",
+      "control_plane_count": 1,
+      "min_nodes": 2,
+      "max_nodes": 3,
+      "enable_auto_scaling": false,
+      "enable_monitoring": false,
+      "backup_enabled": false,
+      "cost_tier": "minimal",
+      "use_cases": ["Quick testing", "Development", "Feature validation"],
+      "warnings": ["Not suitable for production", "No high availability", "Single point of failure"],
+      "estimated_monthly_cost": 247
+    },
+    "pilot": {
+      "name": "Pilot / Testing",
+      "description": "Basic high availability for pilot programs and pre-production testing",
+      "icon": "🚀",
+      "control_plane_count": 3,
+      "min_nodes": 3,
+      "max_nodes": 10,
+      "enable_auto_scaling": true,
+      "enable_monitoring": true,
+      "backup_enabled": true,
+      "cost_tier": "moderate",
+      "use_cases": ["Pilot deployments", "UAT testing", "Performance validation"],
+      "warnings": ["Limited scale", "Basic monitoring only"],
+      "estimated_monthly_cost": 1834
+    },
+    "production": {
+      "name": "Production",
+      "description": "Full high availability with auto-scaling and comprehensive monitoring",
+      "icon": "⚡",
+      "control_plane_count": 3,
+      "min_nodes": 3,
+      "max_nodes": 100,
+      "enable_auto_scaling": true,
+      "enable_monitoring": true,
+      "backup_enabled": true,
+      "cost_tier": "full",
+      "use_cases": ["Production workloads", "Mission-critical apps", "Enterprise scale"],
+      "warnings": [],
+      "estimated_monthly_cost": 4291,
+      "security_hardening": true,
+      "compliance_ready": true
+    }
+  },
+  "security_baseline": {
+    "checks": [
+      {
+        "id": "ha-control-plane",
+        "name": "High Availability Control Plane",
+        "description": "Control plane should have 3+ nodes for production",
+        "category": "availability",
+        "severity": "high",
+        "points": 15,
+        "check": "controlPlaneCount >= 3"
+      },
+      {
+        "id": "availability-sets",
+        "name": "Availability Sets Enabled",
+        "description": "VMs spread across physical hosts with anti-affinity",
+        "category": "availability",
+        "severity": "high",
+        "points": 10,
+        "check": "enableAvailabilitySets === true"
+      },
+      {
+        "id": "auto-scaling",
+        "name": "Node Pool Auto-scaling",
+        "description": "Enable auto-scaling to handle variable workloads",
+        "category": "resilience",
+        "severity": "medium",
+        "points": 8,
+        "check": "nodePoolsHaveAutoScaling === true"
+      },
+      {
+        "id": "min-nodes",
+        "name": "Minimum Node Count",
+        "description": "At least 3 worker nodes for workload distribution",
+        "category": "availability",
+        "severity": "medium",
+        "points": 10,
+        "check": "totalNodes >= 3"
+      },
+      {
+        "id": "monitoring",
+        "name": "Monitoring Enabled",
+        "description": "Azure Monitor for observability and alerting",
+        "category": "operations",
+        "severity": "high",
+        "points": 12,
+        "check": "monitoringEnabled === true"
+      },
+      {
+        "id": "backup",
+        "name": "Backup Configuration",
+        "description": "Regular backups for disaster recovery",
+        "category": "data-protection",
+        "severity": "high",
+        "points": 10,
+        "check": "backupEnabled === true"
+      },
+      {
+        "id": "network-policies",
+        "name": "Network Policies",
+        "description": "Network policies for pod-to-pod communication control",
+        "category": "security",
+        "severity": "high",
+        "points": 15,
+        "check": "networkPoliciesEnabled === true"
+      },
+      {
+        "id": "rbac",
+        "name": "RBAC Configuration",
+        "description": "Role-based access control for cluster security",
+        "category": "security",
+        "severity": "critical",
+        "points": 20,
+        "check": "rbacEnabled === true"
+      }
+    ],
+    "score_thresholds": {
+      "excellent": 90,
+      "good": 70,
+      "fair": 50,
+      "poor": 0
+    }
   }
 }

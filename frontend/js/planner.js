@@ -13,6 +13,7 @@ class AKSArcPlanner {
     createPlan(config) {
         const {
             workloadType,
+            environment,
             clusterName,
             resourceGroup,
             location,
@@ -22,14 +23,20 @@ class AKSArcPlanner {
             gpuRequired,
             gpuCount,
             enableAvailabilitySets,
-            physicalHostCount
+            physicalHostCount,
+            controlPlaneCountOverride,
+            minNodesOverride,
+            maxNodesOverride,
+            enableAutoScaling,
+            enableMonitoring,
+            backupEnabled
         } = config;
 
         // Select Kubernetes version
         const k8sVersion = this.catalog.kubernetes_versions[0];
 
-        // Determine control plane count
-        const controlPlaneCount = cpuCores >= 16 ? 3 : 1;
+        // Determine control plane count (use override if provided)
+        const controlPlaneCount = controlPlaneCountOverride || (cpuCores >= 16 ? 3 : 1);
 
         // Plan node pools
         const nodePools = this.planNodePools({
@@ -37,7 +44,10 @@ class AKSArcPlanner {
             memoryGb,
             gpuRequired,
             gpuCount,
-            workloadType
+            workloadType,
+            minNodesOverride,
+            maxNodesOverride,
+            enableAutoScaling
         });
 
         // Generate availability set configuration (enabled by default in AKS Arc)
@@ -74,7 +84,16 @@ class AKSArcPlanner {
      * Plan node pools based on workload requirements
      */
     planNodePools(requirements) {
-        const { cpuCores, memoryGb, gpuRequired, gpuCount, workloadType } = requirements;
+        const { 
+            cpuCores, 
+            memoryGb, 
+            gpuRequired, 
+            gpuCount, 
+            workloadType,
+            minNodesOverride,
+            maxNodesOverride,
+            enableAutoScaling 
+        } = requirements;
         const nodePools = [];
 
         // Select VM SKU based on requirements
@@ -84,20 +103,24 @@ class AKSArcPlanner {
 
         const vmSize = this.selectVmSku(vmSkus, cpuCores, memoryGb);
         const nodeCount = this.calculateNodeCount(cpuCores, memoryGb, vmSize);
+        
+        // Apply environment overrides
+        const finalNodeCount = minNodesOverride || Math.max(3, nodeCount);
+        const finalMaxNodes = maxNodesOverride || (Math.max(3, nodeCount) * 2);
 
         // Create primary node pool
         nodePools.push({
             name: 'nodepool1',
             vmSize: vmSize.name,
-            nodeCount: Math.max(3, nodeCount),
+            nodeCount: finalNodeCount,
             osType: 'Linux',
             mode: 'System',
             labels: {
                 workload: workloadType || 'general-purpose'
             },
-            enableAutoScaling: true,
-            minCount: 1,
-            maxCount: Math.max(3, nodeCount) * 2,
+            enableAutoScaling: enableAutoScaling !== undefined ? enableAutoScaling : true,
+            minCount: minNodesOverride || 1,
+            maxCount: finalMaxNodes,
             maxPods: 110
         });
 
