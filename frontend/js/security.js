@@ -84,6 +84,19 @@ class SecurityValidator {
                 // RBAC should be enabled for production
                 return environment?.name === 'Production';
             
+            case 'encryption-at-rest':
+                // Assume encryption enabled for production
+                return environment?.name === 'Production';
+            
+            case 'network-segmentation':
+                // Network segmentation for production and manufacturing/energy
+                return environment?.name === 'Production' && 
+                       (plan.industry === 'manufacturing' || plan.industry === 'energy');
+            
+            case 'audit-logging':
+                // Audit logging for production
+                return environment?.name === 'Production' && environment?.enable_monitoring;
+            
             default:
                 return false;
         }

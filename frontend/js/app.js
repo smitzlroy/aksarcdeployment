@@ -8,6 +8,7 @@ let securityValidator = null;
 let currentStep = 1;
 let selectedWorkload = null;
 let selectedEnvironment = 'production'; // Default to production
+let selectedIndustry = null; // No default industry
 let deploymentPlan = null;
 
 // Initialize app
@@ -102,9 +103,23 @@ const EMBEDDED_CATALOG = {
       {"id":"monitoring","name":"Monitoring Enabled","description":"Azure Monitor for observability and alerting","category":"operations","severity":"high","points":12},
       {"id":"backup","name":"Backup Configuration","description":"Regular backups for disaster recovery","category":"data-protection","severity":"high","points":10},
       {"id":"network-policies","name":"Network Policies","description":"Network policies for pod-to-pod communication control","category":"security","severity":"high","points":15},
-      {"id":"rbac","name":"RBAC Configuration","description":"Role-based access control for cluster security","category":"security","severity":"critical","points":20}
+      {"id":"rbac","name":"RBAC Configuration","description":"Role-based access control for cluster security","category":"security","severity":"critical","points":20},
+      {"id":"encryption-at-rest","name":"Encryption at Rest","description":"Data encrypted at rest for compliance","category":"security","severity":"high","points":12,"compliance":["ISO 27001","PCI-DSS","GDPR","NERC CIP"]},
+      {"id":"network-segmentation","name":"Network Segmentation","description":"Network isolation between production workloads","category":"security","severity":"high","points":10,"compliance":["IEC 62443","NERC CIP","ISO 27001"]},
+      {"id":"audit-logging","name":"Audit Logging","description":"Comprehensive audit logs for compliance reporting","category":"security","severity":"medium","points":8,"compliance":["PCI-DSS","GDPR","NERC CIP","ISO 27001"]}
     ],
     "score_thresholds": {"excellent":90,"good":70,"fair":50,"poor":0}
+  },
+  "industry_compliance": {
+    "manufacturing": {
+      "name":"Manufacturing & Industrial Automation","regulatory_frameworks":[{"name":"ISO 27001","description":"Information Security Management System (ISMS)","scope":"Global standard for information security","key_requirements":["Risk assessment","Access controls","Incident management","Business continuity"]},{"name":"IEC 62443","description":"Industrial Automation and Control Systems Security","scope":"OT/ICS security standards","key_requirements":["Network segmentation","Secure remote access","Patch management","Security monitoring"]},{"name":"TISAX","description":"Trusted Information Security Assessment Exchange","scope":"Automotive industry security","key_requirements":["Data protection","Prototype protection","Supply chain security"]}],"security_pillars":["OT/IT Convergence Security","Supply Chain Protection","Industrial IoT Security","Physical Access Controls"],"azure_security_services":["Azure Defender for IoT","Network Security Groups","Azure Private Link","Azure Key Vault"]
+    },
+    "retail": {
+      "name":"Retail & E-Commerce","regulatory_frameworks":[{"name":"PCI-DSS","description":"Payment Card Industry Data Security Standard","scope":"Payment card data protection","key_requirements":["Cardholder data encryption","Network segmentation","Access control","Security testing","Incident response"]},{"name":"GDPR","description":"General Data Protection Regulation","scope":"EU customer data privacy","key_requirements":["Data minimization","Consent management","Right to erasure","Data breach notification"]},{"name":"CCPA","description":"California Consumer Privacy Act","scope":"California resident data rights","key_requirements":["Disclosure of data collection","Right to opt-out","Data deletion rights"]}],"security_pillars":["Payment Security","Customer Data Protection","E-commerce Platform Security","POS System Security"],"azure_security_services":["Azure Key Vault","Azure Private Link","Azure DDoS Protection","Microsoft Defender for Cloud"]
+    },
+    "energy": {
+      "name":"Energy & Resources","regulatory_frameworks":[{"name":"NERC CIP","description":"North American Electric Reliability Corporation Critical Infrastructure Protection","scope":"Bulk Electric System protection","key_requirements":["Physical security","Electronic security perimeters","Incident reporting","Recovery plans"]},{"name":"IEC 62351","description":"Power Systems Management and Information Exchange Security","scope":"Energy sector communications security","key_requirements":["Authentication","Encryption","Intrusion detection","Key management"]},{"name":"NIST Cybersecurity Framework","description":"Framework for Critical Infrastructure Cybersecurity","scope":"Risk-based security approach","key_requirements":["Identify assets","Protect systems","Detect threats","Respond to incidents","Recover operations"]},{"name":"API 1164","description":"Pipeline SCADA Security","scope":"Pipeline infrastructure protection","key_requirements":["SCADA access controls","Network monitoring","Change management"]}],"security_pillars":["SCADA/ICS Security","Critical Infrastructure Protection","Operational Continuity","Regulatory Compliance"],"azure_security_services":["Azure Defender for IoT","Azure Firewall","Azure Sentinel","Azure Backup"]
+    }
   }
 };
 
@@ -176,6 +191,52 @@ function updateCatalogBanner() {
 function refreshCatalog() {
     alert('In the static version, catalog data is embedded. In production, this would fetch latest data from Azure APIs.');
     loadCatalog();
+}
+
+/**
+ * Select industry
+ */
+function selectIndustry(industryType) {
+    selectedIndustry = industryType;
+    
+    // Update visual selection
+    document.querySelectorAll('.industry-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    document.getElementById(`industry-${industryType}`).classList.add('selected');
+    
+    // Show compliance details if industry selected
+    const detailsDiv = document.getElementById('complianceDetails');
+    const frameworksDiv = document.getElementById('complianceFrameworks');
+    
+    if (industryType === 'none' || !catalog.industry_compliance[industryType]) {
+        detailsDiv.style.display = 'none';
+        return;
+    }
+    
+    const industry = catalog.industry_compliance[industryType];
+    detailsDiv.style.display = 'block';
+    
+    // Display regulatory frameworks
+    let html = '';
+    industry.regulatory_frameworks.forEach(framework => {
+        html += `
+            <div class="framework-item">
+                <div class="framework-name">📋 ${framework.name}</div>
+                <div class="framework-description">${framework.description}</div>
+                <div class="framework-scope"><strong>Scope:</strong> ${framework.scope}</div>
+                <details class="framework-requirements">
+                    <summary>Key Requirements (${framework.key_requirements.length})</summary>
+                    <ul>
+                        ${framework.key_requirements.map(req => `<li>${req}</li>`).join('')}
+                    </ul>
+                </details>
+            </div>
+        `;
+    });
+    
+    frameworksDiv.innerHTML = html;
+    console.log(`Selected industry: ${industry.name}`);
 }
 
 /**
@@ -285,8 +346,12 @@ function generatePlan() {
     // Create plan
     deploymentPlan = planner.createPlan(config);
     
-    // Add environment info to plan
+    // Add environment and industry info to plan
     deploymentPlan.environment = envTemplate;
+    deploymentPlan.industry = selectedIndustry;
+    deploymentPlan.industryDetails = selectedIndustry && selectedIndustry !== 'none' 
+        ? catalog.industry_compliance[selectedIndustry] 
+        : null;
     
     // Run security validation
     const securityResult = securityValidator.validate(deploymentPlan, envTemplate);
@@ -318,13 +383,34 @@ function displaySecurityScore(securityResult) {
     scoreRating.className = `score-rating ${securityResult.rating}`;
     scoreRating.textContent = securityValidator.getRatingText(securityResult.rating);
     
+    // Add industry compliance badge if applicable
+    let industryBadge = '';
+    if (deploymentPlan && deploymentPlan.industryDetails) {
+        const industryName = selectedIndustry.charAt(0).toUpperCase() + selectedIndustry.slice(1);
+        const frameworks = deploymentPlan.industryDetails.regulatory_frameworks.map(f => f.name).join(', ');
+        industryBadge = `
+            <div class="compliance-badge">
+                <strong>🏭 Industry: ${industryName}</strong><br>
+                <span class="compliance-frameworks">Frameworks: ${frameworks}</span>
+            </div>
+        `;
+    }
+    
     // Display individual checks
-    let checksHtml = '';
+    let checksHtml = industryBadge;
     securityResult.checks.forEach(check => {
         const icon = check.passed ? '✅' : '❌';
         const statusClass = check.passed ? 'passed' : 'failed';
         const recommendation = check.passed ? '' : 
             `<div class="check-recommendation">💡 ${securityValidator.getRecommendationAction(check.id)}</div>`;
+        
+        // Add compliance tags if check has compliance mappings
+        let complianceTags = '';
+        if (check.compliance && check.compliance.length > 0) {
+            complianceTags = '<div class="compliance-tags">' + 
+                check.compliance.map(c => `<span class="tag">${c}</span>`).join('') + 
+                '</div>';
+        }
         
         checksHtml += `
             <div class="security-check ${statusClass}">
@@ -332,6 +418,7 @@ function displaySecurityScore(securityResult) {
                 <div class="check-content">
                     <div class="check-name">${check.name}</div>
                     <div class="check-description">${check.description}</div>
+                    ${complianceTags}
                     ${recommendation}
                 </div>
                 <div class="check-points">${check.pointsEarned}/${check.points} pts</div>
