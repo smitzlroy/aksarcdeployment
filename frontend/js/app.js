@@ -340,6 +340,8 @@ function selectSolution(solutionType) {
     const detailsPanel = document.getElementById('solutionDetails');
     if (solutionType === 'custom' || solutionType === 'none') {
         detailsPanel.style.display = 'none';
+        // Advance to Step 2 even for custom/none selection
+        nextStep();
         return;
     }
     
