@@ -162,6 +162,38 @@ function initializeEventListeners() {
 }
 
 /**
+ * Toggle advanced configuration sections
+ */
+function toggleAdvancedSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    const button = event.target;
+    
+    if (section.style.display === 'none') {
+        section.style.display = 'block';
+        button.textContent = '▼ Hide Advanced Settings';
+    } else {
+        section.style.display = 'none';
+        button.textContent = '⚙️ Advanced ' + 
+            (sectionId.includes('network') ? 'Network' : 
+             sectionId.includes('storage') ? 'Storage' : 'Identity') + ' Settings';
+    }
+}
+
+/**
+ * Update identity provider options display
+ */
+function updateIdentityOptions() {
+    const provider = document.getElementById('identityProvider').value;
+    const entraSettings = document.getElementById('entraIdSettings');
+    
+    if (provider === 'entra-id') {
+        entraSettings.style.display = 'block';
+    } else {
+        entraSettings.style.display = 'none';
+    }
+}
+
+/**
  * Update catalog banner
  */
 function updateCatalogBanner() {
@@ -575,9 +607,11 @@ function generatePlan() {
         storageQuotaGb: parseInt(document.getElementById('storageQuotaGb')?.value) || 100,
         
         // Identity & Access
+        identityProvider: document.getElementById('identityProvider')?.value || 'local',
         rbacMode: document.getElementById('rbacMode')?.value || 'enabled',
         enableWorkloadIdentity: document.getElementById('enableWorkloadIdentity')?.checked || false,
-        enableAzureAD: document.getElementById('enableAzureAD')?.checked || false,
+        enableAzureAD: document.getElementById('identityProvider')?.value === 'azure-ad' || document.getElementById('identityProvider')?.value === 'entra-id',
+        enableEntraID: document.getElementById('identityProvider')?.value === 'entra-id',
         enablePodSecurityStandards: document.getElementById('enablePodSecurityStandards')?.checked || false,
         
         // Monitoring & Observability

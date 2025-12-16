@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
     <title>AKS Arc Deployment Tool</title>
-    <link rel="stylesheet" href="css/style.css?v=180120">
+    <link rel="stylesheet" href="css/style.css?v=180121">
     <link rel="stylesheet" href="css/polish.css?v=180102">
 </head>
 <body>
@@ -391,145 +391,160 @@
 
                 <!-- Network Configuration -->
                 <h3 style="margin-top: 30px; color: var(--primary-color);">🌐 Network Configuration</h3>
-                <p style="margin-bottom: 20px;">Configure networking for your Kubernetes cluster and workloads.</p>
                 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="networkPlugin">Network Plugin (CNI) *</label>
-                        <select id="networkPlugin">
-                            <option value="azure">Azure CNI (Recommended)</option>
-                            <option value="calico">Calico</option>
-                            <option value="flannel">Flannel</option>
-                        </select>
-                        <small>Azure CNI provides native Azure networking with network policies</small>
+                <div class="config-section-card" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="networkPlugin">Network Plugin (CNI) *</label>
+                            <select id="networkPlugin">
+                                <option value="azure">Azure CNI (Recommended)</option>
+                                <option value="calico">Calico (Advanced Network Policies)</option>
+                                <option value="flannel">Flannel (Simple Overlay)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loadBalancerSku">Load Balancer *</label>
+                            <select id="loadBalancerSku">
+                                <option value="Standard">Standard (Recommended)</option>
+                                <option value="Basic">Basic</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group checkbox-group" style="grid-column: 1 / -1;">
+                            <label>
+                                <input type="checkbox" id="enableNetworkPolicy" checked>
+                                <strong>Enable Network Policies</strong> - Control pod-to-pod traffic (Recommended)
+                            </label>
+                        </div>
+
+                        <div class="form-group checkbox-group" style="grid-column: 1 / -1;">
+                            <label>
+                                <input type="checkbox" id="enablePrivateCluster">
+                                <strong>Private Cluster</strong> - API server accessible only from private network
+                            </label>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="podCidr">Pod CIDR *</label>
-                        <input type="text" id="podCidr" value="10.244.0.0/16" placeholder="10.244.0.0/16">
-                        <small>IP range for pod networking (must not overlap with existing networks)</small>
-                    </div>
+                    <!-- Advanced Network Settings -->
+                    <button type="button" class="toggle-advanced-btn" onclick="toggleAdvancedSection('networkAdvanced')" style="margin-top: 15px; background: none; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        ⚙️ Advanced Network Settings
+                    </button>
+                    
+                    <div id="networkAdvanced" class="advanced-section" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #ccc;">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="podCidr">Pod CIDR *</label>
+                                <input type="text" id="podCidr" value="10.244.0.0/16" placeholder="10.244.0.0/16">
+                                <small>IP range for pod networking</small>
+                            </div>
 
-                    <div class="form-group">
-                        <label for="serviceCidr">Service CIDR *</label>
-                        <input type="text" id="serviceCidr" value="10.96.0.0/16" placeholder="10.96.0.0/16">
-                        <small>IP range for Kubernetes services (must not overlap with pod CIDR)</small>
-                    </div>
+                            <div class="form-group">
+                                <label for="serviceCidr">Service CIDR *</label>
+                                <input type="text" id="serviceCidr" value="10.96.0.0/16" placeholder="10.96.0.0/16">
+                                <small>IP range for Kubernetes services</small>
+                            </div>
 
-                    <div class="form-group">
-                        <label for="dnsServiceIP">DNS Service IP *</label>
-                        <input type="text" id="dnsServiceIP" value="10.96.0.10" placeholder="10.96.0.10">
-                        <small>Must be within service CIDR range</small>
-                    </div>
+                            <div class="form-group">
+                                <label for="dnsServiceIP">DNS Service IP *</label>
+                                <input type="text" id="dnsServiceIP" value="10.96.0.10" placeholder="10.96.0.10">
+                                <small>Must be within service CIDR</small>
+                            </div>
 
-                    <div class="form-group">
-                        <label for="loadBalancerSku">Load Balancer SKU *</label>
-                        <select id="loadBalancerSku">
-                            <option value="Standard">Standard (Recommended)</option>
-                            <option value="Basic">Basic</option>
-                        </select>
-                        <small>Standard LB supports zone redundancy and more features</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="controlPlaneIP">Control Plane VIP *</label>
-                        <input type="text" id="controlPlaneIP" placeholder="192.168.1.100">
-                        <small>Virtual IP for Kubernetes API server high availability</small>
-                    </div>
-
-                    <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" id="enableNetworkPolicy" checked>
-                            Enable Network Policies (Recommended for Production)
-                        </label>
-                        <small style="display: block; margin-top: 5px;">Control pod-to-pod communication for security</small>
-                    </div>
-
-                    <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" id="enablePrivateCluster">
-                            Private Cluster (No Public API Endpoint)
-                        </label>
-                        <small style="display: block; margin-top: 5px;">API server accessible only from private network</small>
+                            <div class="form-group">
+                                <label for="controlPlaneIP">Control Plane VIP *</label>
+                                <input type="text" id="controlPlaneIP" placeholder="192.168.1.100">
+                                <small>Virtual IP for API server HA</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Storage Configuration -->
                 <h3 style="margin-top: 30px; color: var(--primary-color);">💾 Storage Configuration</h3>
-                <p style="margin-bottom: 20px;">Configure persistent storage for your containerized workloads.</p>
                 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="defaultStorageClass">Default Storage Class *</label>
-                        <select id="defaultStorageClass">
-                            <option value="local-path">Local Path (Node local storage)</option>
-                            <option value="smb">SMB (Windows file shares)</option>
-                            <option value="nfs">NFS (Network file system)</option>
-                            <option value="iscsi">iSCSI (Block storage)</option>
-                        </select>
-                        <small>Storage backend for persistent volume claims</small>
+                <div class="config-section-card" style="background: linear-gradient(135deg, #f093fb15 0%, #f5576c15 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="defaultStorageClass">Default Storage Class *</label>
+                            <select id="defaultStorageClass">
+                                <option value="local-path">Local Path (Node Storage)</option>
+                                <option value="smb">SMB (Windows File Shares)</option>
+                                <option value="nfs">NFS (Network File System)</option>
+                                <option value="iscsi">iSCSI (Block Storage)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group checkbox-group" style="grid-column: 1 / -1;">
+                            <label>
+                                <input type="checkbox" id="enableVolumeEncryption" checked>
+                                <strong>Volume Encryption at Rest</strong> - Required for compliance (PCI DSS, HIPAA)
+                            </label>
+                        </div>
+
+                        <div class="form-group checkbox-group" style="grid-column: 1 / -1;">
+                            <label>
+                                <input type="checkbox" id="enableVolumeSnapshots" checked>
+                                <strong>Volume Snapshots</strong> - Backup and disaster recovery via CSI
+                            </label>
+                        </div>
                     </div>
 
-                    <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" id="enableVolumeEncryption" checked>
-                            Enable Volume Encryption at Rest
-                        </label>
-                        <small style="display: block; margin-top: 5px;">Required for PCI DSS, HIPAA, GDPR compliance</small>
-                    </div>
-
-                    <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" id="enableVolumeSnapshots" checked>
-                            Enable Volume Snapshots
-                        </label>
-                        <small style="display: block; margin-top: 5px;">CSI snapshots for backup and disaster recovery</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="storageQuotaGb">Storage Quota (GB per namespace)</label>
-                        <input type="number" id="storageQuotaGb" min="10" max="10000" value="100" step="10">
-                        <small>Resource quota for persistent volume claims</small>
+                    <!-- Advanced Storage Settings -->
+                    <button type="button" class="toggle-advanced-btn" onclick="toggleAdvancedSection('storageAdvanced')" style="margin-top: 15px; background: none; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        ⚙️ Advanced Storage Settings
+                    </button>
+                    
+                    <div id="storageAdvanced" class="advanced-section" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #ccc;">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="storageQuotaGb">Storage Quota (GB per namespace)</label>
+                                <input type="number" id="storageQuotaGb" min="10" max="10000" value="100" step="10">
+                                <small>Resource quota for PVCs</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Identity & Security -->
                 <h3 style="margin-top: 30px; color: var(--primary-color);">🔐 Identity & Access Control</h3>
-                <p style="margin-bottom: 20px;">Configure authentication and authorization for cluster access.</p>
                 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="rbacMode">RBAC Mode *</label>
-                        <select id="rbacMode">
-                            <option value="enabled">Enabled (Recommended)</option>
-                            <option value="disabled">Disabled (Dev/Test only)</option>
-                        </select>
-                        <small>Role-Based Access Control for Kubernetes API authorization</small>
+                <div class="config-section-card" style="background: linear-gradient(135deg, #4facfe15 0%, #00f2fe15 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="identityProvider">Identity Provider *</label>
+                            <select id="identityProvider" onchange="updateIdentityOptions()">
+                                <option value="local">Local Accounts (Basic)</option>
+                                <option value="entra-id">Microsoft Entra ID (Recommended)</option>
+                                <option value="azure-ad">Azure AD (Legacy)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rbacMode">RBAC Mode *</label>
+                            <select id="rbacMode">
+                                <option value="enabled">Enabled (Recommended)</option>
+                                <option value="disabled">Disabled (Dev/Test only)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group checkbox-group" style="grid-column: 1 / -1;">
+                            <label>
+                                <input type="checkbox" id="enableWorkloadIdentity">
+                                <strong>Workload Identity</strong> - Pod-level managed identities for Azure access
+                            </label>
+                        </div>
+
+                        <div class="form-group checkbox-group" style="grid-column: 1 / -1;">
+                            <label>
+                                <input type="checkbox" id="enablePodSecurityStandards" checked>
+                                <strong>Pod Security Standards</strong> - Enforce baseline security policies
+                            </label>
+                        </div>
                     </div>
 
-                    <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" id="enableWorkloadIdentity">
-                            Enable Workload Identity
-                        </label>
-                        <small style="display: block; margin-top: 5px;">Pod-level managed identities for Azure resource access</small>
-                    </div>
-
-                    <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" id="enableAzureAD">
-                            Enable Azure AD Integration
-                        </label>
-                        <small style="display: block; margin-top: 5px;">Use Azure AD for cluster authentication</small>
-                    </div>
-
-                    <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" id="enablePodSecurityStandards" checked>
-                            Enable Pod Security Standards (PSS)
-                        </label>
-                        <small style="display: block; margin-top: 5px;">Enforce baseline pod security policies</small>
-                    </div>
+                    <!-- Entra ID Settings (shown when Entra ID selected) -->
+                    <div id="entraIdSettings" class=\"info-banner\" style=\"display: none; background: #e3f2fd; padding: 12px; border-radius: 4px; margin-top: 15px;\">\n                        <strong>\u2139\ufe0f Entra ID Integration:</strong> Provides enterprise-grade authentication with conditional access, MFA, and Azure RBAC integration. Recommended for production environments.\n                    </div>
                 </div>
 
                 <!-- Monitoring & Observability -->
@@ -762,12 +777,12 @@
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="js/security.js?v=180120"></script>
-    <script src="js/compliance.js?v=180120"></script>
-    <script src="js/compliance-report.js?v=180120"></script>
-    <script src="js/presets.js?v=180120"></script>
-    <script src="js/cost-calculator.js?v=180120"></script>
-    <script src="js/planner.js?v=180120"></script>
-    <script src="js/generator.js?v=180120"></script>
-    <script src="js/app.js?v=180120"></script>
+    <script src="js/compliance.js?v=180121"></script>
+    <script src="js/compliance-report.js?v=180121"></script>
+    <script src="js/presets.js?v=180121"></script>
+    <script src="js/cost-calculator.js?v=180121"></script>
+    <script src="js/planner.js?v=180121"></script>
+    <script src="js/generator.js?v=180121"></script>
+    <script src="js/app.js?v=180121"></script>
 </body>
 </html>

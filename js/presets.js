@@ -24,6 +24,7 @@ const ConfigurationPresets = {
             storageQuotaGb: 500,
             
             // Identity & Access
+            identityProvider: 'entra-id',
             rbacMode: 'enabled',
             enableWorkloadIdentity: true,
             enableAzureAD: true,
@@ -64,6 +65,7 @@ const ConfigurationPresets = {
             storageQuotaGb: 200,
             
             // Identity & Access
+            identityProvider: 'entra-id',
             rbacMode: 'enabled',
             enableWorkloadIdentity: true,
             enableAzureAD: true,
@@ -72,7 +74,7 @@ const ConfigurationPresets = {
             // Monitoring
             enableAzureMonitor: true,
             enablePrometheus: true,
-            logRetentionDays: 365, // PCI DSS requires 90 days minimum, 365 recommended
+            logRetentionDays: 365, // PCI DSS requires 3 months minimum, 1 year best practice
             enableAuditLogs: true,
             
             // Security
@@ -104,6 +106,7 @@ const ConfigurationPresets = {
             storageQuotaGb: 100,
             
             // Identity & Access
+            identityProvider: 'entra-id',
             rbacMode: 'enabled',
             enableWorkloadIdentity: false,
             enableAzureAD: true,
@@ -144,6 +147,7 @@ const ConfigurationPresets = {
             storageQuotaGb: 1000,
             
             // Identity & Access
+            identityProvider: 'entra-id',
             rbacMode: 'enabled',
             enableWorkloadIdentity: true,
             enableAzureAD: true,
@@ -152,7 +156,7 @@ const ConfigurationPresets = {
             // Monitoring
             enableAzureMonitor: true,
             enablePrometheus: true,
-            logRetentionDays: 730, // 2 years for government compliance
+            logRetentionDays: 730, // FedRAMP requires 2 years
             enableAuditLogs: true,
             
             // Security
@@ -184,9 +188,10 @@ const ConfigurationPresets = {
             storageQuotaGb: 200,
             
             // Identity & Access
+            identityProvider: 'entra-id',
             rbacMode: 'enabled',
-            enableWorkloadIdentity: false,
-            enableAzureAD: false,
+            enableWorkloadIdentity: true,
+            enableAzureAD: true,
             enablePodSecurityStandards: true,
             
             // Monitoring
@@ -224,6 +229,7 @@ const ConfigurationPresets = {
             storageQuotaGb: 50,
             
             // Identity & Access
+            identityProvider: 'local',
             rbacMode: 'enabled',
             enableWorkloadIdentity: false,
             enableAzureAD: false,
@@ -286,10 +292,15 @@ function applyPreset(presetId) {
     setInputValue('storageQuotaGb', settings.storageQuotaGb);
     
     // Identity & Access settings
+    setSelectValue('identityProvider', settings.identityProvider);
     setSelectValue('rbacMode', settings.rbacMode);
     setCheckboxValue('enableWorkloadIdentity', settings.enableWorkloadIdentity);
-    setCheckboxValue('enableAzureAD', settings.enableAzureAD);
     setCheckboxValue('enablePodSecurityStandards', settings.enablePodSecurityStandards);
+    
+    // Trigger identity provider update
+    if (typeof updateIdentityOptions === 'function') {
+        updateIdentityOptions();
+    }
     
     // Monitoring settings
     setCheckboxValue('enableAzureMonitor', settings.enableAzureMonitor);
