@@ -235,13 +235,16 @@ function resetWizard() {
     document.getElementById('solutionDetails').style.display = 'none';
     
     // Clear workload selection
-    document.querySelectorAll('.workload-card').forEach(card => {
+    document.querySelectorAll('.card').forEach(card => {
         card.classList.remove('selected');
     });
     
     // Go to step 1
+    document.querySelectorAll('.wizard-step').forEach(step => {
+        step.classList.remove('active');
+    });
     currentStep = 1;
-    showStep(1);
+    document.getElementById('step1').classList.add('active');
     
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
