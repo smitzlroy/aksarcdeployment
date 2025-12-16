@@ -323,7 +323,8 @@ function selectSolution(solutionType) {
     document.querySelectorAll('.solution-card').forEach(card => {
         card.classList.remove('selected');
     });
-    document.getElementById(`solution-${solutionType === 'custom' ? 'custom' : solutionType.replace('_', '-')}`).classList.add('selected');
+    
+    document.getElementById(`solution-${solutionType}`).classList.add('selected');
     
     // Show solution details
     const detailsPanel = document.getElementById('solutionDetails');
@@ -333,7 +334,10 @@ function selectSolution(solutionType) {
     }
     
     const solution = catalog.edge_ai_solutions[solutionType];
-    if (!solution) return;
+    if (!solution) {
+        console.error('Solution not found in catalog:', solutionType);
+        return;
+    }
     
     // Populate details
     document.getElementById('solutionName').textContent = solution.name;
