@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
     <title>AKS Arc Deployment Tool</title>
-    <link rel="stylesheet" href="css/style.css?v=180119">
+    <link rel="stylesheet" href="css/style.css?v=180120">
     <link rel="stylesheet" href="css/polish.css?v=180102">
 </head>
 <body>
@@ -252,6 +252,83 @@
             <!-- Step 2: Configuration Details -->
             <section class="wizard-step" id="step2">
                 <h2>Step 2: Configure Your Deployment</h2>
+                
+                <!-- Compliance Configuration Presets -->
+                <div class="preset-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                    <h3 style="margin: 0 0 10px 0; color: white;">⚡ Quick Start: Compliance Configuration Presets</h3>
+                    <p style="margin: 0 0 15px 0; opacity: 0.95;">Pre-configured templates that automatically set all security, network, storage, and monitoring options based on industry compliance requirements. <strong>Save 10 minutes of configuration!</strong></p>
+                    
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="preset-btn" onclick="applyPreset('hipaa-healthcare')" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                            🏥 HIPAA Healthcare
+                        </button>
+                        <button class="preset-btn" onclick="applyPreset('pci-dss-payment')" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                            💳 PCI DSS Payment
+                        </button>
+                        <button class="preset-btn" onclick="applyPreset('manufacturing-iec')" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                            🏭 Manufacturing IEC 62443
+                        </button>
+                        <button class="preset-btn" onclick="applyPreset('fedramp-government')" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                            🏛️ FedRAMP Government
+                        </button>
+                        <button class="preset-btn" onclick="applyPreset('dev-test-minimal')" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                            🧪 Dev/Test Minimal
+                        </button>
+                        <button class="preset-btn" onclick="applyPreset('production-best-practice')" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                            ⭐ Production Best Practice
+                        </button>
+                    </div>
+                    
+                    <div id="presetDescription" style="margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.15); border-radius: 4px; display: none;">
+                        <strong id="presetTitle"></strong>
+                        <p id="presetDetails" style="margin: 5px 0 0 0; font-size: 0.9rem;"></p>
+                    </div>
+                </div>
+
+                <!-- Cost Estimate Card -->
+                <div id="costEstimateCard" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h3 style="margin: 0 0 15px 0; color: white; display: flex; align-items: center; gap: 10px;">
+                        💰 Estimated Monthly Cost
+                        <span style="font-size: 0.7rem; background: rgba(255,255,255,0.3); padding: 3px 8px; border-radius: 3px;">Live Calculation</span>
+                    </h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 6px;">
+                            <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">Compute (Nodes)</div>
+                            <div style="font-size: 1.8rem; font-weight: bold;" id="costCompute">$0</div>
+                            <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 3px;" id="costComputeDetail">0 vCores</div>
+                        </div>
+                        
+                        <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 6px;">
+                            <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">Defender for Containers</div>
+                            <div style="font-size: 1.8rem; font-weight: bold;" id="costDefender">$0</div>
+                            <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 3px;" id="costDefenderDetail">Not enabled</div>
+                        </div>
+                        
+                        <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 6px;">
+                            <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">Azure Monitor</div>
+                            <div style="font-size: 1.8rem; font-weight: bold;" id="costMonitoring">$0</div>
+                            <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 3px;" id="costMonitoringDetail">Not enabled</div>
+                        </div>
+                        
+                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.4);">
+                            <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">Total Monthly</div>
+                            <div style="font-size: 2.2rem; font-weight: bold;" id="costTotal">$0</div>
+                            <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 3px;" id="costAnnual">$0 /year</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.15); border-radius: 4px; font-size: 0.85rem;">
+                        <strong>💡 Cost Optimization Tips:</strong>
+                        <ul style="margin: 8px 0 0 0; padding-left: 20px; opacity: 0.95;">
+                            <li id="costTip1">Enable auto-scaling to optimize compute costs during low-traffic periods</li>
+                            <li id="costTip2">Use Dev/Test preset for non-production environments to save 60-70%</li>
+                            <li id="costTip3">Storage costs not included (depends on actual usage)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary-color); margin-bottom: 15px;">📋 Basic Cluster Information</h3>
                 
                 <div class="form-grid">
                     <div class="form-group">
@@ -684,11 +761,13 @@
 
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="js/security.js?v=180119"></script>
-    <script src="js/compliance.js?v=180119"></script>
-    <script src="js/compliance-report.js?v=180119"></script>
-    <script src="js/planner.js?v=180119"></script>
-    <script src="js/generator.js?v=180119"></script>
-    <script src="js/app.js?v=180119"></script>
+    <script src="js/security.js?v=180120"></script>
+    <script src="js/compliance.js?v=180120"></script>
+    <script src="js/compliance-report.js?v=180120"></script>
+    <script src="js/presets.js?v=180120"></script>
+    <script src="js/cost-calculator.js?v=180120"></script>
+    <script src="js/planner.js?v=180120"></script>
+    <script src="js/generator.js?v=180120"></script>
+    <script src="js/app.js?v=180120"></script>
 </body>
 </html>
