@@ -422,6 +422,18 @@ function selectSolution(solutionType) {
 function selectWorkload(workloadType) {
     selectedWorkload = workloadType;
     
+    // Update visual selection
+    document.querySelectorAll('.card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    // Find and select the clicked workload card
+    const workloadCards = document.querySelectorAll('.workload-cards .card');
+    workloadCards.forEach(card => {
+        if (card.onclick && card.onclick.toString().includes(`'${workloadType}'`)) {
+            card.classList.add('selected');
+        }
+    });
+    
     // Apply preset values if available (only if no solution selected)
     if (!selectedSolution || selectedSolution === 'custom') {
         if (workloadType !== 'custom' && catalog.workload_presets[workloadType]) {
