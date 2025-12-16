@@ -862,18 +862,33 @@ async function downloadComplianceReport() {
     }
 
     try {
-        // Check if ComplianceReportGenerator is available
-        if (typeof window.ComplianceReportGenerator === 'undefined') {
-            console.error('ComplianceReportGenerator not loaded');
-            console.log('Available globals:', Object.keys(window).filter(k => k.includes('Compliance')));
-            alert('Compliance report generator not available. Please refresh the page and try again.');
-            return;
-        }
-
         // Disable button during generation
         const btn = document.getElementById('pdfReportBtn');
         if (btn) {
             btn.disabled = true;
+            btn.textContent = '⏳ Loading PDF Generator...';
+        }
+
+        // Wait for ComplianceReportGenerator to be available (with timeout)
+        let attempts = 0;
+        while (typeof window.ComplianceReportGenerator === 'undefined' && attempts < 20) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+
+        // Check if ComplianceReportGenerator is available after waiting
+        if (typeof window.ComplianceReportGenerator === 'undefined') {
+            console.error('ComplianceReportGenerator not loaded after waiting');
+            console.log('Available globals:', Object.keys(window).filter(k => k.includes('Compliance')));
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = '📑 Download PDF Compliance Report';
+            }
+            alert('Compliance report generator not available. Please refresh the page and try again.');
+            return;
+        }
+
+        if (btn) {
             btn.textContent = '⏳ Generating PDF Report...';
         }
 
