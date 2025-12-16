@@ -393,7 +393,14 @@ class ComplianceAnalyzer {
     }
 }
 
-// Export for use in other modules
+// Make available globally for browser
+if (typeof window !== 'undefined') {
+    window.ComplianceAnalyzer = ComplianceAnalyzer;
+}
+
+// Export for use in other modules (Node.js)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = ComplianceAnalyzer;
 }
+
+console.log('✅ ComplianceAnalyzer loaded successfully');

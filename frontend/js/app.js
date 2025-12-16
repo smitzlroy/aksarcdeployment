@@ -484,10 +484,15 @@ function previousStep() {
  * Generate deployment plan
  */
 function generatePlan() {
-    console.log('Generate Plan clicked');
-    console.log('Planner:', planner);
-    console.log('Catalog:', catalog);
-    console.log('Selected environment:', selectedEnvironment);
+    console.log('=== Generate Plan Clicked ===');
+    console.log('Selected Industry:', selectedIndustry);
+    console.log('Selected Environment:', selectedEnvironment);
+    console.log('Selected Solution:', selectedSolution);
+    console.log('Selected Workload:', selectedWorkload);
+    console.log('Planner available:', !!planner);
+    console.log('Catalog available:', !!catalog);
+    console.log('SecurityValidator available:', !!securityValidator);
+    console.log('ComplianceAnalyzer available:', typeof ComplianceAnalyzer !== 'undefined');
     
     // Validate required fields
     const clusterName = document.getElementById('clusterName').value.trim();
@@ -551,26 +556,37 @@ function generatePlan() {
     const securityResult = securityValidator.validate(deploymentPlan, envTemplate);
     deploymentPlan.securityScore = securityResult;
     
-    // Initialize compliance analyzer if not already created
-    if (!window.complianceAnalyzer) {
-        window.complianceAnalyzer = new ComplianceAnalyzer(catalog);
+    // Initialize and run compliance analyzer (with error handling)
+    try {
+        if (typeof ComplianceAnalyzer !== 'undefined') {
+            if (!window.complianceAnalyzer) {
+                window.complianceAnalyzer = new ComplianceAnalyzer(catalog);
+            }
+            
+            // Analyze compliance with enhanced features
+            const categoryBreakdown = complianceAnalyzer.analyzeCategoriesCompliance(securityResult);
+            const gapAnalysis = complianceAnalyzer.analyzeComplianceGap(securityResult, selectedIndustry);
+            const complianceMatrix = complianceAnalyzer.generateComplianceMatrix(gapAnalysis);
+            
+            // Store in deployment plan
+            deploymentPlan.categoryBreakdown = categoryBreakdown;
+            deploymentPlan.gapAnalysis = gapAnalysis;
+            deploymentPlan.complianceMatrix = complianceMatrix;
+            
+            // Display compliance results
+            displayCategoryBreakdown(categoryBreakdown);
+            displayComplianceGapAnalysis(gapAnalysis);
+            displayComplianceMatrix(complianceMatrix);
+        } else {
+            console.warn('ComplianceAnalyzer not loaded, skipping enhanced compliance features');
+        }
+    } catch (error) {
+        console.error('Error in compliance analysis:', error);
+        // Continue without compliance features
     }
     
-    // Analyze compliance with enhanced features
-    const categoryBreakdown = complianceAnalyzer.analyzeCategoriesCompliance(securityResult);
-    const gapAnalysis = complianceAnalyzer.analyzeComplianceGap(securityResult, selectedIndustry);
-    const complianceMatrix = complianceAnalyzer.generateComplianceMatrix(gapAnalysis);
-    
-    // Store in deployment plan
-    deploymentPlan.categoryBreakdown = categoryBreakdown;
-    deploymentPlan.gapAnalysis = gapAnalysis;
-    deploymentPlan.complianceMatrix = complianceMatrix;
-    
-    // Display results
+    // Display results (these always run)
     displaySecurityScore(securityResult);
-    displayCategoryBreakdown(categoryBreakdown);
-    displayComplianceGapAnalysis(gapAnalysis);
-    displayComplianceMatrix(complianceMatrix);
     displayValidationResults(deploymentPlan.validation);
     displayPlanSummary(deploymentPlan);
     
@@ -826,13 +842,19 @@ function displayCategoryBreakdown(categoryBreakdown) {
     const container = document.getElementById('categoryBreakdown');
     if (!container) return;
     
+    // Clear container if no data
+    if (!categoryBreakdown) {
+        container.innerHTML = '';
+        return;
+    }
+    
     let html = '<div class="category-breakdown-container">';
     html += '<h3 class="category-title">📊 Security Category Breakdown</h3>';
     html += '<div class="category-cards">';
     
     Object.keys(categoryBreakdown).forEach(key => {
         const category = categoryBreakdown[key];
-        const icon = catalog.security_baseline.categories[key].icon;
+        const icon = catalog.security_baseline.categories[key]?.icon || '📊';
         const statusClass = category.status;
         
         html += `
