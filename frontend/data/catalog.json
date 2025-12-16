@@ -621,8 +621,8 @@
         "id": "ha-control-plane",
         "name": "High Availability Control Plane",
         "description": "Control plane should have 3+ nodes for production",
-        "category": "availability",
-        "severity": "high",
+        "category": "workload-protection",
+        "severity": "critical",
         "points": 15,
         "check": "controlPlaneCount >= 3"
       },
@@ -630,7 +630,7 @@
         "id": "availability-sets",
         "name": "Availability Sets Enabled",
         "description": "VMs spread across physical hosts with anti-affinity",
-        "category": "availability",
+        "category": "network-security",
         "severity": "high",
         "points": 10,
         "check": "enableAvailabilitySets === true"
@@ -639,27 +639,27 @@
         "id": "auto-scaling",
         "name": "Node Pool Auto-scaling",
         "description": "Enable auto-scaling to handle variable workloads",
-        "category": "resilience",
+        "category": "workload-protection",
         "severity": "medium",
-        "points": 8,
+        "points": 5,
         "check": "nodePoolsHaveAutoScaling === true"
       },
       {
         "id": "min-nodes",
         "name": "Minimum Node Count",
         "description": "At least 3 worker nodes for workload distribution",
-        "category": "availability",
+        "category": "workload-protection",
         "severity": "medium",
-        "points": 10,
+        "points": 5,
         "check": "totalNodes >= 3"
       },
       {
         "id": "monitoring",
         "name": "Monitoring Enabled",
         "description": "Azure Monitor for observability and alerting",
-        "category": "operations",
+        "category": "monitoring-compliance",
         "severity": "high",
-        "points": 12,
+        "points": 10,
         "check": "monitoringEnabled === true"
       },
       {
@@ -667,24 +667,24 @@
         "name": "Backup Configuration",
         "description": "Regular backups for disaster recovery",
         "category": "data-protection",
-        "severity": "high",
-        "points": 10,
+        "severity": "critical",
+        "points": 15,
         "check": "backupEnabled === true"
       },
       {
         "id": "network-policies",
         "name": "Network Policies",
         "description": "Network policies for pod-to-pod communication control",
-        "category": "security",
+        "category": "network-security",
         "severity": "high",
-        "points": 15,
+        "points": 10,
         "check": "networkPoliciesEnabled === true"
       },
       {
         "id": "rbac",
         "name": "RBAC Configuration",
         "description": "Role-based access control for cluster security",
-        "category": "security",
+        "category": "identity-access",
         "severity": "critical",
         "points": 20,
         "check": "rbacEnabled === true"
@@ -693,9 +693,9 @@
         "id": "encryption-at-rest",
         "name": "Encryption at Rest",
         "description": "Data encrypted on disk (required for PCI-DSS, GDPR)",
-        "category": "security",
-        "severity": "high",
-        "points": 12,
+        "category": "data-protection",
+        "severity": "critical",
+        "points": 10,
         "check": "encryptionAtRest === true",
         "compliance": ["PCI-DSS", "GDPR", "ISO 27001"]
       },
@@ -703,9 +703,9 @@
         "id": "network-segmentation",
         "name": "Network Segmentation",
         "description": "Isolated network zones (required for IEC 62443, NERC CIP)",
-        "category": "security",
-        "severity": "critical",
-        "points": 15,
+        "category": "network-security",
+        "severity": "high",
+        "points": 5,
         "check": "networkSegmentation === true",
         "compliance": ["IEC 62443", "NERC CIP", "API 1164"]
       },
@@ -713,7 +713,7 @@
         "id": "audit-logging",
         "name": "Comprehensive Audit Logging",
         "description": "Detailed logging for compliance (PCI-DSS, NERC CIP)",
-        "category": "compliance",
+        "category": "monitoring-compliance",
         "severity": "high",
         "points": 10,
         "check": "auditLogging === true",
@@ -725,6 +725,38 @@
       "good": 70,
       "fair": 50,
       "poor": 0
+    },
+    "categories": {
+      "network-security": {
+        "name": "Network Security",
+        "description": "Network isolation, segmentation, and policy enforcement",
+        "maxPoints": 25,
+        "icon": "🔒"
+      },
+      "identity-access": {
+        "name": "Identity & Access",
+        "description": "Authentication, authorization, and access control",
+        "maxPoints": 20,
+        "icon": "👤"
+      },
+      "data-protection": {
+        "name": "Data Protection",
+        "description": "Encryption, backup, and data security",
+        "maxPoints": 25,
+        "icon": "🛡️"
+      },
+      "monitoring-compliance": {
+        "name": "Monitoring & Compliance",
+        "description": "Logging, monitoring, and audit trails",
+        "maxPoints": 20,
+        "icon": "📊"
+      },
+      "workload-protection": {
+        "name": "Workload Protection",
+        "description": "High availability, scaling, and workload resilience",
+        "maxPoints": 10,
+        "icon": "⚙️"
+      }
     }
   }
 }

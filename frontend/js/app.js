@@ -130,7 +130,7 @@ const EMBEDDED_CATALOG = {
 async function loadCatalog() {
     try {
         // Try to fetch from JSON file first (for web server)
-        const response = await fetch('data/catalog.json');
+        const response = await fetch('data/catalog.json?v=180101');
         catalog = await response.json();
         planner = new AKSArcPlanner(catalog);
         securityValidator = new SecurityValidator(catalog);
@@ -551,8 +551,26 @@ function generatePlan() {
     const securityResult = securityValidator.validate(deploymentPlan, envTemplate);
     deploymentPlan.securityScore = securityResult;
     
+    // Initialize compliance analyzer if not already created
+    if (!window.complianceAnalyzer) {
+        window.complianceAnalyzer = new ComplianceAnalyzer(catalog);
+    }
+    
+    // Analyze compliance with enhanced features
+    const categoryBreakdown = complianceAnalyzer.analyzeCategoriesCompliance(securityResult);
+    const gapAnalysis = complianceAnalyzer.analyzeComplianceGap(securityResult, selectedIndustry);
+    const complianceMatrix = complianceAnalyzer.generateComplianceMatrix(gapAnalysis);
+    
+    // Store in deployment plan
+    deploymentPlan.categoryBreakdown = categoryBreakdown;
+    deploymentPlan.gapAnalysis = gapAnalysis;
+    deploymentPlan.complianceMatrix = complianceMatrix;
+    
     // Display results
     displaySecurityScore(securityResult);
+    displayCategoryBreakdown(categoryBreakdown);
+    displayComplianceGapAnalysis(gapAnalysis);
+    displayComplianceMatrix(complianceMatrix);
     displayValidationResults(deploymentPlan.validation);
     displayPlanSummary(deploymentPlan);
     
@@ -799,6 +817,177 @@ Features:
 • Dark/Light theme
 
 GitHub: https://github.com/smitzlroy/aksarcdeployment`);
+}
+
+/**
+ * Display security category breakdown
+ */
+function displayCategoryBreakdown(categoryBreakdown) {
+    const container = document.getElementById('categoryBreakdown');
+    if (!container) return;
+    
+    let html = '<div class="category-breakdown-container">';
+    html += '<h3 class="category-title">📊 Security Category Breakdown</h3>';
+    html += '<div class="category-cards">';
+    
+    Object.keys(categoryBreakdown).forEach(key => {
+        const category = categoryBreakdown[key];
+        const icon = catalog.security_baseline.categories[key].icon;
+        const statusClass = category.status;
+        
+        html += `
+            <div class="category-card ${statusClass}">
+                <div class="category-header">
+                    <span class="category-icon">${icon}</span>
+                    <span class="category-name">${category.name}</span>
+                </div>
+                <div class="category-score">
+                    <div class="category-points">${category.earnedPoints}/${category.maxPoints}</div>
+                    <div class="category-percentage">${category.percentage}%</div>
+                </div>
+                <div class="category-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill ${statusClass}" style="width: ${category.percentage}%"></div>
+                    </div>
+                </div>
+                <div class="category-checks-count">${category.checks.filter(c => c.passed).length}/${category.checks.length} checks passed</div>
+            </div>
+        `;
+    });
+    
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+/**
+ * Display compliance gap analysis
+ */
+function displayComplianceGapAnalysis(gapAnalysis) {
+    const container = document.getElementById('complianceGapAnalysis');
+    if (!container || !gapAnalysis) {
+        if (container) container.innerHTML = '';
+        return;
+    }
+    
+    let html = '<div class="gap-analysis-container">';
+    html += `<h3 class="gap-title">🔍 Compliance Gap Analysis for ${gapAnalysis.industry}</h3>`;
+    
+    gapAnalysis.frameworks.forEach(framework => {
+        const statusClass = framework.compliancePercentage >= 90 ? 'excellent' :
+                           framework.compliancePercentage >= 75 ? 'good' :
+                           framework.compliancePercentage >= 50 ? 'fair' : 'poor';
+        
+        html += `
+            <div class="framework-gap">
+                <div class="framework-header">
+                    <div class="framework-info">
+                        <h4>${framework.name}</h4>
+                        <p class="framework-description">${framework.description}</p>
+                        <span class="framework-scope">${framework.scope}</span>
+                    </div>
+                    <div class="framework-compliance">
+                        <div class="compliance-percentage ${statusClass}">${framework.compliancePercentage}%</div>
+                        <div class="compliance-count">${framework.compliantCount}/${framework.totalCount} controls</div>
+                    </div>
+                </div>
+                <div class="gap-details">
+                    <div class="gap-summary">
+                        <span class="gap-count ${framework.gapCount > 0 ? 'has-gaps' : 'no-gaps'}">
+                            ${framework.gapCount > 0 ? `⚠️ ${framework.gapCount} gap${framework.gapCount > 1 ? 's' : ''} found` : '✅ Fully compliant'}
+                        </span>
+                    </div>
+                    ${framework.gapCount > 0 ? `
+                        <div class="gap-items">
+                            <h5>Missing Controls:</h5>
+                            ${framework.controls.filter(c => c.status === 'non-compliant').map(control => `
+                                <div class="gap-item">
+                                    <div class="gap-control-id">${control.controlId}</div>
+                                    <div class="gap-control-details">
+                                        <strong>${control.checkName}</strong>
+                                        <div class="gap-remediation">
+                                            <strong>Action:</strong> ${control.remediation.action}
+                                            <ul class="remediation-steps">
+                                                ${control.remediation.steps.map(step => `<li>${step}</li>`).join('')}
+                                            </ul>
+                                            <div class="remediation-command"><code>${control.remediation.azureLocal}</code></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+/**
+ * Display interactive compliance matrix
+ */
+function displayComplianceMatrix(complianceMatrix) {
+    const container = document.getElementById('complianceMatrix');
+    if (!container || !complianceMatrix) {
+        if (container) container.innerHTML = '';
+        return;
+    }
+    
+    // Get unique frameworks
+    const frameworks = new Set();
+    complianceMatrix.rows.forEach(row => {
+        Object.keys(row.frameworks).forEach(fw => frameworks.add(fw));
+    });
+    const frameworkList = Array.from(frameworks);
+    
+    let html = '<div class="compliance-matrix-container">';
+    html += '<h3 class="matrix-title">📋 Interactive Compliance Matrix</h3>';
+    html += `<div class="matrix-summary">
+        <span class="summary-item compliant">✅ ${complianceMatrix.summary.compliantControls} Compliant</span>
+        <span class="summary-item non-compliant">❌ ${complianceMatrix.summary.nonCompliantControls} Non-compliant</span>
+        <span class="summary-item total">📊 ${complianceMatrix.summary.totalControls} Total Controls</span>
+    </div>`;
+    
+    html += '<div class="matrix-table-wrapper"><table class="compliance-matrix-table">';
+    
+    // Header
+    html += '<thead><tr>';
+    html += '<th class="matrix-header-check">Security Check</th>';
+    html += '<th class="matrix-header-category">Category</th>';
+    frameworkList.forEach(fw => {
+        html += `<th class="matrix-header-framework">${fw}</th>`;
+    });
+    html += '</tr></thead>';
+    
+    // Body
+    html += '<tbody>';
+    complianceMatrix.rows.forEach((row, index) => {
+        const rowClass = `matrix-row-${row.severity}`;
+        html += `<tr class="${rowClass}" data-row-id="${index}">`;
+        html += `<td class="matrix-cell-check"><strong>${row.checkName}</strong></td>`;
+        html += `<td class="matrix-cell-category"><span class="category-tag">${row.category}</span></td>`;
+        
+        frameworkList.forEach(fw => {
+            const mapping = row.frameworks[fw];
+            if (mapping) {
+                const statusIcon = mapping.status === 'compliant' ? '✅' : '❌';
+                const statusClass = mapping.status === 'compliant' ? 'status-compliant' : 'status-noncompliant';
+                html += `<td class="matrix-cell-status ${statusClass}" title="${mapping.controlId}">
+                    <span class="status-icon">${statusIcon}</span>
+                    <span class="control-id">${mapping.controlId}</span>
+                </td>`;
+            } else {
+                html += '<td class="matrix-cell-na">—</td>';
+            }
+        });
+        
+        html += '</tr>';
+    });
+    html += '</tbody></table></div></div>';
+    
+    container.innerHTML = html;
 }
 
 /**
