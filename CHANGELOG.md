@@ -16,13 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic directory structure for wizard, planner, catalog, generator, validator, and CLI components
 - **Client-side web wizard** - Fully functional browser-based deployment planner
 - **Workload presets** - Video analytics, AI inference, and general-purpose templates
-- **JavaScript planner** - Complete rack-aware planning logic in browser
+- **JavaScript planner** - Complete availability set planning logic with anti-affinity rules
 - **Template generators** - Client-side Bicep, ARM, and Terraform generation
 - **Modern responsive UI** - Clean, accessible design with step-by-step wizard
+- **Dark/Light theme toggle** - User preference with localStorage persistence
 - **Catalog JSON** - Static catalog data for Azure Local 2511
 - GitHub Pages deployment workflow for static frontend
 
 ### Changed
+- **BREAKING**: Replaced rack awareness with Azure-correct availability sets approach
+  - AKS Arc automatically creates availability sets for control plane and each node pool
+  - VMs spread across physical hosts using DifferentNode anti-affinity rules
+  - Automatic rebalancing when hosts recover from outages
+  - UI updated: physicalHostCount replaces rackCount
+  - Based on Microsoft documentation research
 
 ### Deprecated
 
