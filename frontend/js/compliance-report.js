@@ -15,6 +15,18 @@ class ComplianceReportGenerator {
         // Generate report ID first
         const reportId = this.generateReportId();
         
+        // Extract cluster name safely (handle both string and potential HTML element)
+        let clusterName = 'N/A';
+        if (deploymentPlan?.clusterConfig?.clusterName) {
+            clusterName = typeof deploymentPlan.clusterConfig.clusterName === 'string' 
+                ? deploymentPlan.clusterConfig.clusterName 
+                : String(deploymentPlan.clusterConfig.clusterName);
+        } else if (deploymentPlan?.clusterName) {
+            clusterName = typeof deploymentPlan.clusterName === 'string'
+                ? deploymentPlan.clusterName
+                : String(deploymentPlan.clusterName);
+        }
+
         this.reportData = {
             deploymentPlan,
             securityResult,
@@ -24,7 +36,7 @@ class ComplianceReportGenerator {
             reportVersion: '2.0',
             reportTitle: 'Kubernetes Compliance & Security Assessment Report',
             reportId: reportId,
-            clusterName: deploymentPlan?.clusterConfig?.clusterName || deploymentPlan?.clusterName || 'N/A',
+            clusterName: clusterName,
             environment: deploymentPlan?.environment?.name || 'Production'
         };
 

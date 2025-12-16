@@ -466,6 +466,7 @@ function nextStep() {
         document.getElementById(`step${currentStep}`).classList.remove('active');
         currentStep++;
         document.getElementById(`step${currentStep}`).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 
@@ -477,6 +478,7 @@ function previousStep() {
         document.getElementById(`step${currentStep}`).classList.remove('active');
         currentStep--;
         document.getElementById(`step${currentStep}`).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 
