@@ -583,6 +583,7 @@ function generatePlan() {
     // Run security validation
     const securityResult = securityValidator.validate(deploymentPlan, envTemplate);
     deploymentPlan.securityScore = securityResult;
+    deploymentPlan.securityResult = securityResult; // Store for PDF report
     
     // Initialize and run compliance analyzer (with error handling)
     try {
@@ -838,6 +839,94 @@ function exportTemplate(format) {
     }
 
     TemplateGenerator.downloadFile(content, filename, mimeType);
+}
+
+/**
+ * Download compliance attestation report
+ */
+async function downloadComplianceReport() {
+    console.log('=== Download Compliance Report Clicked ===');
+
+    if (!deploymentPlan) {
+        alert('No deployment plan available. Please generate a plan first.');
+        return;
+    }
+
+    try {
+        // Check if ComplianceReportGenerator is available
+        if (typeof ComplianceReportGenerator === 'undefined') {
+            console.error('ComplianceReportGenerator not loaded');
+            alert('Compliance report generator not available. Please refresh the page and try again.');
+            return;
+        }
+
+        // Disable button during generation
+        const btn = document.getElementById('pdfReportBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '⏳ Generating PDF Report...';
+        }
+
+        // Get the stored data from the last plan generation
+        const securityResult = deploymentPlan.securityResult || null;
+        const categoryBreakdown = deploymentPlan.categoryBreakdown || null;
+        const gapAnalysis = deploymentPlan.gapAnalysis || null;
+
+        if (!securityResult) {
+            alert('Security analysis data not available. Please regenerate the deployment plan.');
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = '📑 Download PDF Compliance Report';
+            }
+            return;
+        }
+
+        console.log('Generating PDF with data:', {
+            securityScore: securityResult.score,
+            hasCategories: !!categoryBreakdown,
+            hasGapAnalysis: !!gapAnalysis
+        });
+
+        // Generate report
+        const generator = new ComplianceReportGenerator();
+        const filename = await generator.generateReport(
+            deploymentPlan,
+            securityResult,
+            categoryBreakdown,
+            gapAnalysis
+        );
+
+        console.log('✅ PDF generated successfully:', filename);
+        
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.className = 'alert alert-success';
+        successMsg.style.marginTop = '10px';
+        successMsg.textContent = `✅ Compliance report downloaded: ${filename}`;
+        
+        const exportSection = btn.closest('.export-section');
+        if (exportSection) {
+            exportSection.appendChild(successMsg);
+            setTimeout(() => successMsg.remove(), 5000);
+        }
+
+        // Re-enable button
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '📑 Download PDF Compliance Report';
+        }
+
+    } catch (error) {
+        console.error('Error generating compliance report:', error);
+        alert(`Failed to generate compliance report: ${error.message}`);
+        
+        // Re-enable button
+        const btn = document.getElementById('pdfReportBtn');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '📑 Download PDF Compliance Report';
+        }
+    }
 }
 
 /**

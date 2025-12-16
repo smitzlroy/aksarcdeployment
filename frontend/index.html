@@ -366,6 +366,19 @@
                     </div>
                 </div>
 
+                <div class="export-section">
+                    <h3>📋 Compliance Documentation</h3>
+                    <p class="export-description">
+                        Generate a professional compliance attestation report for auditors,
+                        including control evidence matrix, security configurations, and gap analysis.
+                    </p>
+                    <div class="button-group">
+                        <button onclick="downloadComplianceReport()" class="btn btn-primary" id="pdfReportBtn">
+                            📑 Download PDF Compliance Report
+                        </button>
+                    </div>
+                </div>
+
                 <div class="button-group">
                     <button onclick="previousStep()" class="btn btn-secondary">← Back</button>
                     <button onclick="startOver()" class="btn btn-primary">Start Over</button>
@@ -382,10 +395,13 @@
         </footer>
     </div>
 
-    <script src="js/security.js?v=180101"></script>
-    <script src="js/compliance.js?v=180101"></script>
-    <script src="js/planner.js?v=180101"></script>
-    <script src="js/generator.js?v=180101"></script>
-    <script src="js/app.js?v=180101"></script>
+    <!-- jsPDF Library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="js/security.js?v=180103"></script>
+    <script src="js/compliance.js?v=180103"></script>
+    <script src="js/compliance-report.js?v=180103"></script>
+    <script src="js/planner.js?v=180103"></script>
+    <script src="js/generator.js?v=180103"></script>
+    <script src="js/app.js?v=180103"></script>
 </body>
 </html>

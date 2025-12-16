@@ -544,6 +544,41 @@ header h1 {
     text-align: center;
 }
 
+.export-description {
+    text-align: center;
+    color: #605e5c;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+/* Success/Alert Messages */
+.alert {
+    padding: 12px 20px;
+    border-radius: 4px;
+    margin-top: 10px;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+.alert-success {
+    background-color: #dff6dd;
+    border: 1px solid #107c10;
+    color: #107c10;
+}
+
+.alert-info {
+    background-color: #e3f2fd;
+    border: 1px solid #0078d4;
+    color: #0078d4;
+}
+
+.alert-warning {
+    background-color: #fff4e5;
+    border: 1px solid #ff8c00;
+    color: #ff8c00;
+}
+
 /* Footer */
 footer {
     text-align: center;
