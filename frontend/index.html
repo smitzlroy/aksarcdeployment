@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
+    <title>AKS Arc Deployment Tool</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 AKS Arc Deployment Tool</h1>
+            <p class="subtitle">Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511</p>
+        </header>
+
+        <div class="catalog-banner" id="catalogBanner">
+            <span id="catalogInfo"></span>
+            <button onclick="refreshCatalog()" class="btn-link">Refresh Catalog</button>
+        </div>
+
+        <main id="wizard">
+            <!-- Step 1: Workload Selection -->
+            <section class="wizard-step active" id="step1">
+                <h2>Step 1: Choose Your Workload</h2>
+                <p>Select a workload type or customize your requirements</p>
+                
+                <div class="workload-cards">
+                    <div class="card" onclick="selectWorkload('video-analytics')">
+                        <div class="card-icon">📹</div>
+                        <h3>Video Analytics</h3>
+                        <p>Camera feeds, video processing, and analytics</p>
+                        <div class="card-specs">
+                            <span>32 vCPU</span> • <span>128 GB RAM</span> • <span>GPU</span>
+                        </div>
+                    </div>
+
+                    <div class="card" onclick="selectWorkload('ai-inference')">
+                        <div class="card-icon">🤖</div>
+                        <h3>AI Inference</h3>
+                        <p>Machine learning model serving and inference</p>
+                        <div class="card-specs">
+                            <span>16 vCPU</span> • <span>64 GB RAM</span> • <span>GPU</span>
+                        </div>
+                    </div>
+
+                    <div class="card" onclick="selectWorkload('general-purpose')">
+                        <div class="card-icon">⚙️</div>
+                        <h3>General Purpose</h3>
+                        <p>Balanced compute for web apps and microservices</p>
+                        <div class="card-specs">
+                            <span>8 vCPU</span> • <span>32 GB RAM</span>
+                        </div>
+                    </div>
+
+                    <div class="card" onclick="selectWorkload('custom')">
+                        <div class="card-icon">🔧</div>
+                        <h3>Custom</h3>
+                        <p>Define your own resource requirements</p>
+                        <div class="card-specs">
+                            <span>Custom configuration</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 2: Configuration Details -->
+            <section class="wizard-step" id="step2">
+                <h2>Step 2: Configure Your Deployment</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="clusterName">Cluster Name *</label>
+                        <input type="text" id="clusterName" placeholder="my-aks-cluster" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resourceGroup">Resource Group *</label>
+                        <input type="text" id="resourceGroup" placeholder="my-resource-group" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Azure Region *</label>
+                        <select id="location">
+                            <option value="eastus">East US</option>
+                            <option value="westus">West US</option>
+                            <option value="westeurope">West Europe</option>
+                            <option value="eastasia">East Asia</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customLocation">Custom Location *</label>
+                        <input type="text" id="customLocation" placeholder="arc-custom-location" required>
+                    </div>
+
+                    <div class="form-group" id="cpuGroup">
+                        <label for="cpuCores">CPU Cores</label>
+                        <input type="number" id="cpuCores" min="4" max="128" step="4" value="8">
+                    </div>
+
+                    <div class="form-group" id="memoryGroup">
+                        <label for="memoryGb">Memory (GB)</label>
+                        <input type="number" id="memoryGb" min="8" max="512" step="8" value="32">
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="gpuRequired">
+                            Require GPU
+                        </label>
+                    </div>
+
+                    <div class="form-group" id="gpuCountGroup" style="display: none;">
+                        <label for="gpuCount">GPU Count</label>
+                        <input type="number" id="gpuCount" min="1" max="8" value="1">
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="enableRackAwareness" checked>
+                            Enable Rack Awareness
+                        </label>
+                    </div>
+
+                    <div class="form-group" id="rackCountGroup">
+                        <label for="rackCount">Rack Count</label>
+                        <input type="number" id="rackCount" min="1" max="16" value="3">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="previousStep()" class="btn btn-secondary">← Back</button>
+                    <button onclick="generatePlan()" class="btn btn-primary">Generate Plan →</button>
+                </div>
+            </section>
+
+            <!-- Step 3: Review & Export -->
+            <section class="wizard-step" id="step3">
+                <h2>Step 3: Review Your Deployment Plan</h2>
+                
+                <div id="validationResults"></div>
+
+                <div class="plan-summary" id="planSummary"></div>
+
+                <div class="export-section">
+                    <h3>Export Templates</h3>
+                    <div class="button-group">
+                        <button onclick="exportTemplate('bicep')" class="btn btn-export">
+                            📄 Download Bicep
+                        </button>
+                        <button onclick="exportTemplate('arm')" class="btn btn-export">
+                            📋 Download ARM
+                        </button>
+                        <button onclick="exportTemplate('terraform')" class="btn btn-export">
+                            🔧 Download Terraform
+                        </button>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="previousStep()" class="btn btn-secondary">← Back</button>
+                    <button onclick="startOver()" class="btn btn-primary">Start Over</button>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>
+                <a href="https://github.com/smitzlroy/aksarcdeployment" target="_blank">View on GitHub</a> •
+                <a href="https://github.com/smitzlroy/aksarcdeployment/issues" target="_blank">Report Issue</a> •
+                <a href="#" onclick="showAbout(); return false;">About</a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="js/planner.js"></script>
+    <script src="js/generator.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

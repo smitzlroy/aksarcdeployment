@@ -31,7 +31,7 @@ jobs:
     - name: Build frontend
       run: |
         mkdir -p _site
-        echo "<html><body><h1>AKS Arc Deployment Tool</h1><p>Coming soon...</p></body></html>" > _site/index.html
+        cp -r frontend/* _site/
     
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
