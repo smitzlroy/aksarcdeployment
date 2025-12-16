@@ -117,6 +117,7 @@ async function loadCatalog() {
         const response = await fetch('data/catalog.json');
         catalog = await response.json();
         planner = new AKSArcPlanner(catalog);
+        securityValidator = new SecurityValidator(catalog);
         console.log('Catalog loaded from JSON file');
     } catch (error) {
         // Fallback to embedded catalog (for file:// protocol)
