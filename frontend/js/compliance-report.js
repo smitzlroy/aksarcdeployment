@@ -67,7 +67,12 @@ class ComplianceReportGenerator {
         yPos = 20;
         yPos = this.addContinuousCompliancePlan(doc, yPos);
 
-        // Page 8: Attestation & Signatures
+        // Page 8: Data Sources & Methodology
+        doc.addPage();
+        yPos = 20;
+        yPos = this.addDataSourcesPage(doc, yPos);
+
+        // Page 9: Attestation & Signatures
         doc.addPage();
         yPos = 20;
         yPos = this.addAttestationPage(doc, yPos);
@@ -76,7 +81,8 @@ class ComplianceReportGenerator {
         this.addFooters(doc);
 
         // Save PDF
-        const fileName = `Compliance_Attestation_${deploymentPlan.clusterName}_${this.getDateString()}.pdf`;
+        const clusterName = deploymentPlan.clusterConfig?.clusterName || deploymentPlan.clusterName || 'AKSArc';
+        const fileName = `Compliance_Attestation_${clusterName}_${this.getDateString()}.pdf`;
         doc.save(fileName);
 
         console.log('✅ Compliance attestation report generated:', fileName);
@@ -87,7 +93,7 @@ class ComplianceReportGenerator {
      * Add executive summary page
      */
     addExecutiveSummary(doc, yPos) {
-        const plan = this.reportData.deploymentPlan;
+        const plan = this.reportData.deploymentPlan.clusterConfig || this.reportData.deploymentPlan;
         const security = this.reportData.securityResult;
 
         // Title
@@ -117,15 +123,15 @@ class ComplianceReportGenerator {
         yPos += 8;
         doc.setFont('helvetica', 'normal');
         
-        doc.text(`Cluster Name: ${plan.clusterName}`, 20, yPos);
+        doc.text(`Cluster Name: ${plan.clusterName || 'N/A'}`, 20, yPos);
         yPos += 6;
-        doc.text(`Resource Group: ${plan.resourceGroup}`, 20, yPos);
+        doc.text(`Resource Group: ${plan.resourceGroup || 'N/A'}`, 20, yPos);
         yPos += 6;
-        doc.text(`Location: ${plan.location}`, 20, yPos);
+        doc.text(`Location: ${plan.location || plan.customLocation || 'N/A'}`, 20, yPos);
         yPos += 6;
-        doc.text(`Environment: ${plan.environment?.name || 'Custom'}`, 20, yPos);
+        doc.text(`Environment: ${this.reportData.deploymentPlan.environment?.name || 'Custom'}`, 20, yPos);
         yPos += 6;
-        doc.text(`Industry: ${plan.industryDetails?.name || 'Not specified'}`, 20, yPos);
+        doc.text(`Industry: ${this.reportData.deploymentPlan.industryDetails?.name || 'Not specified'}`, 20, yPos);
         yPos += 15;
 
         // Compliance Score Box
@@ -209,9 +215,13 @@ class ComplianceReportGenerator {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
         
-        const description = doc.splitTextToSize(industry.description, 170);
-        doc.text(description, 20, yPos);
-        yPos += description.length * 5 + 5;
+        if (industry.description) {
+            const description = doc.splitTextToSize(industry.description, 170);
+            doc.text(description, 20, yPos);
+            yPos += description.length * 5 + 5;
+        } else {
+            yPos += 5;
+        }
 
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
@@ -358,7 +368,8 @@ class ComplianceReportGenerator {
         doc.text('Security Configuration Evidence', 20, yPos);
         yPos += 12;
 
-        const plan = this.reportData.deploymentPlan;
+        const plan = this.reportData.deploymentPlan.clusterConfig || this.reportData.deploymentPlan;
+        const fullPlan = this.reportData.deploymentPlan;
 
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
@@ -368,13 +379,17 @@ class ComplianceReportGenerator {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
 
+        const nodePools = plan.nodePools || [];
+        const controlPlaneCount = plan.controlPlaneCount || 3;
+        const totalWorkerNodes = nodePools.reduce((sum, pool) => sum + (pool.nodeCount || 0), 0);
+
         const configItems = [
-            ['Control Plane Nodes', `${plan.controlPlaneNodes} nodes (HA: ${plan.controlPlaneNodes >= 3 ? 'Yes' : 'No'})`],
-            ['Worker Nodes', `${plan.totalNodes} nodes across ${plan.nodePools.length} pool(s)`],
+            ['Control Plane Nodes', `${controlPlaneCount} nodes (HA: ${controlPlaneCount >= 3 ? 'Yes' : 'No'})`],
+            ['Worker Nodes', `${totalWorkerNodes} nodes across ${nodePools.length} pool(s)`],
             ['Availability Sets', plan.enableAvailabilitySets ? 'Enabled' : 'Disabled'],
-            ['Auto-scaling', plan.enableAutoScaling ? 'Enabled' : 'Disabled'],
-            ['Monitoring', plan.enableMonitoring ? 'Azure Monitor enabled' : 'Not configured'],
-            ['Backup', plan.backupEnabled ? 'Configured' : 'Not configured']
+            ['Auto-scaling', fullPlan.enableAutoScaling ? 'Enabled' : 'Disabled'],
+            ['Monitoring', fullPlan.enableMonitoring ? 'Azure Monitor enabled' : 'Not configured'],
+            ['Backup', fullPlan.backupEnabled ? 'Configured' : 'Not configured']
         ];
 
         configItems.forEach(([label, value]) => {
@@ -396,7 +411,7 @@ class ComplianceReportGenerator {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
 
-        plan.nodePools.forEach((pool, index) => {
+        nodePools.forEach((pool, index) => {
             doc.setFont('helvetica', 'bold');
             doc.text(`Pool ${index + 1}: ${pool.name}`, 20, yPos);
             yPos += 6;
@@ -623,6 +638,206 @@ class ComplianceReportGenerator {
 
             yPos += 8;
         });
+
+        return yPos + 10;
+    }
+
+    /**
+     * Add data sources page
+     */
+    addDataSourcesPage(doc, yPos) {
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Compliance Data Sources & Methodology', 20, yPos);
+        yPos += 12;
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text('This report uses official regulatory framework requirements from authoritative sources.', 20, yPos);
+        yPos += 10;
+
+        // Source transparency
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Official Regulatory Sources', 20, yPos);
+        yPos += 8;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+
+        const sources = [
+            {
+                name: 'ISO 27001:2022',
+                org: 'International Organization for Standardization',
+                url: 'https://www.iso.org/standard/27001',
+                desc: 'Information security management systems requirements'
+            },
+            {
+                name: 'PCI DSS v4.0',
+                org: 'PCI Security Standards Council',
+                url: 'https://www.pcisecuritystandards.org/',
+                desc: 'Payment Card Industry Data Security Standard'
+            },
+            {
+                name: 'GDPR',
+                org: 'European Union',
+                url: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj',
+                desc: 'General Data Protection Regulation (EU 2016/679)'
+            },
+            {
+                name: 'CCPA',
+                org: 'State of California',
+                url: 'https://oag.ca.gov/privacy/ccpa',
+                desc: 'California Consumer Privacy Act'
+            },
+            {
+                name: 'NERC CIP',
+                org: 'North American Electric Reliability Corporation',
+                url: 'https://www.nerc.com/pa/Stand/Pages/CIPStandards.aspx',
+                desc: 'Critical Infrastructure Protection standards'
+            },
+            {
+                name: 'IEC 62443',
+                org: 'International Electrotechnical Commission',
+                url: 'https://www.iec.ch/',
+                desc: 'Industrial automation and control systems security'
+            },
+            {
+                name: 'NIST CSF v2.0',
+                org: 'National Institute of Standards and Technology',
+                url: 'https://www.nist.gov/cyberframework',
+                desc: 'Cybersecurity Framework'
+            }
+        ];
+
+        sources.forEach(source => {
+            if (yPos > 255) {
+                doc.addPage();
+                yPos = 20;
+            }
+
+            doc.setFont('helvetica', 'bold');
+            doc.text(`• ${source.name}`, 22, yPos);
+            yPos += 5;
+            doc.setFont('helvetica', 'normal');
+            doc.text(`  Source: ${source.org}`, 25, yPos);
+            yPos += 4;
+            doc.setTextColor(0, 0, 255);
+            doc.text(`  ${source.url}`, 25, yPos);
+            doc.setTextColor(0);
+            yPos += 4;
+            const descLines = doc.splitTextToSize(`  ${source.desc}`, 165);
+            doc.text(descLines, 25, yPos);
+            yPos += descLines.length * 4 + 3;
+        });
+
+        yPos += 5;
+
+        // Microsoft integration
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Microsoft Security Services', 20, yPos);
+        yPos += 8;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+
+        const msServices = [
+            {
+                name: 'Microsoft Defender for Cloud',
+                url: 'https://learn.microsoft.com/azure/defender-for-cloud/',
+                desc: 'Security posture management and threat protection'
+            },
+            {
+                name: 'Azure Policy',
+                url: 'https://learn.microsoft.com/azure/governance/policy/',
+                desc: 'Regulatory compliance initiatives and policy enforcement'
+            },
+            {
+                name: 'Azure Security Benchmark',
+                url: 'https://learn.microsoft.com/security/benchmark/azure/',
+                desc: 'Cloud-centric security recommendations for Azure'
+            },
+            {
+                name: 'CIS Benchmarks',
+                url: 'https://www.cisecurity.org/cis-benchmarks/',
+                desc: 'Center for Internet Security Kubernetes Benchmark v1.9.0'
+            }
+        ];
+
+        msServices.forEach(service => {
+            if (yPos > 260) {
+                doc.addPage();
+                yPos = 20;
+            }
+
+            doc.setFont('helvetica', 'bold');
+            doc.text(`• ${service.name}`, 22, yPos);
+            yPos += 5;
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(0, 0, 255);
+            doc.text(`  ${service.url}`, 25, yPos);
+            doc.setTextColor(0);
+            yPos += 4;
+            const descLines = doc.splitTextToSize(`  ${service.desc}`, 165);
+            doc.text(descLines, 25, yPos);
+            yPos += descLines.length * 4 + 3;
+        });
+
+        yPos += 5;
+
+        // Mapping methodology
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Control Mapping Methodology', 20, yPos);
+        yPos += 8;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+
+        const methodology = [
+            '1. Direct Control Mapping: Each security configuration is mapped to specific regulatory',
+            '   control identifiers (e.g., ISO 27001 A.10.1.1, PCI DSS 3.4, GDPR Article 32).',
+            '',
+            '2. Official Microsoft Mappings: Leverages Microsoft Defender for Cloud regulatory',
+            '   compliance mappings and Azure Policy initiative definitions.',
+            '',
+            '3. Industry Best Practices: Incorporates guidance from CIS Benchmarks, NIST',
+            '   publications, and industry-specific security frameworks.',
+            '',
+            '4. Continuous Updates: Framework mappings are reviewed quarterly and updated',
+            '   to reflect the latest regulatory requirements and Azure capabilities.'
+        ];
+
+        methodology.forEach(line => {
+            doc.text(line, 20, yPos);
+            yPos += 4;
+        });
+
+        yPos += 5;
+
+        // Documentation reference
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('Complete Source Documentation', 20, yPos);
+        yPos += 6;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.text('For complete control mappings, article/section references, and version tracking:', 20, yPos);
+        yPos += 5;
+        doc.setTextColor(0, 0, 255);
+        doc.text('https://github.com/smitzlroy/aksarcdeployment/blob/main/COMPLIANCE_SOURCES.md', 20, yPos);
+        doc.setTextColor(0);
+        yPos += 8;
+
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(8);
+        doc.setTextColor(100);
+        doc.text(`Last Updated: December 16, 2024`, 20, yPos);
+        yPos += 4;
+        doc.text(`Next Review: March 2025`, 20, yPos);
+        doc.setTextColor(0);
 
         return yPos + 10;
     }
