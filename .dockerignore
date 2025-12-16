@@ -1,0 +1,41 @@
+# Docker
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docs
+docs/
+*.md
+
+# Tests
+tests/
+.pytest_cache/
+htmlcov/
+.coverage
+
+# CI
+.github/
+
+# Env
+.env
+.env.local
+venv/
+env/
