@@ -25,11 +25,11 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 const EMBEDDED_CATALOG = {
   "metadata": {
-    "version": "1.0",
-    "last_updated": "2024-12-16T00:00:00",
-    "target": "Azure Local 2511"
+    "version": "1.1",
+    "last_updated": "2024-12-17T22:30:00",
+    "target": "Azure Local - Environment Specific"
   },
-    "kubernetes_versions": ["1.27.9", "1.28.5"],
+  "kubernetes_versions": ["1.31.10", "1.32.6", "1.32.5", "1.31.9", "1.30.14", "1.30.13"],
   "os_images": {
     "linux": [
       {"name": "Azure Linux 2.0", "version": "2.0.20240101"},
@@ -42,14 +42,25 @@ const EMBEDDED_CATALOG = {
   },
   "vm_skus": {
     "general_purpose": [
-      {"name": "Standard_D4s_v5", "vcpus": 4, "memory_gb": 16, "gpu": false},
-      {"name": "Standard_D8s_v5", "vcpus": 8, "memory_gb": 32, "gpu": false},
-            {"name": "Standard_D16s_v5", "vcpus": 16, "memory_gb": 64, "gpu": false}
+      {"name": "Standard_A2_v2", "vcpus": 2, "memory_gb": 4, "gpu": false},
+      {"name": "Standard_A4_v2", "vcpus": 4, "memory_gb": 8, "gpu": false},
+      {"name": "Standard_D4s_v3", "vcpus": 4, "memory_gb": 16, "gpu": false},
+      {"name": "Standard_D8s_v3", "vcpus": 8, "memory_gb": 32, "gpu": false},
+      {"name": "Standard_D16s_v3", "vcpus": 16, "memory_gb": 64, "gpu": false},
+      {"name": "Standard_D32s_v3", "vcpus": 32, "memory_gb": 128, "gpu": false},
+      {"name": "Standard_K8S3_v1", "vcpus": 4, "memory_gb": 6, "gpu": false}
     ],
     "gpu": [
-      {"name": "Standard_NC4as_T4_v3", "vcpus": 4, "memory_gb": 28, "gpu": true, "gpu_model": "T4", "gpu_count": 1},
-      {"name": "Standard_NC8as_T4_v3", "vcpus": 8, "memory_gb": 56, "gpu": true, "gpu_model": "T4", "gpu_count": 1},
-      {"name": "Standard_NC16as_T4_v3", "vcpus": 16, "memory_gb": 110, "gpu": true, "gpu_model": "T4", "gpu_count": 1}
+      {"name": "Standard_NC16_A16", "vcpus": 16, "memory_gb": 64, "gpu": true, "gpu_model": "A16", "gpu_count": 2},
+      {"name": "Standard_NC16_A2", "vcpus": 16, "memory_gb": 64, "gpu": true, "gpu_model": "A2", "gpu_count": 2},
+      {"name": "Standard_NC32_A16", "vcpus": 32, "memory_gb": 128, "gpu": true, "gpu_model": "A16", "gpu_count": 2},
+      {"name": "Standard_NC32_A2", "vcpus": 32, "memory_gb": 128, "gpu": true, "gpu_model": "A2", "gpu_count": 2},
+      {"name": "Standard_NC4_A16", "vcpus": 4, "memory_gb": 8, "gpu": true, "gpu_model": "A16", "gpu_count": 1},
+      {"name": "Standard_NC4_A2", "vcpus": 4, "memory_gb": 8, "gpu": true, "gpu_model": "A2", "gpu_count": 1},
+      {"name": "Standard_NC8_A16", "vcpus": 8, "memory_gb": 16, "gpu": true, "gpu_model": "A16", "gpu_count": 1},
+      {"name": "Standard_NC8_A2", "vcpus": 8, "memory_gb": 16, "gpu": true, "gpu_model": "A2", "gpu_count": 1},
+      {"name": "Standard_NK12", "vcpus": 12, "memory_gb": 24, "gpu": true, "gpu_model": "Tesla T4", "gpu_count": 2},
+      {"name": "Standard_NK6", "vcpus": 6, "memory_gb": 12, "gpu": true, "gpu_model": "Tesla T4", "gpu_count": 1}
     ]
   },
   "limits": {

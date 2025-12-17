@@ -1,8 +1,8 @@
 /**
  * Template Generators - Bicep, ARM, Terraform
- * VERSION: 2025-12-17-2300 (Portal-matched template structure)
+ * VERSION: 2025-12-17-2310 (Updated with environment-specific SKUs and K8s versions)
  */
-console.log('✅ generator.js loaded - VERSION: 2025-12-17-2300');
+console.log('✅ generator.js loaded - VERSION: 2025-12-17-2310');
 
 class TemplateGenerator {
     /**
@@ -405,7 +405,7 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
             metadata: {
                 _generator: {
                     name: 'AKS Arc Deployment Tool',
-                    version: '2.0.4-20251217-2300',
+                    version: '2.0.5-20251217-2310',
                     templateType: 'AKS enabled by Azure Arc on Azure Local',
                     generatedAt: new Date().toISOString()
                 },
@@ -428,7 +428,7 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 },
                 kubernetesVersion: {
                     type: 'string',
-                  defaultValue: kubernetesVersion || '1.27.9',
+                  defaultValue: kubernetesVersion || '1.31.10',
                     metadata: {
                     description: 'Kubernetes version (must be supported by your AKS Arc on Azure Local installation)'
                     }

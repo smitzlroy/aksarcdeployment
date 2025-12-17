@@ -30,15 +30,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatic rebalancing when hosts recover from outages
   - UI updated: physicalHostCount replaces rackCount
   - Based on Microsoft documentation research
-- **Default Kubernetes version changed to 1.27.9** (from 1.29.2) for wider AKS Arc platform compatibility
-- **Removed unsupported VM size Standard_D32s_v5** from catalogs to prevent deployment failures
-- Updated VM SKU catalogs to include only commonly supported sizes (Standard_D4s_v5, Standard_D8s_v5, Standard_D16s_v5)
+- **CRITICAL**: Updated catalogs with environment-specific VM SKUs and Kubernetes versions
+  - Kubernetes versions: 1.31.10 (default), 1.32.6, 1.32.5, 1.31.9, 1.30.14, 1.30.13
+  - VM SKUs updated to match actual Azure Local environment: Standard_A2_v2, Standard_A4_v2, Standard_D4s_v3, Standard_D8s_v3, Standard_D16s_v3, Standard_D32s_v3, Standard_K8S3_v1
+  - GPU SKUs updated: Standard_NC16_A16, Standard_NC32_A16, Standard_NC4_A16, Standard_NC8_A16, Standard_NK12, Standard_NK6
+  - Removed generic/unsupported SKUs that caused deployment failures
 
 ### Deprecated
 
 ### Removed
-- Kubernetes version 1.29.2 from default catalogs (may not be supported on all Azure Local installations)
-- VM size Standard_D32s_v5 from catalogs (rejected by platform admission webhooks)
+- Outdated Kubernetes versions (1.27.9, 1.28.5, 1.29.2) - replaced with environment-specific versions
+- Generic VM SKUs (Standard_D4s_v5, Standard_D8s_v5, Standard_D16s_v5, Standard_D32s_v5) - replaced with actual Azure Local SKUs
+- Generic GPU SKUs (Standard_NC4as_T4_v3, etc.) - replaced with environment-specific GPU SKUs
 
 ### Fixed
 - **CRITICAL**: ARM template structure now matches portal-generated templates exactly
@@ -52,8 +55,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CRITICAL**: `agentPoolProfiles` array now properly serialized in JSON instead of variable reference
 - `sshPublicKey` parameter now has safe default placeholder to prevent template validation errors
 - ARM template parameters now include empty string defaults where appropriate to avoid undefined serialization
-- Generator metadata version updated to reflect portal-matched structure (2.0.4-20251217-2300)
+- Generator metadata version updated to reflect environment-specific catalogs (2.0.5-20251217-2310)
 - Added comprehensive validation test suite comparing against portal-generated templates
+- Default Kubernetes version updated to 1.31.10 (from 1.27.9)
 
 ### Security
 
