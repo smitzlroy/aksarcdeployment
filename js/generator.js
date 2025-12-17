@@ -416,9 +416,9 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 },
                 kubernetesVersion: {
                     type: 'string',
-                    defaultValue: kubernetesVersion || '1.29.2',
+                  defaultValue: kubernetesVersion || '1.27.9',
                     metadata: {
-                        description: 'Kubernetes version (e.g., v1.29.2)'
+                    description: 'Kubernetes version (must be supported by your AKS Arc on Azure Local installation)'
                     }
                 },
                 controlPlaneCount: {

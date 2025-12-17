@@ -142,8 +142,8 @@
                         },
                         kubernetesVersion: {
                             type: 'string',
-                            defaultValue: kubernetesVersion || '1.29.2',
-                            metadata: { description: 'Kubernetes version (e.g., v1.29.2)' }
+                            defaultValue: kubernetesVersion || '1.27.9',
+                            metadata: { description: 'Kubernetes version (must be supported by your AKS Arc on Azure Local installation)' }
                         },
                         controlPlaneCount: {
                             type: 'int',
@@ -213,14 +213,14 @@
                     location: location,
                     customLocation: customLocation,
                     logicalNetwork: logicalNetwork,
-                    kubernetesVersion: '1.29.2',
+                    kubernetesVersion: '1.27.9',
                     controlPlaneCount: 1,
                     controlPlaneVmSize: 'Standard_A4_v2',
                     nodePools: [
                         {
                             name: 'nodepool1',
                             count: 2,
-                            vmSize: 'Standard_D32s_v5',
+                            vmSize: 'Standard_D4s_v5',
                             osSKU: 'CBLMariner',
                             maxPods: 110,
                             nodeLabels: { workload: 'general-purpose' }

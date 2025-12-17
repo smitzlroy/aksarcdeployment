@@ -30,12 +30,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatic rebalancing when hosts recover from outages
   - UI updated: physicalHostCount replaces rackCount
   - Based on Microsoft documentation research
+- **Default Kubernetes version changed to 1.27.9** (from 1.29.2) for wider AKS Arc platform compatibility
+- **Removed unsupported VM size Standard_D32s_v5** from catalogs to prevent deployment failures
+- Updated VM SKU catalogs to include only commonly supported sizes (Standard_D4s_v5, Standard_D8s_v5, Standard_D16s_v5)
 
 ### Deprecated
 
 ### Removed
+- Kubernetes version 1.29.2 from default catalogs (may not be supported on all Azure Local installations)
+- VM size Standard_D32s_v5 from catalogs (rejected by platform admission webhooks)
 
 ### Fixed
+- **CRITICAL**: ARM template JSON structure - `controlPlane` property now correctly builds as JavaScript object instead of ARM expression string
+- **CRITICAL**: `agentPoolProfiles` array now properly serialized in JSON instead of variable reference
+- `controlPlaneIP` parameter is now truly optional - only includes `controlPlaneEndpoint` in template when IP address provided
+- `sshPublicKey` parameter now has safe default placeholder to prevent template validation errors
+- ARM template parameters now include empty string defaults where appropriate to avoid undefined serialization
+- Generator metadata version updated to reflect structural fixes (2.0.1-HOTFIX-20251217)
 
 ### Security
 

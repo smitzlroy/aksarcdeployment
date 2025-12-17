@@ -5,9 +5,8 @@
     "target": "Azure Local 2511"
   },
   "kubernetes_versions": [
-    "1.29.2",
-    "1.28.5",
-    "1.27.9"
+    "1.27.9",
+    "1.28.5"
   ],
   "os_images": {
     "linux": [
@@ -49,12 +48,6 @@
         "name": "Standard_D16s_v5",
         "vcpus": 16,
         "memory_gb": 64,
-        "gpu": false
-      },
-      {
-        "name": "Standard_D32s_v5",
-        "vcpus": 32,
-        "memory_gb": 128,
         "gpu": false
       }
     ],

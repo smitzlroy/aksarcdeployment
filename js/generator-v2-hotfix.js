@@ -1,8 +1,8 @@
 /**
  * Template Generators - Bicep, ARM, Terraform
- * VERSION: 2025-12-17-1700 (Parameter fix with defense-in-depth)
+ * VERSION: 2025-12-17-2020 (JSON structure fix - controlPlane as proper object)
  */
-console.log('✅ generator.js loaded - VERSION: 2025-12-17-1700');
+console.log('✅ generator.js loaded - VERSION: 2025-12-17-2020');
 
 class TemplateGenerator {
     /**
@@ -301,6 +301,17 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
             return profile;
         });
 
+        // Build controlPlane object conditionally - only include controlPlaneEndpoint if IP provided
+        const controlPlaneObj = {
+            count: '[parameters(\'controlPlaneCount\')]',
+            vmSize: '[parameters(\'controlPlaneVmSize\')]'
+        };
+        if (controlPlaneIPValue) {
+            controlPlaneObj.controlPlaneEndpoint = {
+                hostIP: '[parameters(\'controlPlaneIP\')]'
+            };
+        }
+
         const resources = [
             // Connected Cluster - Arc representation for Managed Identity
             {
@@ -341,20 +352,14 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                             ]
                         }
                     },
-                    controlPlane: {
-                        count: '[parameters(\'controlPlaneCount\')]',
-                        controlPlaneEndpoint: {
-                            hostIP: '[parameters(\'controlPlaneIP\')]'
-                        },
-                        vmSize: '[parameters(\'controlPlaneVmSize\')]'
-                    },
+                    controlPlane: controlPlaneObj,
                     networkProfile: {
                         networkPolicy: 'calico',
                         loadBalancerProfile: {
                             count: 0
                         }
                     },
-                    agentPoolProfiles,
+                    agentPoolProfiles: agentPoolProfiles,
                     cloudProviderProfile: {
                         infraNetworkProfile: {
                             vnetSubnetIds: [
@@ -424,9 +429,9 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 },
                 kubernetesVersion: {
                     type: 'string',
-                    defaultValue: kubernetesVersion || '1.29.2',
+                  defaultValue: kubernetesVersion || '1.27.9',
                     metadata: {
-                        description: 'Kubernetes version (e.g., v1.29.2)'
+                    description: 'Kubernetes version (must be supported by your AKS Arc on Azure Local installation)'
                     }
                 },
                 controlPlaneCount: {
@@ -461,14 +466,16 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 },
                 sshPublicKey: {
                     type: 'string',
+                  defaultValue: sshPublicKeyValue,
                     metadata: {
                         description: 'SSH public key for node access (e.g., ssh-rsa AAAA...)'
                     }
                 },
                 controlPlaneIP: {
                     type: 'string',
+                  defaultValue: controlPlaneIPValue,
                     metadata: {
-                        description: 'Static IP address for control plane endpoint'
+                    description: 'Optional: static IP address for control plane endpoint'
                     }
                 }
             },

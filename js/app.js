@@ -29,7 +29,7 @@ const EMBEDDED_CATALOG = {
     "last_updated": "2024-12-16T00:00:00",
     "target": "Azure Local 2511"
   },
-  "kubernetes_versions": ["1.29.2", "1.28.5", "1.27.9"],
+    "kubernetes_versions": ["1.27.9", "1.28.5"],
   "os_images": {
     "linux": [
       {"name": "Azure Linux 2.0", "version": "2.0.20240101"},
@@ -44,8 +44,7 @@ const EMBEDDED_CATALOG = {
     "general_purpose": [
       {"name": "Standard_D4s_v5", "vcpus": 4, "memory_gb": 16, "gpu": false},
       {"name": "Standard_D8s_v5", "vcpus": 8, "memory_gb": 32, "gpu": false},
-      {"name": "Standard_D16s_v5", "vcpus": 16, "memory_gb": 64, "gpu": false},
-      {"name": "Standard_D32s_v5", "vcpus": 32, "memory_gb": 128, "gpu": false}
+            {"name": "Standard_D16s_v5", "vcpus": 16, "memory_gb": 64, "gpu": false}
     ],
     "gpu": [
       {"name": "Standard_NC4as_T4_v3", "vcpus": 4, "memory_gb": 28, "gpu": true, "gpu_model": "T4", "gpu_count": 1},
