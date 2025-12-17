@@ -280,7 +280,10 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
         
         // Use values directly since validation passed
         const clusterNameValue = String(clusterName);
-        const customLocationValue = String(customLocation);
+        // Extract just the name from customLocation resource ID (e.g., "/subscriptions/.../customLocations/London" -> "London")
+        const customLocationValue = String(customLocation).includes('/') 
+            ? String(customLocation).split('/').pop() 
+            : String(customLocation);
         const logicalNetworkValue = String(logicalNetwork);
         // If no SSH key provided, use a placeholder that users must replace
         const sshPublicKeyValue = sshPublicKey ? String(sshPublicKey) : 'REPLACE_WITH_YOUR_SSH_PUBLIC_KEY';
@@ -340,7 +343,7 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 name: 'default',
                 extendedLocation: {
                     type: 'CustomLocation',
-                    name: '[parameters(\'customLocation\')]'
+                    name: '[variables(\'customLocationId\')]'
                 },
                 properties: {
                     linuxProfile: {
@@ -461,7 +464,7 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                     type: 'string',
                     defaultValue: customLocationValue,
                     metadata: {
-                        description: 'ARM resource ID of the Custom Location for your Azure Local cluster'
+                        description: 'Name of the Custom Location for your Azure Local cluster (e.g., London)'
                     }
                 },
                 logicalNetwork: {
@@ -479,10 +482,9 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                     }
                 },
                 sshPublicKey: {
-                    type: 'securestring',
-                    defaultValue: sshPublicKeyValue,
+                    type: 'string',
                     metadata: {
-                        description: 'SSH public key for node access (e.g., ssh-rsa AAAA...). Replace placeholder before deploying if you left this field empty.'
+                        description: 'SSH public key for node access (e.g., ssh-rsa AAAA...)'
                     }
                 },
                 ...(controlPlaneIPValue && {
@@ -495,7 +497,9 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                     }
                 })
             },
-            variables: {},
+            variables: {
+                customLocationId: '[resourceId(\'Microsoft.ExtendedLocation/customLocations\', parameters(\'customLocation\'))]'
+            },
             resources,
             outputs: {
                 clusterName: {
