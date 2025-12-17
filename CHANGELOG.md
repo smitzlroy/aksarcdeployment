@@ -41,14 +41,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VM size Standard_D32s_v5 from catalogs (rejected by platform admission webhooks)
 
 ### Fixed
+- **CRITICAL**: ARM template structure now matches portal-generated templates exactly
+  - ConnectedClusters API version changed to `2025-08-01-preview` (from `2024-01-01`)
+  - Added `adminGroupObjectIDs` parameter and property in aadProfile
+  - Changed provisionedClusterInstances scope from `format()` to `resourceId()` function
+  - Moved `extendedLocation` to after `properties` block (portal structure)
+  - `controlPlaneEndpoint` now ALWAYS included in controlPlane (portal behavior)
+  - Added `dependsOn` array to provisionedClusterInstances resource
 - **CRITICAL**: ARM template JSON structure - `controlPlane` property now correctly builds as JavaScript object instead of ARM expression string
 - **CRITICAL**: `agentPoolProfiles` array now properly serialized in JSON instead of variable reference
-- **CRITICAL**: Removed invalid `securityProfile` and `oidcIssuerProfile` from ConnectedClusters resource - these properties are NOT supported in Microsoft.Kubernetes/ConnectedClusters@2024-01-01 (verified against official Azure Resource Manager schema)
-- `controlPlaneIP` parameter is now truly optional - only includes `controlPlaneEndpoint` in template when IP address provided
 - `sshPublicKey` parameter now has safe default placeholder to prevent template validation errors
 - ARM template parameters now include empty string defaults where appropriate to avoid undefined serialization
-- Generator metadata version updated to reflect schema validation (2.0.3-20251217-2200)
-- Added schema validation test suite to prevent future API specification violations
+- Generator metadata version updated to reflect portal-matched structure (2.0.4-20251217-2300)
+- Added comprehensive validation test suite comparing against portal-generated templates
 
 ### Security
 

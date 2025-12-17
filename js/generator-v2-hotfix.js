@@ -1,8 +1,8 @@
 /**
  * Template Generators - Bicep, ARM, Terraform
- * VERSION: 2025-12-17-2200 (Schema validated - removed invalid properties)
+ * VERSION: 2025-12-17-2300 (Portal-matched template structure)
  */
-console.log('✅ generator.js loaded - VERSION: 2025-12-17-2200');
+console.log('✅ generator.js loaded - VERSION: 2025-12-17-2300');
 
 class TemplateGenerator {
     /**
@@ -301,22 +301,20 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
             return profile;
         });
 
-        // Build controlPlane object conditionally - only include controlPlaneEndpoint if IP provided
+        // Build controlPlane object - ALWAYS include controlPlaneEndpoint (portal template does this)
         const controlPlaneObj = {
             count: '[parameters(\'controlPlaneCount\')]',
+            controlPlaneEndpoint: {
+                hostIP: '[parameters(\'controlPlaneIP\')]'
+            },
             vmSize: '[parameters(\'controlPlaneVmSize\')]'
         };
-        if (controlPlaneIPValue) {
-            controlPlaneObj.controlPlaneEndpoint = {
-                hostIP: '[parameters(\'controlPlaneIP\')]'
-            };
-        }
 
         const resources = [
             // Connected Cluster - Arc representation for Managed Identity
             {
                 type: 'Microsoft.Kubernetes/ConnectedClusters',
-                apiVersion: '2024-01-01',
+                apiVersion: '2025-08-01-preview',
                 name: '[parameters(\'clusterName\')]',
                 location: '[parameters(\'location\')]',
                 identity: {
@@ -326,21 +324,21 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 properties: {
                     agentPublicKeyCertificate: '',
                     aadProfile: {
-                        enableAzureRBAC: false
+                        enableAzureRBAC: false,
+                        adminGroupObjectIDs: '[parameters(\'adminGroupObjectIDs\')]'
                     }
                 }
             },
             // Provisioned Cluster Instance - The actual AKS Arc cluster
-            // Structure based on official Azure/aksArc GitHub repo templates
+            // Structure based on portal-generated template
             {
                 type: 'Microsoft.HybridContainerService/provisionedClusterInstances',
                 apiVersion: '2024-01-01',
                 name: 'default',
-                scope: '[format(\'Microsoft.Kubernetes/connectedClusters/{0}\', parameters(\'clusterName\'))]',
-                extendedLocation: {
-                    type: 'CustomLocation',
-                    name: '[parameters(\'customLocation\')]'
-                },
+                scope: '[resourceId(\'Microsoft.Kubernetes/ConnectedClusters\', parameters(\'clusterName\'))]',
+                dependsOn: [
+                    '[resourceId(\'Microsoft.Kubernetes/ConnectedClusters\', parameters(\'clusterName\'))]'
+                ],
                 properties: {
                     kubernetesVersion: '[parameters(\'kubernetesVersion\')]',
                     linuxProfile: {
@@ -379,9 +377,10 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                         }
                     }
                 },
-                dependsOn: [
-                    '[resourceId(\'Microsoft.Kubernetes/ConnectedClusters\', parameters(\'clusterName\'))]'
-                ]
+                extendedLocation: {
+                    type: 'CustomLocation',
+                    name: '[parameters(\'customLocation\')]'
+                }
             }
         ];
 
@@ -406,7 +405,7 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
             metadata: {
                 _generator: {
                     name: 'AKS Arc Deployment Tool',
-                    version: '2.0.3-20251217-2200',
+                    version: '2.0.4-20251217-2300',
                     templateType: 'AKS enabled by Azure Arc on Azure Local',
                     generatedAt: new Date().toISOString()
                 },
@@ -469,6 +468,13 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                   defaultValue: sshPublicKeyValue,
                     metadata: {
                         description: 'SSH public key for node access (e.g., ssh-rsa AAAA...)'
+                    }
+                },
+                adminGroupObjectIDs: {
+                    type: 'array',
+                    defaultValue: [],
+                    metadata: {
+                        description: 'AAD group object IDs that will have admin role of the cluster'
                     }
                 },
                 controlPlaneIP: {
