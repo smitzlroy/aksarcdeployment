@@ -393,8 +393,9 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
             metadata: {
                 _generator: {
                     name: 'AKS Arc Deployment Tool',
-                    version: '1.0.0',
-                    templateType: 'AKS enabled by Azure Arc on Azure Local'
+                    version: '2.0.1-HOTFIX-20251217',
+                    templateType: 'AKS enabled by Azure Arc on Azure Local',
+                    generatedAt: new Date().toISOString()
                 },
                 description: 'ARM template for deploying AKS Arc cluster using Microsoft.HybridContainerService/provisionedClusterInstances'
             },
@@ -491,7 +492,21 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
             }
         };
 
-        return JSON.stringify(template, null, 2);
+        // Custom JSON replacer to ensure empty strings stay as empty strings, not {}
+        const jsonString = JSON.stringify(template, (key, value) => {
+            // If value is undefined, convert to empty string for string parameters
+            if (value === undefined && key !== 'defaultValue') {
+                return value; // Keep undefined for non-defaultValue keys
+            }
+            // If this is a defaultValue and it's undefined or null, use empty string
+            if (key === 'defaultValue' && (value === undefined || value === null)) {
+                return '';
+            }
+            return value;
+        }, 2);
+        
+        console.log('✅ ARM template generated, length:', jsonString.length);
+        return jsonString;
     }
 
     /**
