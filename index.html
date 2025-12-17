@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
     <title>AKS Arc Deployment Tool</title>
-    <link rel="stylesheet" href="css/style.css?v=180124">
+    <link rel="stylesheet" href="css/style.css?v=180125">
     <link rel="stylesheet" href="css/polish.css?v=180102">
 </head>
 <body>
@@ -932,77 +932,77 @@ Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</co
                 <div class="plan-summary" id="planSummary"></div>
 
                 <!-- Network Architecture Diagram -->
-                <div class="network-diagram-section" id="networkDiagramSection" style="display: none; margin: 30px 0; padding: 25px; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 8px;">
-                    <h3 style="margin-top: 0; color: var(--primary-color);">🌐 Network Architecture & Traffic Flows</h3>
-                    <p style="color: #666; margin-bottom: 20px;">
+                <div class="network-diagram-section" id="networkDiagramSection" style="display: none; margin: 30px 0; padding: 25px; background: #252526; border: 1px solid #444; border-radius: 8px;">
+                    <h3 style="margin-top: 0; color: #61dafb;">🌐 Network Architecture & Traffic Flows</h3>
+                    <p style="color: #d4d4d4; margin-bottom: 20px;">
                         Understanding how your deployment communicates with Azure is critical for firewall configuration and troubleshooting.
                     </p>
 
-                    <div id="networkDiagram" style="background: white; border-radius: 6px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div id="networkDiagram" style="background: #1e1e1e; border-radius: 6px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
                         <!-- Network diagram will be rendered here -->
                     </div>
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 20px;">
-                        <div style="background: #fff; padding: 15px; border-radius: 6px; border-left: 4px solid #3498db;">
+                        <div style="background: #1e1e1e; padding: 15px; border-radius: 6px; border-left: 4px solid #3498db;">
                             <h5 style="margin: 0 0 8px 0; color: #3498db;">🔵 OS Traffic Bypass</h5>
-                            <p style="margin: 0; font-size: 13px; color: #666;">
+                            <p style="margin: 0; font-size: 13px; color: #d4d4d4;">
                                 Node-to-node, cluster internal, intranet traffic - bypasses proxy entirely
                             </p>
                         </div>
                         
-                        <div style="background: #fff; padding: 15px; border-radius: 6px; border-left: 4px solid #f39c12;">
+                        <div style="background: #1e1e1e; padding: 15px; border-radius: 6px; border-left: 4px solid #f39c12;">
                             <h5 style="margin: 0 0 8px 0; color: #f39c12;">🟡 HTTP via Enterprise Proxy</h5>
-                            <p style="margin: 0; font-size: 13px; color: #666;">
+                            <p style="margin: 0; font-size: 13px; color: #d4d4d4;">
                                 Windows Update, CRLs - routed to your firewall/proxy (Arc Gateway does NOT support HTTP)
                             </p>
                         </div>
                         
-                        <div style="background: #fff; padding: 15px; border-radius: 6px; border-left: 4px solid #27ae60;">
+                        <div style="background: #1e1e1e; padding: 15px; border-radius: 6px; border-left: 4px solid #27ae60;">
                             <h5 style="margin: 0 0 8px 0; color: #27ae60;">🟢 HTTPS via Arc Proxy</h5>
-                            <p style="margin: 0; font-size: 13px; color: #666;">
+                            <p style="margin: 0; font-size: 13px; color: #d4d4d4;">
                                 Allowed Azure endpoints - tunneled securely through Arc Gateway
                             </p>
                         </div>
                         
-                        <div style="background: #fff; padding: 15px; border-radius: 6px; border-left: 4px solid #e74c3c;">
+                        <div style="background: #1e1e1e; padding: 15px; border-radius: 6px; border-left: 4px solid #e74c3c;">
                             <h5 style="margin: 0 0 8px 0; color: #e74c3c;">🔴 Third-Party HTTPS</h5>
-                            <p style="margin: 0; font-size: 13px; color: #666;">
+                            <p style="margin: 0; font-size: 13px; color: #d4d4d4;">
                                 OEM endpoints, hardware vendors - redirected to your firewall (not Arc Gateway)
                             </p>
                         </div>
                         
-                        <div style="background: #fff; padding: 15px; border-radius: 6px; border-left: 4px solid #9b59b6;">
+                        <div style="background: #1e1e1e; padding: 15px; border-radius: 6px; border-left: 4px solid #9b59b6;">
                             <h5 style="margin: 0 0 8px 0; color: #9b59b6;">🟣 Arc Resource Bridge</h5>
-                            <p style="margin: 0; font-size: 13px; color: #666;">
+                            <p style="margin: 0; font-size: 13px; color: #d4d4d4;">
                                 ARB appliance VM uses Cluster IP proxy (port 40343) → Arc Gateway tunnel
                             </p>
                         </div>
                         
-                        <div style="background: #fff; padding: 15px; border-radius: 6px; border-left: 4px solid #16a085;">
+                        <div style="background: #1e1e1e; padding: 15px; border-radius: 6px; border-left: 4px solid #16a085;">
                             <h5 style="margin: 0 0 8px 0; color: #16a085;">🔷 AKS Clusters</h5>
-                            <p style="margin: 0; font-size: 13px; color: #666;">
+                            <p style="margin: 0; font-size: 13px; color: #d4d4d4;">
                                 Control plane & worker VMs proxy through Cluster IP (ports 40343, 55000, 65000)
                             </p>
                         </div>
                     </div>
 
-                    <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-left: 4px solid #2196F3; border-radius: 4px;">
-                        <h5 style="margin: 0 0 10px 0; color: #1976D2;">📖 Key Ports & Protocols</h5>
-                        <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #0c5460; line-height: 1.8;">
-                            <li><strong>Port 40343 (TCP):</strong> Arc Gateway proxy communication (HTTP Connect tunnel for HTTPS)</li>
-                            <li><strong>Port 55000 (TCP):</strong> Cloud agent gRPC server (Azure Local → AKS communication)</li>
-                            <li><strong>Port 65000 (TCP):</strong> Cloud agent gRPC authentication</li>
-                            <li><strong>Port 22 (TCP):</strong> SSH for AKS management (if separated subnet)</li>
-                            <li><strong>Port 6443 (TCP):</strong> Kubernetes API Server (if separated subnet)</li>
-                            <li><strong>Port 443 (TCP):</strong> HTTPS for all Azure service endpoints</li>
-                            <li><strong>Port 80 (TCP/HTTP):</strong> Windows Update, CRL checks (not via Arc Gateway)</li>
-                            <li><strong>Port 123 (UDP):</strong> NTP time synchronization</li>
+                    <div style="margin-top: 20px; padding: 15px; background: #2d2d30; border-left: 4px solid #61dafb; border-radius: 4px;">
+                        <h5 style="margin: 0 0 10px 0; color: #61dafb;">📖 Key Ports & Protocols</h5>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #d4d4d4; line-height: 1.8;">
+                            <li><strong style="color: #4ec9b0;">Port 40343 (TCP):</strong> Arc Gateway proxy communication (HTTP Connect tunnel for HTTPS)</li>
+                            <li><strong style="color: #4ec9b0;">Port 55000 (TCP):</strong> Cloud agent gRPC server (Azure Local → AKS communication)</li>
+                            <li><strong style="color: #4ec9b0;">Port 65000 (TCP):</strong> Cloud agent gRPC authentication</li>
+                            <li><strong style="color: #4ec9b0;">Port 22 (TCP):</strong> SSH for AKS management (if separated subnet)</li>
+                            <li><strong style="color: #4ec9b0;">Port 6443 (TCP):</strong> Kubernetes API Server (if separated subnet)</li>
+                            <li><strong style="color: #4ec9b0;">Port 443 (TCP):</strong> HTTPS for all Azure service endpoints</li>
+                            <li><strong style="color: #4ec9b0;">Port 80 (TCP/HTTP):</strong> Windows Update, CRL checks (not via Arc Gateway)</li>
+                            <li><strong style="color: #4ec9b0;">Port 123 (UDP):</strong> NTP time synchronization</li>
                         </ul>
                     </div>
 
-                    <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
-                        <strong>📚 Complete Documentation:</strong> For detailed traffic flow diagrams, subnet separation requirements, and troubleshooting guidance, see:
-                        <a href="https://github.com/Azure/AzureLocal-Supportability/blob/main/TSG/Networking/Arc-Gateway-Outbound-Connectivity/DeepDive-ArcGateway-Outbound-Traffic.md" target="_blank" style="color: #856404; text-decoration: underline; font-weight: bold;">
+                    <div style="margin-top: 15px; padding: 15px; background: #3a2f0f; border: 1px solid #f39c12; border-left: 4px solid #f39c12; border-radius: 4px;">
+                        <strong style="color: #f39c12;">📚 Complete Documentation:</strong> <span style="color: #d4d4d4;">For detailed traffic flow diagrams, subnet separation requirements, and troubleshooting guidance, see:</span>
+                        <a href="https://github.com/Azure/AzureLocal-Supportability/blob/main/TSG/Networking/Arc-Gateway-Outbound-Connectivity/DeepDive-ArcGateway-Outbound-Traffic.md" target="_blank" style="color: #61dafb; text-decoration: underline; font-weight: bold;">
                             Arc Gateway Outbound Connectivity Deep Dive
                         </a>
                     </div>
@@ -1061,13 +1061,13 @@ Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</co
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="js/security.js?v=180124"></script>
-    <script src="js/compliance.js?v=180124"></script>
-    <script src="js/compliance-report.js?v=180124"></script>
-    <script src="js/presets.js?v=180124"></script>
-    <script src="js/cost-calculator.js?v=180124"></script>
-    <script src="js/firewall.js?v=180124"></script>
-    <script src="js/planner.js?v=180124"></script>
-    <script src="js/generator.js?v=180124"></script>
-    <script src="js/app.js?v=180124"></script>
+    <script src="js/compliance.js?v=180125"></script>
+    <script src="js/compliance-report.js?v=180125"></script>
+    <script src="js/presets.js?v=180125"></script>
+    <script src="js/cost-calculator.js?v=180125"></script>
+    <script src="js/firewall.js?v=180125"></script>
+    <script src="js/planner.js?v=180125"></script>
+    <script src="js/generator.js?v=180125"></script>
+    <script src="js/app.js?v=180125"></script>
 </body>
 </html>
