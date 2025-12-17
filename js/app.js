@@ -702,6 +702,9 @@ function generatePlan() {
         // Show network diagram if Arc Gateway is enabled
         displayNetworkDiagram(deploymentPlan);
         
+        // Store deployment plan globally for Azure deployment
+        window.currentDeploymentPlan = deploymentPlan;
+        
         // Remove loading state
         if (generateBtn) {
             generateBtn.classList.remove('loading');

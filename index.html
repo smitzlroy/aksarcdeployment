@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
     <title>AKS Arc Deployment Tool</title>
-    <link rel="stylesheet" href="css/style.css?v=180125">
+    <link rel="stylesheet" href="css/style.css?v=180126">
     <link rel="stylesheet" href="css/polish.css?v=180102">
 </head>
 <body>
@@ -1009,7 +1009,24 @@ Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</co
                 </div>
 
                 <div class="export-section">
+                    <h3>🚀 Deploy to Azure</h3>
+                    <p class="export-description">
+                        Deploy your AKS Arc cluster directly to your Azure subscription. 
+                        You'll be redirected to Azure Portal for authentication and deployment confirmation.
+                    </p>
+                    <div class="button-group">
+                        <button onclick="deployToAzure()" class="btn btn-primary" style="font-size: 16px; padding: 12px 24px;">
+                            🚀 Deploy to Azure
+                        </button>
+                    </div>
+                    <div id="deploymentStatus" style="margin-top: 15px; display: none;"></div>
+                </div>
+
+                <div class="export-section">
                     <h3>Export Templates</h3>
+                    <p class="export-description" style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                        Download templates for manual deployment or customization before deploying.
+                    </p>
                     <div class="button-group">
                         <button onclick="exportTemplate('bicep')" class="btn btn-export">
                             📄 Download Bicep
@@ -1061,13 +1078,14 @@ Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</co
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="js/security.js?v=180124"></script>
-    <script src="js/compliance.js?v=180125"></script>
-    <script src="js/compliance-report.js?v=180125"></script>
-    <script src="js/presets.js?v=180125"></script>
-    <script src="js/cost-calculator.js?v=180125"></script>
-    <script src="js/firewall.js?v=180125"></script>
-    <script src="js/planner.js?v=180125"></script>
-    <script src="js/generator.js?v=180125"></script>
-    <script src="js/app.js?v=180125"></script>
+    <script src="js/compliance.js?v=180126"></script>
+    <script src="js/compliance-report.js?v=180126"></script>
+    <script src="js/presets.js?v=180126"></script>
+    <script src="js/cost-calculator.js?v=180126"></script>
+    <script src="js/firewall.js?v=180126"></script>
+    <script src="js/planner.js?v=180126"></script>
+    <script src="js/generator.js?v=180126"></script>
+    <script src="js/deployer.js?v=180126"></script>
+    <script src="js/app.js?v=180126"></script>
 </body>
 </html>
