@@ -159,6 +159,25 @@ function initializeEventListeners() {
         document.getElementById('rackCountGroup').style.display = 
             e.target.checked ? 'block' : 'none';
     });
+
+    // Identity provider dropdown
+    const identityProvider = document.getElementById('identityProvider');
+    if (identityProvider) {
+        identityProvider.addEventListener('change', updateIdentityOptions);
+    }
+
+    // Arc Gateway checkbox (shows Azure Local Cluster IP when enabled)
+    const arcGatewayCheckbox = document.getElementById('arcGateway');
+    if (arcGatewayCheckbox) {
+        arcGatewayCheckbox.addEventListener('change', (e) => {
+            // Show Azure Local Cluster IP field only when Arc Gateway is enabled
+            // (assuming AKS VMs are on different VLAN)
+            const clusterIPGroup = document.getElementById('azureLocalClusterIPGroup');
+            if (clusterIPGroup) {
+                clusterIPGroup.style.display = e.target.checked ? 'block' : 'none';
+            }
+        });
+    }
 }
 
 /**
@@ -593,9 +612,9 @@ function generatePlan() {
         physicalHostCount: parseInt(document.getElementById('physicalHostCount').value) || 2,
         
         // Network configuration
-        networkPlugin: document.getElementById('networkPlugin')?.value || 'azure',
-        podCidr: document.getElementById('podCidr')?.value || '10.244.0.0/16',
-        serviceCidr: document.getElementById('serviceCidr')?.value || '10.96.0.0/16',
+        networkPlugin: 'calico', // Fixed: Calico VXLAN is the only CNI for AKS Arc
+        podCIDR: document.getElementById('podCIDR')?.value || '10.244.0.0/16',
+        serviceCIDR: '10.96.0.0/12', // Fixed: Service CIDR is not customizable in AKS Arc
         dnsServiceIP: document.getElementById('dnsServiceIP')?.value || '10.96.0.10',
         loadBalancerSku: document.getElementById('loadBalancerSku')?.value || 'Standard',
         controlPlaneIP: document.getElementById('controlPlaneIP')?.value || '',
@@ -603,7 +622,7 @@ function generatePlan() {
         enablePrivateCluster: document.getElementById('enablePrivateCluster')?.checked || false,
         
         // Arc Gateway configuration
-        enableArcGateway: document.getElementById('enableArcGateway')?.checked || false,
+        enableArcGateway: document.getElementById('arcGateway')?.checked || false,
         arcGatewayResourceId: document.getElementById('arcGatewayResourceId')?.value || '',
         arcGatewayUrl: document.getElementById('arcGatewayUrl')?.value || '',
         
@@ -622,6 +641,7 @@ function generatePlan() {
         enableWorkloadIdentity: document.getElementById('enableWorkloadIdentity')?.checked || false,
         enableAzureAD: document.getElementById('identityProvider')?.value === 'azure-ad' || document.getElementById('identityProvider')?.value === 'entra-id',
         enableEntraID: document.getElementById('identityProvider')?.value === 'entra-id',
+        entraAdminGroupIds: document.getElementById('entraAdminGroupIds')?.value || '',
         enablePodSecurityStandards: document.getElementById('enablePodSecurityStandards')?.checked || false,
         
         // Monitoring & Observability

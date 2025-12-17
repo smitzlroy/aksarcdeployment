@@ -20,15 +20,12 @@ const AzureDeployer = {
             return;
         }
 
-        if (!deploymentPlan.clusterConfig.resourceGroupName) {
-            this.showError('Resource group name is required. Please go back to Step 2 and enter a resource group name.');
-            return;
-        }
-
         if (!deploymentPlan.clusterConfig.location) {
             this.showError('Azure location is required. Please go back to Step 2 and select a location.');
             return;
         }
+
+        // Note: Resource group is optional - ARM template can create it if it doesn't exist
 
         // Show deployment preparation message
         this.showStatus('Preparing deployment template...', 'info');

@@ -79,12 +79,12 @@ class AKSArcPlanner {
                 loadBalancerSku: config.loadBalancerSku || 'Standard'
             },
             networkConfig: {
-                networkPlugin: config.networkPlugin || 'azure',
-                podCidr: config.podCidr || '10.244.0.0/16',
-                serviceCidr: config.serviceCidr || '10.96.0.0/16',
+                networkPlugin: 'calico', // Fixed: Calico VXLAN is the only CNI for AKS Arc
+                podCIDR: config.podCIDR || '10.244.0.0/16',
+                serviceCIDR: '10.96.0.0/12', // Fixed: Service CIDR is not customizable in AKS Arc
                 dnsServiceIP: config.dnsServiceIP || '10.96.0.10',
                 loadBalancerSku: config.loadBalancerSku || 'Standard',
-                controlPlaneIP: config.controlPlaneIP || 'Auto-assigned from logical network',
+                controlPlaneIP: config.controlPlaneIP || '',
                 enableNetworkPolicy: config.enableNetworkPolicy || false,
                 enablePrivateCluster: config.enablePrivateCluster || false
             },
@@ -110,6 +110,8 @@ class AKSArcPlanner {
                 rbacMode: config.rbacMode || 'enabled',
                 enableWorkloadIdentity: config.enableWorkloadIdentity || false,
                 enableAzureAD: config.enableAzureAD || false,
+                enableEntraID: config.enableEntraID || false,
+                entraAdminGroupIds: config.entraAdminGroupIds || '',
                 enablePodSecurityStandards: config.enablePodSecurityStandards || false
             },
             monitoringConfig: {

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
     <title>AKS Arc Deployment Tool</title>
-    <link rel="stylesheet" href="css/style.css?v=180126">
+    <link rel="stylesheet" href="css/style.css?v=180127">
     <link rel="stylesheet" href="css/polish.css?v=180102">
 </head>
 <body>
@@ -383,10 +383,10 @@
                         <small>Pre-configured Azure Local logical network (static IPs)</small>
                     </div>
 
-                    <div class="form-group">
-                        <label for="azureLocalClusterIP">Azure Local Cluster IP *</label>
-                        <input type="text" id="azureLocalClusterIP" placeholder="192.168.1.10" required>
-                        <small>Management IP of your Azure Local cluster (use Get-ClusterResource)</small>
+                    <div class="form-group" id="azureLocalClusterIPGroup" style="display: none;">
+                        <label for="azureLocalClusterIP">Azure Local Cluster IP (Optional)</label>
+                        <input type="text" id="azureLocalClusterIP" placeholder="192.168.1.10">
+                        <small>⚠️ Only required if Arc Gateway enabled AND AKS VMs on different VLAN than Azure Local management network. Get via: <code>Get-ClusterResource -Name "Cluster IP Address" | Get-ClusterParameter -Name Address</code></small>
                     </div>
 
                     <div class="form-group" id="cpuGroup">
@@ -439,12 +439,27 @@
                     
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="networkPlugin">Network Plugin (CNI) *</label>
-                            <select id="networkPlugin">
-                                <option value="azure">Azure CNI (Recommended)</option>
-                                <option value="calico">Calico (Advanced Network Policies)</option>
-                                <option value="flannel">Flannel (Simple Overlay)</option>
-                            </select>
+                            <label for="networkPlugin">Network Plugin (CNI)</label>
+                            <input type="text" id="networkPlugin" value="Calico VXLAN Overlay" disabled style="background: #f5f5f5; cursor: not-allowed;">
+                            <small>✅ AKS Arc uses Calico CNI with VXLAN overlay mode (pods use virtualized IPs)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="podCIDR">Pod Network CIDR</label>
+                            <input type="text" id="podCIDR" value="10.244.0.0/16" placeholder="10.244.0.0/16">
+                            <small>IP range for pod addresses (default: 10.244.0.0/16). Customizable via --pod-cidr parameter. Must not overlap with logical network.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="serviceCIDR">Service Network CIDR</label>
+                            <input type="text" id="serviceCIDR" value="10.96.0.0/12" disabled style="background: #f5f5f5; cursor: not-allowed;">
+                            <small>⚠️ Service CIDR is not customizable in AKS Arc (fixed: 10.96.0.0/12). Used for ClusterIP, NodePort, LoadBalancer services.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="controlPlaneIP">Control Plane IP (Optional)</label>
+                            <input type="text" id="controlPlaneIP" placeholder="Auto-assigned from logical network">
+                            <small>Kubernetes API Server VIP. Leave blank to auto-assign from logical network. Must be within logical network address prefix if specified.</small>
                         </div>
 
                         <div class="form-group">
@@ -594,7 +609,29 @@
                     </div>
 
                     <!-- Entra ID Settings (shown when Entra ID selected) -->
-                    <div id="entraIdSettings" class=\"info-banner\" style=\"display: none; background: #e3f2fd; padding: 12px; border-radius: 4px; margin-top: 15px;\">\n                        <strong>\u2139\ufe0f Entra ID Integration:</strong> Provides enterprise-grade authentication with conditional access, MFA, and Azure RBAC integration. Recommended for production environments.\n                    </div>
+                    <div id="entraIdSettings" style="display: none; margin-top: 20px; padding: 15px; background: #e3f2fd; border-left: 4px solid #2196F3; border-radius: 4px;">
+                        <div style="margin-bottom: 12px;">
+                            <strong>ℹ️ Entra ID Integration:</strong> Provides enterprise-grade authentication with conditional access, MFA, and Azure RBAC integration. Recommended for production environments.
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="entraAdminGroupIds">Entra ID Admin Group Object IDs *</label>
+                            <input type="text" id="entraAdminGroupIds" placeholder="00000000-0000-0000-0000-000000000000, 11111111-1111-1111-1111-111111111111">
+                            <small>
+                                <strong>Comma-separated</strong> list of Azure AD/Entra ID group object IDs that will have cluster-admin (full admin) access. 
+                                Get Group Object ID: Azure Portal → Entra ID → Groups → [Your Group] → Copy Object ID.
+                                <br>
+                                <strong>Example:</strong> 12345678-1234-5678-1234-567812345678
+                                <br>
+                                💡 These groups are bound to Kubernetes cluster-admin role via automatic ClusterRoleBinding. Members can run <code>kubectl</code> commands as cluster-admin.
+                            </small>
+                        </div>
+                        
+                        <div style="margin-top: 12px; padding: 10px; background: #fff3cd; border-left: 3px solid #ffc107; border-radius: 3px; font-size: 0.9em;">
+                            <strong>⚠️ Important:</strong> Without admin group IDs, you'll need to manually create RoleBindings for user access. 
+                            Alternatively, use <code>az aksarc get-credentials --admin</code> to get certificate-based admin access (not recommended for production).
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Arc Gateway & Network Connectivity -->
@@ -1078,14 +1115,14 @@ Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</co
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="js/security.js?v=180124"></script>
-    <script src="js/compliance.js?v=180126"></script>
-    <script src="js/compliance-report.js?v=180126"></script>
-    <script src="js/presets.js?v=180126"></script>
-    <script src="js/cost-calculator.js?v=180126"></script>
-    <script src="js/firewall.js?v=180126"></script>
-    <script src="js/planner.js?v=180126"></script>
-    <script src="js/generator.js?v=180126"></script>
-    <script src="js/deployer.js?v=180126"></script>
-    <script src="js/app.js?v=180126"></script>
+    <script src="js/compliance.js?v=180127"></script>
+    <script src="js/compliance-report.js?v=180127"></script>
+    <script src="js/presets.js?v=180127"></script>
+    <script src="js/cost-calculator.js?v=180127"></script>
+    <script src="js/firewall.js?v=180127"></script>
+    <script src="js/planner.js?v=180127"></script>
+    <script src="js/generator.js?v=180127"></script>
+    <script src="js/deployer.js?v=180127"></script>
+    <script src="js/app.js?v=180127"></script>
 </body>
 </html>
