@@ -199,6 +199,22 @@ function toggleAdvancedSection(sectionId) {
 }
 
 /**
+ * Toggle banner sections (Quick Start, Cost Estimate, etc.)
+ */
+function toggleSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    const toggleIcon = document.getElementById(sectionId.replace('Content', 'Toggle'));
+    
+    if (section.style.display === 'none' || section.style.display === '') {
+        section.style.display = 'block';
+        if (toggleIcon) toggleIcon.style.transform = 'rotate(180deg)';
+    } else {
+        section.style.display = 'none';
+        if (toggleIcon) toggleIcon.style.transform = 'rotate(0deg)';
+    }
+}
+
+/**
  * Update identity provider options display
  */
 function updateIdentityOptions() {

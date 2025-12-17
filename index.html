@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
     <title>AKS Arc Deployment Tool</title>
-    <link rel="stylesheet" href="css/style.css?v=180127">
+    <link rel="stylesheet" href="css/style.css?v=180128">
     <link rel="stylesheet" href="css/polish.css?v=180102">
 </head>
 <body>
@@ -260,11 +260,9 @@
                         <strong>AKS enabled by Azure Arc requires pre-configured Azure Local infrastructure.</strong> Ensure you have:
                     </p>
                     <ul style="margin: 0; padding-left: 20px; opacity: 0.95;">
-                        <li><strong>Azure Local Cluster IP:</strong> Management IP address of your Azure Local cluster (for cloud agent communication on ports 55000, 65000)</li>
                         <li><strong>Logical Network:</strong> Created in Azure Local with static IP pool (minimum: node VMs + 1 upgrade IP + 1 control plane IP per cluster), DNS, and gateway</li>
+                        <li><strong>Custom Location:</strong> Created for your Azure Local instance (includes Arc Resource Bridge automatically deployed with Azure Local 23H2+)</li>
                         <li><strong>Storage:</strong> Azure Local storage (CSV volumes) configured for SMB/NFS/iSCSI/local-path</li>
-                        <li><strong>Arc Resource Bridge:</strong> Deployed automatically with Azure Local 23H2+</li>
-                        <li><strong>Custom Location:</strong> Created for your Azure Local instance</li>
                     </ul>
                     <p style="margin: 10px 0 0 0; font-size: 0.9em; opacity: 0.9;">
                         📚 <a href="https://learn.microsoft.com/en-us/azure/aks/aksarc/aks-hci-network-system-requirements" target="_blank" style="color: white; text-decoration: underline;">Network Requirements</a> | 
@@ -275,8 +273,12 @@
                 
                 <!-- Compliance Configuration Presets -->
                 <div class="preset-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                    <h3 style="margin: 0 0 10px 0; color: white;">⚡ Quick Start: Compliance Configuration Presets</h3>
-                    <p style="margin: 0 0 15px 0; opacity: 0.95;">Pre-configured templates that automatically set all security, network, storage, and monitoring options based on industry compliance requirements. <strong>Save 10 minutes of configuration!</strong></p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleSection('quickStartContent')">
+                        <h3 style="margin: 0; color: white;">⚡ Quick Start: Compliance Configuration Presets</h3>
+                        <span style="font-size: 1.5rem; transition: transform 0.3s;" id="quickStartToggle">▼</span>
+                    </div>
+                    <div id="quickStartContent" style="display: none;">
+                    <p style="margin: 10px 0 15px 0; opacity: 0.95;">Pre-configured templates that automatically set all security, network, storage, and monitoring options based on industry compliance requirements. <strong>Save 10 minutes of configuration!</strong></p>
                     
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <button class="preset-btn" onclick="applyPreset('hipaa-healthcare')" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
@@ -303,16 +305,21 @@
                         <strong id="presetTitle"></strong>
                         <p id="presetDetails" style="margin: 5px 0 0 0; font-size: 0.9rem;"></p>
                     </div>
+                    </div>
                 </div>
 
                 <!-- Cost Estimate Card -->
                 <div id="costEstimateCard" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <h3 style="margin: 0 0 15px 0; color: white; display: flex; align-items: center; gap: 10px;">
-                        💰 Estimated Monthly Cost
-                        <span style="font-size: 0.7rem; background: rgba(255,255,255,0.3); padding: 3px 8px; border-radius: 3px;">Live Calculation</span>
-                    </h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleSection('costEstimateContent')">
+                        <h3 style="margin: 0; color: white; display: flex; align-items: center; gap: 10px;">
+                            💰 Estimated Monthly Cost
+                            <span style="font-size: 0.7rem; background: rgba(255,255,255,0.3); padding: 3px 8px; border-radius: 3px;">Live Calculation</span>
+                        </h3>
+                        <span style="font-size: 1.5rem; transition: transform 0.3s;" id="costEstimateToggle">▼</span>
+                    </div>
+                    <div id="costEstimateContent" style="display: none;">
                     
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
                         <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 6px;">
                             <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">Compute (Nodes)</div>
                             <div style="font-size: 1.8rem; font-weight: bold;" id="costCompute">$0</div>
@@ -345,6 +352,7 @@
                             <li id="costTip2">Use Dev/Test preset for non-production environments to save 60-70%</li>
                             <li id="costTip3">Storage costs not included (depends on actual usage)</li>
                         </ul>
+                    </div>
                     </div>
                 </div>
 
@@ -412,7 +420,7 @@
                     </div>
 
                     <div class="info-banner" style="background: #e3f2fd; padding: 12px; border-radius: 4px; margin: 16px 0;">
-                        <strong>ℹ️ High Availability:</strong> Availability sets are enabled by default in AKS Arc. VMs automatically spread across physical hosts with anti-affinity rules.
+                        <strong>ℹ️ High Availability:</strong> Configure multiple physical hosts to enable fault tolerance. Use pod anti-affinity rules in your workload deployments for additional resilience across nodes.
                     </div>
 
                     <div class="form-group">
@@ -1115,14 +1123,14 @@ Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</co
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="js/security.js?v=180124"></script>
-    <script src="js/compliance.js?v=180127"></script>
-    <script src="js/compliance-report.js?v=180127"></script>
-    <script src="js/presets.js?v=180127"></script>
-    <script src="js/cost-calculator.js?v=180127"></script>
-    <script src="js/firewall.js?v=180127"></script>
-    <script src="js/planner.js?v=180127"></script>
-    <script src="js/generator.js?v=180127"></script>
-    <script src="js/deployer.js?v=180127"></script>
-    <script src="js/app.js?v=180127"></script>
+    <script src="js/compliance.js?v=180128"></script>
+    <script src="js/compliance-report.js?v=180128"></script>
+    <script src="js/presets.js?v=180128"></script>
+    <script src="js/cost-calculator.js?v=180128"></script>
+    <script src="js/firewall.js?v=180128"></script>
+    <script src="js/planner.js?v=180128"></script>
+    <script src="js/generator.js?v=180128"></script>
+    <script src="js/deployer.js?v=180128"></script>
+    <script src="js/app.js?v=180128"></script>
 </body>
 </html>
