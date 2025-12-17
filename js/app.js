@@ -557,6 +557,11 @@ function generatePlan() {
     const generateBtn = event?.target || document.querySelector('button[onclick="generatePlan()"]');
     const originalText = generateBtn?.textContent;
     
+    // CRITICAL FIX: Declare variables OUTSIDE try block to ensure proper scope
+    let clusterName = '';
+    let resourceGroup = '';
+    let customLocation = '';
+    
     try {
         // Add loading state
         if (generateBtn) {
@@ -574,10 +579,10 @@ function generatePlan() {
         console.log('SecurityValidator available:', !!securityValidator);
         console.log('ComplianceAnalyzer available:', typeof ComplianceAnalyzer !== 'undefined');
         
-        // Validate required fields
-        const clusterName = document.getElementById('clusterName').value.trim();
-        const resourceGroup = document.getElementById('resourceGroup').value.trim();
-        const customLocation = document.getElementById('customLocation').value.trim();
+        // Validate required fields - capture actual STRING values
+        clusterName = String(document.getElementById('clusterName').value).trim();
+        resourceGroup = String(document.getElementById('resourceGroup').value).trim();
+        customLocation = String(document.getElementById('customLocation').value).trim();
         
         console.log('Form values - Cluster:', clusterName, 'RG:', resourceGroup, 'CL:', customLocation);
         
