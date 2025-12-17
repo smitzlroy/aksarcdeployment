@@ -69,40 +69,38 @@ const AzureDeployer = {
             location: {
                 value: plan.clusterConfig.location
             },
-            customLocationId: {
-                value: plan.clusterConfig.customLocationId || ''
-            },
             kubernetesVersion: {
                 value: plan.clusterConfig.kubernetesVersion
             },
-            controlPlaneIp: {
-                value: plan.clusterConfig.controlPlaneIP || ''
+            controlPlaneCount: {
+                value: plan.clusterConfig.controlPlaneCount || 1
+            },
+            controlPlaneVmSize: {
+                value: plan.clusterConfig.controlPlaneVmSize || 'Standard_A4_v2'
+            },
+            customLocation: {
+                value: plan.clusterConfig.customLocation || ''
+            },
+            logicalNetwork: {
+                value: plan.clusterConfig.logicalNetwork || ''
+            },
+            podCIDR: {
+                value: plan.networkConfig?.podCIDR || '10.244.0.0/16'
             },
             sshPublicKey: {
                 value: plan.clusterConfig.sshPublicKey || ''
             }
         };
 
-        // Add network configuration
-        if (plan.networkConfig) {
-            if (plan.networkConfig.vnetName) {
-                params.vnetName = { value: plan.networkConfig.vnetName };
-            }
-            if (plan.networkConfig.controlPlaneSubnet) {
-                params.controlPlaneSubnet = { value: plan.networkConfig.controlPlaneSubnet };
-            }
-            if (plan.networkConfig.loadBalancerSubnet) {
-                params.loadBalancerSubnet = { value: plan.networkConfig.loadBalancerSubnet };
-            }
+        // Add control plane IP if provided
+        if (plan.networkConfig?.controlPlaneIP) {
+            params.controlPlaneIP = {
+                value: plan.networkConfig.controlPlaneIP
+            };
         }
 
-        // Add node pool configurations
-        if (plan.clusterConfig.nodePools && plan.clusterConfig.nodePools.length > 0) {
-            const primaryPool = plan.clusterConfig.nodePools[0];
-            params.nodeCount = { value: primaryPool.nodeCount };
-            params.vmSize = { value: primaryPool.vmSize };
-            params.nodePoolName = { value: primaryPool.name };
-        }
+        // Note: Node pools are embedded in the provisionedClusterInstances resource as agentPoolProfiles array
+        // They are not separate parameters but part of the template's agentPoolProfiles property
 
         return params;
     },
