@@ -280,10 +280,8 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
         
         // Use values directly since validation passed
         const clusterNameValue = String(clusterName);
-        // Keep customLocation as-is (can be name or full resource ID)
+        // customLocation should be the full resource ID
         const customLocationValue = String(customLocation);
-        // Check if customLocation is a full resource ID or just a name
-        const isCustomLocationFullId = customLocationValue.startsWith('/subscriptions/');
         const logicalNetworkValue = String(logicalNetwork);
         // If no SSH key provided, use a placeholder that users must replace
         const sshPublicKeyValue = sshPublicKey ? String(sshPublicKey) : 'REPLACE_WITH_YOUR_SSH_PUBLIC_KEY';
@@ -343,7 +341,7 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 name: 'default',
                 extendedLocation: {
                     type: 'CustomLocation',
-                    name: '[variables(\'customLocationId\')]'
+                    name: '[parameters(\'customLocation\')]'
                 },
                 properties: {
                     linuxProfile: {
@@ -464,7 +462,7 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                     type: 'string',
                     defaultValue: customLocationValue,
                     metadata: {
-                        description: 'Custom Location name (e.g., London) or full resource ID (/subscriptions/.../customLocations/London)'
+                        description: 'Full ARM resource ID of the Custom Location (e.g., /subscriptions/.../customLocations/London)'
                     }
                 },
                 logicalNetwork: {
@@ -497,15 +495,7 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                     }
                 })
             },
-            variables: isCustomLocationFullId 
-                ? {
-                    // If full resource ID provided, use it directly
-                    customLocationId: '[parameters(\'customLocation\')]'
-                }
-                : {
-                    // If just name provided, construct resource ID
-                    customLocationId: '[resourceId(\'Microsoft.ExtendedLocation/customLocations\', parameters(\'customLocation\'))]'
-                },
+            variables: {},
             resources,
             outputs: {
                 clusterName: {
