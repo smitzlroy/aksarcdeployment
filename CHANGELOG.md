@@ -22,6 +22,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dark/Light theme toggle** - User preference with localStorage persistence
 - **Catalog JSON** - Static catalog data for Azure Local 2511
 - GitHub Pages deployment workflow for static frontend
+- **UI Revamp v2.1** (December 17, 2025) - Comprehensive modernization:
+  - Modern CSS variable system with spacing scale, enhanced shadows, and transitions
+  - Step progress indicator styles with sticky positioning
+  - Enhanced card designs with hover animations and top border accents
+  - Improved button styles with ripple effects and clear states
+  - Enhanced form inputs with focus rings and error/success states
+  - Color-coded security scorecard with gradient backgrounds
+  - Collapsible section styles with smooth animations
+  - Deeper dark mode with improved contrast (#0d0d0d background)
+  - Consistent border radius and shadow systems
+  - Better typography with improved font weights and letter-spacing
 
 ### Changed
 - **BREAKING**: Replaced rack awareness with Azure-correct availability sets approach
