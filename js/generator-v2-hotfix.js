@@ -346,6 +346,14 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                     licenseProfile: {
                         azureHybridBenefit: 'NotApplicable'
                     },
+                    storageProfile: {
+                        nfsCsiDriver: {
+                            enabled: false
+                        },
+                        smbCsiDriver: {
+                            enabled: false
+                        }
+                    },
                     kubernetesVersion: '[parameters(\'kubernetesVersion\')]',
                     controlPlane: {
                         count: '[parameters(\'controlPlaneCount\')]',
