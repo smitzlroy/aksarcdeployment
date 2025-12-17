@@ -274,14 +274,15 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
         console.log('🔍 RAW VALUES - logicalNetwork:', logicalNetwork, 'type:', typeof logicalNetwork);
         
         // Handle undefined values - convert to empty string for ARM template
-        const clusterNameValue = clusterName || '';
-        const customLocationValue = customLocation || '';
-        const logicalNetworkValue = logicalNetwork || '';
-        const controlPlaneIPValue = controlPlaneIP || '';
+        // CRITICAL: Check if values are objects and convert to string
+        const clusterNameValue = (typeof clusterName === 'object' || !clusterName) ? '' : String(clusterName);
+        const customLocationValue = (typeof customLocation === 'object' || !customLocation) ? '' : String(customLocation);
+        const logicalNetworkValue = (typeof logicalNetwork === 'object' || !logicalNetwork) ? '' : String(logicalNetwork);
+        const controlPlaneIPValue = (typeof controlPlaneIP === 'object' || !controlPlaneIP) ? '' : String(controlPlaneIP);
         
-        console.log('✅ SAFE VALUES - clusterNameValue:', clusterNameValue);
-        console.log('✅ SAFE VALUES - customLocationValue:', customLocationValue);
-        console.log('✅ SAFE VALUES - logicalNetworkValue:', logicalNetworkValue);
+        console.log('✅ SAFE VALUES (after type check) - clusterNameValue:', clusterNameValue, 'type:', typeof clusterNameValue);
+        console.log('✅ SAFE VALUES (after type check) - customLocationValue:', customLocationValue, 'type:', typeof customLocationValue);
+        console.log('✅ SAFE VALUES (after type check) - logicalNetworkValue:', logicalNetworkValue, 'type:', typeof logicalNetworkValue);
         
         // Build agent pool profiles array
         const agentPoolProfiles = nodePools.map(pool => {
@@ -501,18 +502,18 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
             }
         };
 
-        // Custom JSON replacer to ensure empty strings stay as empty strings, not {}
+        // CRITICAL FIX: Convert empty string defaultValues to actual empty strings in JSON
         const jsonString = JSON.stringify(template, (key, value) => {
-            // If value is undefined, convert to empty string for string parameters
-            if (value === undefined && key !== 'defaultValue') {
-                return value; // Keep undefined for non-defaultValue keys
-            }
-            // If this is a defaultValue and it's undefined or null, use empty string
-            if (key === 'defaultValue' && (value === undefined || value === null)) {
-                return '';
+            // If this is a defaultValue key and value is undefined, null, or empty string
+            if (key === 'defaultValue') {
+                if (value === undefined || value === null || value === '') {
+                    return ''; // Force empty string
+                }
             }
             return value;
         }, 2);
+        
+        console.log('📤 Final ARM template length:', jsonString.length);
         
         console.log('✅ ARM template generated, length:', jsonString.length);
         return jsonString;
