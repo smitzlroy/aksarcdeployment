@@ -261,6 +261,12 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
         const { clusterName, location, kubernetesVersion, controlPlaneCount, controlPlaneVmSize, nodePools, customLocation, logicalNetwork } = clusterConfig;
         const { controlPlaneIP, podCIDR } = networkConfig || {};
         
+        // Handle undefined values - convert to empty string for ARM template
+        const clusterNameValue = clusterName || '';
+        const customLocationValue = customLocation || '';
+        const logicalNetworkValue = logicalNetwork || '';
+        const controlPlaneIPValue = controlPlaneIP || '';
+        
         // Build agent pool profiles array
         const agentPoolProfiles = nodePools.map(pool => {
             const profile = {
@@ -388,21 +394,21 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
             parameters: {
                 clusterName: {
                     type: 'string',
-                    defaultValue: clusterName,
+                    defaultValue: clusterNameValue,
                     metadata: {
                         description: 'Name of the AKS Arc cluster'
                     }
                 },
                 location: {
                     type: 'string',
-                    defaultValue: location,
+                    defaultValue: location || 'eastus',
                     metadata: {
                         description: 'Azure region for the cluster'
                     }
                 },
                 kubernetesVersion: {
                     type: 'string',
-                    defaultValue: kubernetesVersion,
+                    defaultValue: kubernetesVersion || '1.29.2',
                     metadata: {
                         description: 'Kubernetes version (e.g., v1.29.2)'
                     }
@@ -425,14 +431,14 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 },
                 customLocation: {
                     type: 'string',
-                    defaultValue: customLocation || '',
+                    defaultValue: customLocationValue,
                     metadata: {
                         description: 'ARM resource ID of the Custom Location for your Azure Local cluster'
                     }
                 },
                 logicalNetwork: {
                     type: 'string',
-                    defaultValue: logicalNetwork || '',
+                    defaultValue: logicalNetworkValue,
                     metadata: {
                         description: 'ARM resource ID of the Logical Network for VM network interfaces'
                     }
@@ -450,10 +456,10 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                         description: 'SSH public key for node access (e.g., ssh-rsa AAAA...)'
                     }
                 },
-                ...(controlPlaneIP && {
+                ...(controlPlaneIPValue && {
                     controlPlaneIP: {
                         type: 'string',
-                        defaultValue: controlPlaneIP,
+                        defaultValue: controlPlaneIPValue,
                         metadata: {
                             description: 'Static IP address for control plane endpoint (optional)'
                         }
