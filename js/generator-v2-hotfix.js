@@ -1,8 +1,8 @@
 /**
  * Template Generators - Bicep, ARM, Terraform
- * VERSION: 2025-12-17-2130 (API version + missing properties fix)
+ * VERSION: 2025-12-17-2200 (Schema validated - removed invalid properties)
  */
-console.log('✅ generator.js loaded - VERSION: 2025-12-17-2130');
+console.log('✅ generator.js loaded - VERSION: 2025-12-17-2200');
 
 class TemplateGenerator {
     /**
@@ -327,14 +327,6 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                     agentPublicKeyCertificate: '',
                     aadProfile: {
                         enableAzureRBAC: false
-                    },
-                    securityProfile: {
-                        workloadIdentity: {
-                            enabled: false
-                        }
-                    },
-                    oidcIssuerProfile: {
-                        enabled: false
                     }
                 }
             },
@@ -414,7 +406,7 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
             metadata: {
                 _generator: {
                     name: 'AKS Arc Deployment Tool',
-                    version: '2.0.2-20251217-2130',
+                    version: '2.0.3-20251217-2200',
                     templateType: 'AKS enabled by Azure Arc on Azure Local',
                     generatedAt: new Date().toISOString()
                 },

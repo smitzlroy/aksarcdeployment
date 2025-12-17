@@ -43,11 +43,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **CRITICAL**: ARM template JSON structure - `controlPlane` property now correctly builds as JavaScript object instead of ARM expression string
 - **CRITICAL**: `agentPoolProfiles` array now properly serialized in JSON instead of variable reference
-- **CRITICAL**: Added missing `securityProfile` and `oidcIssuerProfile` to ConnectedClusters resource to match official Azure/aksArc templates
+- **CRITICAL**: Removed invalid `securityProfile` and `oidcIssuerProfile` from ConnectedClusters resource - these properties are NOT supported in Microsoft.Kubernetes/ConnectedClusters@2024-01-01 (verified against official Azure Resource Manager schema)
 - `controlPlaneIP` parameter is now truly optional - only includes `controlPlaneEndpoint` in template when IP address provided
 - `sshPublicKey` parameter now has safe default placeholder to prevent template validation errors
 - ARM template parameters now include empty string defaults where appropriate to avoid undefined serialization
-- Generator metadata version updated to reflect structural fixes (2.0.2-20251217-2130)
+- Generator metadata version updated to reflect schema validation (2.0.3-20251217-2200)
+- Added schema validation test suite to prevent future API specification violations
 
 ### Security
 
