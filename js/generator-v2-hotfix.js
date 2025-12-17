@@ -259,12 +259,19 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
      * Generate ARM template
      */
     static generateARM(plan) {
+        // CRITICAL DEBUG: Log ENTIRE plan object
+        console.log('🔍🔍🔍 generateARM FULL PLAN:', JSON.stringify(plan, null, 2));
+        
         const { clusterConfig, networkConfig, storageConfig } = plan;
+        console.log('🔍 clusterConfig extracted:', JSON.stringify(clusterConfig, null, 2));
+        
         const { clusterName, location, kubernetesVersion, controlPlaneCount, controlPlaneVmSize, nodePools, customLocation, logicalNetwork } = clusterConfig;
         const { controlPlaneIP, podCIDR } = networkConfig || {};
         
         // Debug logging
-        console.log('🔍 generateARM called with clusterName:', clusterName, 'customLocation:', customLocation);
+        console.log('🔍 RAW VALUES - clusterName:', clusterName, 'type:', typeof clusterName);
+        console.log('🔍 RAW VALUES - customLocation:', customLocation, 'type:', typeof customLocation);
+        console.log('🔍 RAW VALUES - logicalNetwork:', logicalNetwork, 'type:', typeof logicalNetwork);
         
         // Handle undefined values - convert to empty string for ARM template
         const clusterNameValue = clusterName || '';
@@ -272,7 +279,9 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
         const logicalNetworkValue = logicalNetwork || '';
         const controlPlaneIPValue = controlPlaneIP || '';
         
-        console.log('✅ Safe values - clusterName:', clusterNameValue, 'customLocation:', customLocationValue);
+        console.log('✅ SAFE VALUES - clusterNameValue:', clusterNameValue);
+        console.log('✅ SAFE VALUES - customLocationValue:', customLocationValue);
+        console.log('✅ SAFE VALUES - logicalNetworkValue:', logicalNetworkValue);
         
         // Build agent pool profiles array
         const agentPoolProfiles = nodePools.map(pool => {
