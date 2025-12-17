@@ -287,31 +287,17 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
         const sshPublicKeyValue = sshPublicKey ? String(sshPublicKey) : 'REPLACE_WITH_YOUR_SSH_PUBLIC_KEY';
         const controlPlaneIPValue = controlPlaneIP ? String(controlPlaneIP) : '';
         
-        // Build agent pool profiles array
+        // Build agent pool profiles array - Match Azure quickstart EXACTLY
+        // Only include properties that Azure quickstart uses: name, count, vmSize, osType
         const agentPoolProfiles = nodePools.map(pool => {
             const profile = {
                 name: pool.name,
                 count: pool.nodeCount,
                 vmSize: pool.vmSize,
-                osType: pool.osType || 'Linux',
-                osSKU: pool.osType === 'Windows' ? 'Windows2022' : 'CBLMariner',
-                maxPods: pool.maxPods || 110
+                osType: pool.osType || 'Linux'
             };
-
-            if (pool.enableAutoScaling) {
-                profile.enableAutoScaling = true;
-                profile.minCount = pool.minCount || pool.nodeCount;
-                profile.maxCount = pool.maxCount || pool.nodeCount * 2;
-            }
-
-            if (pool.labels && Object.keys(pool.labels).length > 0) {
-                profile.nodeLabels = pool.labels;
-            }
-
-            if (pool.taints && pool.taints.length > 0) {
-                profile.nodeTaints = pool.taints;
-            }
-
+            // Don't add osSKU, maxPods, nodeLabels, nodeTaints unless explicitly needed
+            // Azure quickstart template doesn't use these
             return profile;
         });
 
@@ -355,11 +341,9 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                     },
                     controlPlane: {
                         count: '[parameters(\'controlPlaneCount\')]',
-                        ...(controlPlaneIP && {
-                            controlPlaneEndpoint: {
-                                hostIP: '[parameters(\'controlPlaneIP\')]'
-                            }
-                        }),
+                        controlPlaneEndpoint: {
+                            hostIP: '[parameters(\'controlPlaneIP\')]'
+                        },
                         vmSize: '[parameters(\'controlPlaneVmSize\')]'
                     },
                     kubernetesVersion: '[parameters(\'kubernetesVersion\')]',
@@ -485,15 +469,12 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                         description: 'SSH public key for node access (e.g., ssh-rsa AAAA...)'
                     }
                 },
-                ...(controlPlaneIPValue && {
-                    controlPlaneIP: {
-                        type: 'string',
-                        defaultValue: controlPlaneIPValue,
-                        metadata: {
-                            description: 'Static IP address for control plane endpoint (optional)'
-                        }
+                controlPlaneIP: {
+                    type: 'string',
+                    metadata: {
+                        description: 'Static IP address for control plane endpoint'
                     }
-                })
+                }
             },
             variables: {},
             resources,
