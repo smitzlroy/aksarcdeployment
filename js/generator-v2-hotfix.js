@@ -268,7 +268,7 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
         if (!clusterName || clusterName === '') missingFields.push('Cluster Name');
         if (!customLocation || customLocation === '') missingFields.push('Custom Location');
         if (!logicalNetwork || logicalNetwork === '') missingFields.push('Logical Network');
-        if (!sshPublicKey || sshPublicKey === '') missingFields.push('SSH Public Key');
+        // SSH key is optional - users can use kubectl without SSH access
         
         if (missingFields.length > 0) {
             const errorMsg = `❌ Cannot generate ARM template - Missing required fields: ${missingFields.join(', ')}\n\nPlease fill in all required fields in the form before generating the template.`;
@@ -276,13 +276,14 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
             throw new Error(errorMsg);
         }
         
-        console.log('✅ Validation passed - all required fields present');
+        console.log('✅ Validation passed - required fields present');
         
         // Use values directly since validation passed
         const clusterNameValue = String(clusterName);
         const customLocationValue = String(customLocation);
         const logicalNetworkValue = String(logicalNetwork);
-        const sshPublicKeyValue = String(sshPublicKey);
+        // If no SSH key provided, use a placeholder that users must replace
+        const sshPublicKeyValue = sshPublicKey ? String(sshPublicKey) : 'REPLACE_WITH_YOUR_SSH_PUBLIC_KEY';
         const controlPlaneIPValue = controlPlaneIP ? String(controlPlaneIP) : '';
         
         // Build agent pool profiles array
@@ -471,8 +472,9 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 },
                 sshPublicKey: {
                     type: 'securestring',
+                    defaultValue: sshPublicKeyValue,
                     metadata: {
-                        description: 'SSH public key for node access (e.g., ssh-rsa AAAA...)'
+                        description: 'SSH public key for node access (e.g., ssh-rsa AAAA...). Replace placeholder before deploying if you left this field empty.'
                     }
                 },
                 ...(controlPlaneIPValue && {
