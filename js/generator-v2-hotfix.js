@@ -320,16 +320,18 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 }
             },
             // Provisioned Cluster Instance - The actual AKS Arc cluster
+            // Structure based on official Azure/aksArc GitHub repo templates
             {
                 type: 'Microsoft.HybridContainerService/provisionedClusterInstances',
                 apiVersion: '2024-01-01',
-                scope: '[format(\'Microsoft.Kubernetes/connectedClusters/{0}\', parameters(\'clusterName\'))]',
                 name: 'default',
+                scope: '[format(\'Microsoft.Kubernetes/connectedClusters/{0}\', parameters(\'clusterName\'))]',
                 extendedLocation: {
                     type: 'CustomLocation',
                     name: '[parameters(\'customLocation\')]'
                 },
                 properties: {
+                    kubernetesVersion: '[parameters(\'kubernetesVersion\')]',
                     linuxProfile: {
                         ssh: {
                             publicKeys: [
@@ -346,13 +348,11 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                         },
                         vmSize: '[parameters(\'controlPlaneVmSize\')]'
                     },
-                    kubernetesVersion: '[parameters(\'kubernetesVersion\')]',
                     networkProfile: {
+                        networkPolicy: 'calico',
                         loadBalancerProfile: {
                             count: 0
-                        },
-                        networkPolicy: 'calico',
-                        podCidr: '[parameters(\'podCIDR\')]'
+                        }
                     },
                     agentPoolProfiles,
                     cloudProviderProfile: {
@@ -361,6 +361,9 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                                 '[parameters(\'logicalNetwork\')]'
                             ]
                         }
+                    },
+                    licenseProfile: {
+                        azureHybridBenefit: 'False'
                     },
                     storageProfile: {
                         nfsCsiDriver: {
@@ -454,13 +457,6 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                     defaultValue: logicalNetworkValue,
                     metadata: {
                         description: 'ARM resource ID of the Logical Network for VM network interfaces'
-                    }
-                },
-                podCIDR: {
-                    type: 'string',
-                    defaultValue: podCIDR || '10.244.0.0/16',
-                    metadata: {
-                        description: 'CIDR range for Kubernetes pods'
                     }
                 },
                 sshPublicKey: {
