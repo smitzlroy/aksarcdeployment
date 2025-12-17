@@ -53,13 +53,14 @@ class AKSArcPlanner {
         });
 
         // Generate availability set configuration (enabled by default in AKS Arc)
-        const availabilitySetConfig = this.generateAvailabilitySetConfig(physicalHostCount, nodePools);
+        const physicalHostCountValue = physicalHostCount || 3; // Default to 3 if not provided
+        const availabilitySetConfig = this.generateAvailabilitySetConfig(physicalHostCountValue, nodePools);
 
         // Validate the plan
         const validation = this.validatePlan({
             controlPlaneCount,
             nodePools,
-            physicalHostCount
+            physicalHostCount: physicalHostCountValue
         });
 
         return {
@@ -75,7 +76,7 @@ class AKSArcPlanner {
                 controlPlaneVmSize: 'Standard_A4_v2', // Default control plane VM size
                 nodePools,
                 enableAvailabilitySets: true, // Always enabled by default in AKS Arc
-                physicalHostCount,
+                physicalHostCount: physicalHostCountValue,
                 networkPlugin: config.networkPlugin || 'azure',
                 loadBalancerSku: config.loadBalancerSku || 'Standard',
                 sshPublicKey: config.sshPublicKey || '' // SSH key for node access

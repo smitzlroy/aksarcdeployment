@@ -626,7 +626,7 @@ function generatePlan() {
         gpuRequired: document.getElementById('gpuRequired').checked,
         gpuCount: parseInt(document.getElementById('gpuCount').value) || 0,
         enableAvailabilitySets: true, // Always enabled by default in AKS Arc
-        physicalHostCount: parseInt(document.getElementById('physicalHostCount').value) || 2,
+        physicalHostCount: 3, // Default to 3 physical hosts (field removed from UI)
         
         // Network configuration
         networkPlugin: 'calico', // Fixed: Calico VXLAN is the only CNI for AKS Arc
