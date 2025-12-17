@@ -335,34 +335,39 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
             // Provisioned Cluster Instance - The actual AKS Arc cluster
             {
                 type: 'Microsoft.HybridContainerService/provisionedClusterInstances',
-                apiVersion: '2025-02-01-preview',
+                apiVersion: '2024-01-01',
+                scope: '[format(\'Microsoft.Kubernetes/connectedClusters/{0}\', parameters(\'clusterName\'))]',
                 name: 'default',
-                scope: '[format(\'Microsoft.Kubernetes/ConnectedClusters/{0}\', parameters(\'clusterName\'))]',
                 extendedLocation: {
-                    name: '[parameters(\'customLocation\')]',
-                    type: 'CustomLocation'
+                    type: 'CustomLocation',
+                    name: '[parameters(\'customLocation\')]'
                 },
                 properties: {
-                    licenseProfile: {
-                        azureHybridBenefit: 'NotApplicable'
-                    },
-                    storageProfile: {
-                        nfsCsiDriver: {
-                            enabled: false
-                        },
-                        smbCsiDriver: {
-                            enabled: false
+                    linuxProfile: {
+                        ssh: {
+                            publicKeys: [
+                                {
+                                    keyData: '[parameters(\'sshPublicKey\')]'
+                                }
+                            ]
                         }
                     },
-                    kubernetesVersion: '[parameters(\'kubernetesVersion\')]',
                     controlPlane: {
                         count: '[parameters(\'controlPlaneCount\')]',
-                        vmSize: '[parameters(\'controlPlaneVmSize\')]',
                         ...(controlPlaneIP && {
                             controlPlaneEndpoint: {
                                 hostIP: '[parameters(\'controlPlaneIP\')]'
                             }
-                        })
+                        }),
+                        vmSize: '[parameters(\'controlPlaneVmSize\')]'
+                    },
+                    kubernetesVersion: '[parameters(\'kubernetesVersion\')]',
+                    networkProfile: {
+                        loadBalancerProfile: {
+                            count: 0
+                        },
+                        networkPolicy: 'calico',
+                        podCidr: '[parameters(\'podCIDR\')]'
                     },
                     agentPoolProfiles,
                     cloudProviderProfile: {
@@ -372,20 +377,12 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                             ]
                         }
                     },
-                    networkProfile: {
-                        podCidr: '[parameters(\'podCIDR\')]',
-                        networkPolicy: 'calico',
-                        loadBalancerProfile: {
-                            count: 0
-                        }
-                    },
-                    linuxProfile: {
-                        ssh: {
-                            publicKeys: [
-                                {
-                                    keyData: '[parameters(\'sshPublicKey\')]'
-                                }
-                            ]
+                    storageProfile: {
+                        nfsCsiDriver: {
+                            enabled: false
+                        },
+                        smbCsiDriver: {
+                            enabled: false
                         }
                     }
                 },
