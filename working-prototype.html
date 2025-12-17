@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Template Generator Test - BYPASS CACHE</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        h1 { color: #0078d4; }
+        .test-form { background: #f0f0f0; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .test-form input { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+        .test-form button { padding: 10px 20px; background: #0078d4; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .test-form button:hover { background: #005a9e; }
+        #output { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 4px; overflow: auto; max-height: 600px; white-space: pre; font-family: 'Courier New', monospace; font-size: 12px; }
+        .version { background: #4caf50; color: white; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .error { background: #f44336; color: white; padding: 10px; border-radius: 4px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🧪 ARM Template Generator Test</h1>
+    <p>This page bypasses ALL browser caching to test the template generator directly.</p>
+    
+    <div id="versionInfo" class="version">Loading generator.js...</div>
+    
+    <div class="test-form">
+        <h2>Test Inputs</h2>
+        <label>Cluster Name: <input type="text" id="testClusterName" value="test-cluster-123" placeholder="Enter cluster name"></label>
+        <label>Resource Group: <input type="text" id="testResourceGroup" value="test-rg" placeholder="Enter resource group"></label>
+        <label>Location: <input type="text" id="testLocation" value="eastus" placeholder="Enter location"></label>
+        <label>Custom Location: <input type="text" id="testCustomLocation" value="/subscriptions/xxx/resourceGroups/xxx/providers/Microsoft.ExtendedLocation/customLocations/test-cl" placeholder="Enter custom location"></label>
+        <label>Logical Network: <input type="text" id="testLogicalNetwork" value="/subscriptions/xxx/resourceGroups/xxx/providers/Microsoft.AzureStackHCI/logicalNetworks/test-ln" placeholder="Enter logical network"></label>
+        <button onclick="generateTest()">🚀 Generate ARM Template</button>
+    </div>
+    
+    <h2>Generated ARM Template</h2>
+    <div id="output">Click "Generate ARM Template" to see output...</div>
+    
+    <script>
+        // Log version immediately
+        const scriptVersion = '2025-12-17-1130-DIRECT-LOAD';
+        console.log('🧪 TEST PAGE VERSION:', scriptVersion);
+        document.getElementById('versionInfo').innerHTML = `✅ Test page loaded: ${scriptVersion}`;
+        
+        // Inline the TemplateGenerator class to bypass cache COMPLETELY
+        class TemplateGenerator {
+            static generateARM(plan) {
+                const { clusterConfig, networkConfig } = plan;
+                const { clusterName, location, kubernetesVersion, controlPlaneCount, controlPlaneVmSize, nodePools, customLocation, logicalNetwork } = clusterConfig;
+                const { controlPlaneIP, podCIDR } = networkConfig || {};
+                
+                // CRITICAL: Handle undefined values
+                const clusterNameValue = clusterName || '';
+                const customLocationValue = customLocation || '';
+                const logicalNetworkValue = logicalNetwork || '';
+                const controlPlaneIPValue = controlPlaneIP || '';
+                
+                console.log('🔍 Input values:', { clusterName, customLocation, logicalNetwork });
+                console.log('✅ Safe values:', { clusterNameValue, customLocationValue, logicalNetworkValue });
+                
+                const resources = [
+                    {
+                        type: 'Microsoft.Kubernetes/ConnectedClusters',
+                        apiVersion: '2024-01-01',
+                        name: '[parameters(\'clusterName\')]',
+                        location: '[parameters(\'location\')]',
+                        identity: { type: 'SystemAssigned' },
+                        kind: 'ProvisionedCluster',
+                        properties: {
+                            agentPublicKeyCertificate: '',
+                            aadProfile: { enableAzureRBAC: false }
+                        }
+                    },
+                    {
+                        type: 'Microsoft.HybridContainerService/provisionedClusterInstances',
+                        apiVersion: '2025-02-01-preview',
+                        name: 'default',
+                        scope: '[format(\'Microsoft.Kubernetes/ConnectedClusters/{0}\', parameters(\'clusterName\'))]',
+                        extendedLocation: {
+                            name: '[parameters(\'customLocation\')]',
+                            type: 'CustomLocation'
+                        },
+                        properties: {
+                            kubernetesVersion: '[parameters(\'kubernetesVersion\')]',
+                            controlPlane: {
+                                count: '[parameters(\'controlPlaneCount\')]',
+                                vmSize: '[parameters(\'controlPlaneVmSize\')]'
+                            },
+                            agentPoolProfiles: nodePools.map(pool => ({
+                                name: pool.name,
+                                count: pool.count,
+                                vmSize: pool.vmSize,
+                                osType: 'Linux',
+                                osSKU: pool.osSKU || 'CBLMariner',
+                                maxPods: pool.maxPods || 110,
+                                nodeLabels: pool.nodeLabels || {}
+                            })),
+                            cloudProviderProfile: {
+                                infraNetworkProfile: {
+                                    vnetSubnetIds: ['[parameters(\'logicalNetwork\')]']
+                                }
+                            },
+                            networkProfile: {
+                                podCidr: '[parameters(\'podCIDR\')]',
+                                networkPolicy: 'calico',
+                                loadBalancerProfile: { count: 0 }
+                            },
+                            linuxProfile: {
+                                ssh: {
+                                    publicKeys: [{ keyData: '[parameters(\'sshPublicKey\')]' }]
+                                }
+                            }
+                        },
+                        dependsOn: ['[resourceId(\'Microsoft.Kubernetes/ConnectedClusters\', parameters(\'clusterName\'))]']
+                    }
+                ];
+                
+                const template = {
+                    '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#',
+                    contentVersion: '1.0.0.0',
+                    metadata: {
+                        _generator: {
+                            name: 'AKS Arc Deployment Tool - TEST PAGE',
+                            version: '2.0.1-HOTFIX-20251217-1130',
+                            templateType: 'AKS enabled by Azure Arc on Azure Local',
+                            generatedAt: new Date().toISOString()
+                        },
+                        description: 'ARM template for deploying AKS Arc cluster using Microsoft.HybridContainerService/provisionedClusterInstances'
+                    },
+                    parameters: {
+                        clusterName: {
+                            type: 'string',
+                            defaultValue: clusterNameValue,
+                            metadata: { description: 'Name of the AKS Arc cluster' }
+                        },
+                        location: {
+                            type: 'string',
+                            defaultValue: location || 'eastus',
+                            metadata: { description: 'Azure region for the cluster' }
+                        },
+                        kubernetesVersion: {
+                            type: 'string',
+                            defaultValue: kubernetesVersion || '1.29.2',
+                            metadata: { description: 'Kubernetes version (e.g., v1.29.2)' }
+                        },
+                        controlPlaneCount: {
+                            type: 'int',
+                            defaultValue: controlPlaneCount || 1,
+                            minValue: 1,
+                            maxValue: 5,
+                            metadata: { description: 'Number of control plane nodes (1, 3, or 5 for high availability)' }
+                        },
+                        controlPlaneVmSize: {
+                            type: 'string',
+                            defaultValue: controlPlaneVmSize || 'Standard_A4_v2',
+                            metadata: { description: 'VM size for control plane nodes' }
+                        },
+                        customLocation: {
+                            type: 'string',
+                            defaultValue: customLocationValue,
+                            metadata: { description: 'ARM resource ID of the Custom Location for your Azure Local cluster' }
+                        },
+                        logicalNetwork: {
+                            type: 'string',
+                            defaultValue: logicalNetworkValue,
+                            metadata: { description: 'ARM resource ID of the Logical Network for VM network interfaces' }
+                        },
+                        podCIDR: {
+                            type: 'string',
+                            defaultValue: podCIDR || '10.244.0.0/16',
+                            metadata: { description: 'CIDR range for Kubernetes pods' }
+                        },
+                        sshPublicKey: {
+                            type: 'securestring',
+                            metadata: { description: 'SSH public key for node access (e.g., ssh-rsa AAAA...)' }
+                        }
+                    },
+                    variables: {},
+                    resources: resources,
+                    outputs: {
+                        clusterName: {
+                            type: 'string',
+                            value: '[parameters(\'clusterName\')]'
+                        }
+                    }
+                };
+                
+                // Custom replacer to handle undefined
+                const jsonString = JSON.stringify(template, (key, value) => {
+                    if (key === 'defaultValue' && (value === undefined || value === null)) {
+                        return '';
+                    }
+                    return value;
+                }, 2);
+                
+                return jsonString;
+            }
+        }
+        
+        function generateTest() {
+            const clusterName = document.getElementById('testClusterName').value.trim();
+            const resourceGroup = document.getElementById('testResourceGroup').value.trim();
+            const location = document.getElementById('testLocation').value.trim();
+            const customLocation = document.getElementById('testCustomLocation').value.trim();
+            const logicalNetwork = document.getElementById('testLogicalNetwork').value.trim();
+            
+            const plan = {
+                clusterConfig: {
+                    clusterName: clusterName,
+                    resourceGroup: resourceGroup,
+                    location: location,
+                    customLocation: customLocation,
+                    logicalNetwork: logicalNetwork,
+                    kubernetesVersion: '1.29.2',
+                    controlPlaneCount: 1,
+                    controlPlaneVmSize: 'Standard_A4_v2',
+                    nodePools: [
+                        {
+                            name: 'nodepool1',
+                            count: 2,
+                            vmSize: 'Standard_D32s_v5',
+                            osSKU: 'CBLMariner',
+                            maxPods: 110,
+                            nodeLabels: { workload: 'general-purpose' }
+                        }
+                    ]
+                },
+                networkConfig: {
+                    podCIDR: '10.244.0.0/16'
+                }
+            };
+            
+            try {
+                const armTemplate = TemplateGenerator.generateARM(plan);
+                document.getElementById('output').textContent = armTemplate;
+                
+                // Check for the bug
+                if (armTemplate.includes('"defaultValue": {}')) {
+                    document.getElementById('versionInfo').innerHTML = '❌ ERROR: Still generating defaultValue: {} - JSON.stringify bug detected!';
+                    document.getElementById('versionInfo').className = 'error';
+                } else {
+                    document.getElementById('versionInfo').innerHTML = `✅ SUCCESS: Template generated correctly! Check parameters section.`;
+                    document.getElementById('versionInfo').className = 'version';
+                }
+            } catch (error) {
+                document.getElementById('output').textContent = 'ERROR: ' + error.message + '\n\n' + error.stack;
+                document.getElementById('versionInfo').innerHTML = '❌ ERROR: ' + error.message;
+                document.getElementById('versionInfo').className = 'error';
+            }
+        }
+    </script>
+</body>
+</html>
