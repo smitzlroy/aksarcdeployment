@@ -343,6 +343,9 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                     type: 'CustomLocation'
                 },
                 properties: {
+                    licenseProfile: {
+                        azureHybridBenefit: 'NotApplicable'
+                    },
                     kubernetesVersion: '[parameters(\'kubernetesVersion\')]',
                     controlPlane: {
                         count: '[parameters(\'controlPlaneCount\')]',
