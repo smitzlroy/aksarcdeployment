@@ -65,10 +65,10 @@ class AKSArcPlanner {
 
         return {
             clusterConfig: {
-                clusterName,
-                resourceGroup,
-                location,
-                customLocation,
+                clusterName: clusterName || '',
+                resourceGroup: resourceGroup || '',
+                location: location || 'eastus',
+                customLocation: customLocation || '',
                 logicalNetwork: config.logicalNetwork || '',
                 azureLocalClusterIP: config.azureLocalClusterIP || '',
                 kubernetesVersion: k8sVersion,

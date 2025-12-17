@@ -1,6 +1,8 @@
 /**
  * Template Generators - Bicep, ARM, Terraform
+ * VERSION: 2025-12-17-1700 (Parameter fix with defense-in-depth)
  */
+console.log('✅ generator.js loaded - VERSION: 2025-12-17-1700');
 
 class TemplateGenerator {
     /**
@@ -261,11 +263,16 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
         const { clusterName, location, kubernetesVersion, controlPlaneCount, controlPlaneVmSize, nodePools, customLocation, logicalNetwork } = clusterConfig;
         const { controlPlaneIP, podCIDR } = networkConfig || {};
         
+        // Debug logging
+        console.log('🔍 generateARM called with clusterName:', clusterName, 'customLocation:', customLocation);
+        
         // Handle undefined values - convert to empty string for ARM template
         const clusterNameValue = clusterName || '';
         const customLocationValue = customLocation || '';
         const logicalNetworkValue = logicalNetwork || '';
         const controlPlaneIPValue = controlPlaneIP || '';
+        
+        console.log('✅ Safe values - clusterName:', clusterNameValue, 'customLocation:', customLocationValue);
         
         // Build agent pool profiles array
         const agentPoolProfiles = nodePools.map(pool => {
