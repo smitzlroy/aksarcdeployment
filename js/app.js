@@ -620,6 +620,7 @@ function generatePlan() {
         customLocation,
         logicalNetwork: document.getElementById('logicalNetwork')?.value || '',
         azureLocalClusterIP: document.getElementById('azureLocalClusterIP')?.value || '',
+        sshPublicKey: document.getElementById('sshPublicKey')?.value.trim() || '',
         cpuCores: parseInt(document.getElementById('cpuCores').value),
         memoryGb: parseInt(document.getElementById('memoryGb').value),
         gpuRequired: document.getElementById('gpuRequired').checked,

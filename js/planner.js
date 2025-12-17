@@ -72,11 +72,13 @@ class AKSArcPlanner {
                 azureLocalClusterIP: config.azureLocalClusterIP || '',
                 kubernetesVersion: k8sVersion,
                 controlPlaneCount,
+                controlPlaneVmSize: 'Standard_A4_v2', // Default control plane VM size
                 nodePools,
                 enableAvailabilitySets: true, // Always enabled by default in AKS Arc
                 physicalHostCount,
                 networkPlugin: config.networkPlugin || 'azure',
-                loadBalancerSku: config.loadBalancerSku || 'Standard'
+                loadBalancerSku: config.loadBalancerSku || 'Standard',
+                sshPublicKey: config.sshPublicKey || '' // SSH key for node access
             },
             networkConfig: {
                 networkPlugin: 'calico', // Fixed: Calico VXLAN is the only CNI for AKS Arc

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AKS Arc Deployment Tool - Plan and generate deployment artifacts for Azure Kubernetes Service on Azure Local 2511">
     <title>AKS Arc Deployment Tool</title>
-    <link rel="stylesheet" href="css/style.css?v=180129">
+    <link rel="stylesheet" href="css/style.css?v=180130">
     <link rel="stylesheet" href="css/polish.css?v=180102">
 </head>
 <body>
@@ -356,7 +356,8 @@
                     </div>
                 </div>
 
-                <h3 style="color: var(--primary-color); margin-bottom: 15px;">📋 Basic Cluster Information</h3>
+                <h3 style="color: var(--primary-color); margin-bottom: 15px;">📋 AKS Arc Cluster Configuration</h3>
+                <p style="color: #666; margin-bottom: 20px;"><em>Configure the Kubernetes cluster that will run on your Azure Local infrastructure</em></p>
                 
                 <div class="form-grid">
                     <div class="form-group">
@@ -381,20 +382,26 @@
 
                     <div class="form-group">
                         <label for="customLocation">Custom Location (Azure Local) *</label>
-                        <input type="text" id="customLocation" placeholder="arc-custom-location" required>
-                        <small>Created automatically when Azure Local deployed</small>
+                        <input type="text" id="customLocation" placeholder="/subscriptions/{sub-id}/resourceGroups/{rg}/providers/Microsoft.ExtendedLocation/customLocations/{name}" required>
+                        <small>ARM resource ID of your Azure Local Custom Location (created during Azure Local deployment)</small>
                     </div>
 
                     <div class="form-group">
-                        <label for="logicalNetwork">Logical Network Name *</label>
-                        <input type="text" id="logicalNetwork" placeholder="aks-logical-network" required>
-                        <small>Pre-configured Azure Local logical network (static IPs)</small>
+                        <label for="logicalNetwork">Logical Network *</label>
+                        <input type="text" id="logicalNetwork" placeholder="/subscriptions/{sub-id}/resourceGroups/{rg}/providers/Microsoft.AzureStackHCI/logicalNetworks/{name}" required>
+                        <small>ARM resource ID of your Azure Local logical network (provides static IPs for AKS nodes)</small>
                     </div>
 
                     <div class="form-group" id="azureLocalClusterIPGroup" style="display: none;">
                         <label for="azureLocalClusterIP">Azure Local Cluster IP (Optional)</label>
                         <input type="text" id="azureLocalClusterIP" placeholder="192.168.1.10">
                         <small>⚠️ Only required if Arc Gateway enabled AND AKS VMs on different VLAN than Azure Local management network. Get via: <code>Get-ClusterResource -Name "Cluster IP Address" | Get-ClusterParameter -Name Address</code></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sshPublicKey">SSH Public Key (Optional)</label>
+                        <textarea id="sshPublicKey" rows="3" placeholder="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ..."></textarea>
+                        <small>SSH public key for accessing cluster nodes (for troubleshooting and management)</small>
                     </div>
 
                     <div class="form-group" id="cpuGroup">
@@ -420,13 +427,7 @@
                     </div>
 
                     <div class="info-banner" style="background: #e3f2fd; padding: 12px; border-radius: 4px; margin: 16px 0;">
-                        <strong>ℹ️ High Availability:</strong> Configure multiple physical hosts to enable fault tolerance. Use pod anti-affinity rules in your workload deployments for additional resilience across nodes.
-                    </div>
-
-                    <div class="form-group">
-                        <label for="physicalHostCount">Physical Host Count</label>
-                        <input type="number" id="physicalHostCount" min="2" max="16" value="3">
-                        <small>Number of physical hosts in your Azure Local cluster</small>
+                        <strong>ℹ️ High Availability:</strong> Configure control plane and node counts below for fault tolerance. Use pod anti-affinity rules in your workload deployments for additional resilience across nodes.
                     </div>
                 </div>
 
@@ -1123,14 +1124,14 @@ Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</co
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="js/security.js?v=180124"></script>
-    <script src="js/compliance.js?v=180129"></script>
-    <script src="js/compliance-report.js?v=180129"></script>
-    <script src="js/presets.js?v=180129"></script>
-    <script src="js/cost-calculator.js?v=180129"></script>
-    <script src="js/firewall.js?v=180129"></script>
-    <script src="js/planner.js?v=180129"></script>
-    <script src="js/generator.js?v=180129"></script>
-    <script src="js/deployer.js?v=180129"></script>
-    <script src="js/app.js?v=180129"></script>
+    <script src="js/compliance.js?v=180130"></script>
+    <script src="js/compliance-report.js?v=180130"></script>
+    <script src="js/presets.js?v=180130"></script>
+    <script src="js/cost-calculator.js?v=180130"></script>
+    <script src="js/firewall.js?v=180130"></script>
+    <script src="js/planner.js?v=180130"></script>
+    <script src="js/generator.js?v=180130"></script>
+    <script src="js/deployer.js?v=180130"></script>
+    <script src="js/app.js?v=180130"></script>
 </body>
 </html>
