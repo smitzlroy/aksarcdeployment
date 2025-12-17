@@ -259,30 +259,31 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
      * Generate ARM template
      */
     static generateARM(plan) {
-        // CRITICAL DEBUG: Log ENTIRE plan object
-        console.log('🔍🔍🔍 generateARM FULL PLAN:', JSON.stringify(plan, null, 2));
-        
         const { clusterConfig, networkConfig, storageConfig } = plan;
-        console.log('🔍 clusterConfig extracted:', JSON.stringify(clusterConfig, null, 2));
-        
-        const { clusterName, location, kubernetesVersion, controlPlaneCount, controlPlaneVmSize, nodePools, customLocation, logicalNetwork } = clusterConfig;
+        const { clusterName, location, kubernetesVersion, controlPlaneCount, controlPlaneVmSize, nodePools, customLocation, logicalNetwork, sshPublicKey } = clusterConfig;
         const { controlPlaneIP, podCIDR } = networkConfig || {};
         
-        // Debug logging
-        console.log('🔍 RAW VALUES - clusterName:', clusterName, 'type:', typeof clusterName);
-        console.log('🔍 RAW VALUES - customLocation:', customLocation, 'type:', typeof customLocation);
-        console.log('🔍 RAW VALUES - logicalNetwork:', logicalNetwork, 'type:', typeof logicalNetwork);
+        // Validation: Check for missing required values
+        const missingFields = [];
+        if (!clusterName || clusterName === '') missingFields.push('Cluster Name');
+        if (!customLocation || customLocation === '') missingFields.push('Custom Location');
+        if (!logicalNetwork || logicalNetwork === '') missingFields.push('Logical Network');
+        if (!sshPublicKey || sshPublicKey === '') missingFields.push('SSH Public Key');
         
-        // Handle undefined values - convert to empty string for ARM template
-        // CRITICAL: Check if values are objects and convert to string
-        const clusterNameValue = (typeof clusterName === 'object' || !clusterName) ? '' : String(clusterName);
-        const customLocationValue = (typeof customLocation === 'object' || !customLocation) ? '' : String(customLocation);
-        const logicalNetworkValue = (typeof logicalNetwork === 'object' || !logicalNetwork) ? '' : String(logicalNetwork);
-        const controlPlaneIPValue = (typeof controlPlaneIP === 'object' || !controlPlaneIP) ? '' : String(controlPlaneIP);
+        if (missingFields.length > 0) {
+            const errorMsg = `❌ Cannot generate ARM template - Missing required fields: ${missingFields.join(', ')}\n\nPlease fill in all required fields in the form before generating the template.`;
+            alert(errorMsg);
+            throw new Error(errorMsg);
+        }
         
-        console.log('✅ SAFE VALUES (after type check) - clusterNameValue:', clusterNameValue, 'type:', typeof clusterNameValue);
-        console.log('✅ SAFE VALUES (after type check) - customLocationValue:', customLocationValue, 'type:', typeof customLocationValue);
-        console.log('✅ SAFE VALUES (after type check) - logicalNetworkValue:', logicalNetworkValue, 'type:', typeof logicalNetworkValue);
+        console.log('✅ Validation passed - all required fields present');
+        
+        // Use values directly since validation passed
+        const clusterNameValue = String(clusterName);
+        const customLocationValue = String(customLocation);
+        const logicalNetworkValue = String(logicalNetwork);
+        const sshPublicKeyValue = String(sshPublicKey);
+        const controlPlaneIPValue = controlPlaneIP ? String(controlPlaneIP) : '';
         
         // Build agent pool profiles array
         const agentPoolProfiles = nodePools.map(pool => {
