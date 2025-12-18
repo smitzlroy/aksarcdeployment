@@ -10,25 +10,51 @@ class ExtensionConfigManager {
     }
 
     /**
-     * Get extensions required for a workload
+     * Get extensions available for a workload (not necessarily all enabled by default)
      */
     getExtensionsForWorkload(workloadType) {
         const extensions = [];
         
-        // Core extensions for all workloads
-        extensions.push(
-            this.catalog.arc_extensions['azure-monitor'],
-            this.catalog.arc_extensions['azure-policy'],
-            this.catalog.arc_extensions['defender-containers']
-        );
+        // Core extensions available for all workloads
+        // Only Azure Policy is free and enabled by default
+        extensions.push({
+            ...this.catalog.arc_extensions['azure-policy'],
+            defaultEnabled: true,
+            optional: false
+        });
+        
+        // Monitoring and security are optional (cost money)
+        extensions.push({
+            ...this.catalog.arc_extensions['azure-monitor'],
+            defaultEnabled: false,
+            optional: true
+        });
+        
+        extensions.push({
+            ...this.catalog.arc_extensions['defender-containers'],
+            defaultEnabled: false,
+            optional: true
+        });
 
-        // Add workload-specific extensions
+        // Add workload-specific extensions (required for that solution)
         if (workloadType === 'edge-rag-arc') {
-            extensions.push(this.catalog.arc_extensions['edge-rag-arc']);
+            extensions.push({
+                ...this.catalog.arc_extensions['edge-rag-arc'],
+                defaultEnabled: true,
+                optional: false
+            });
         } else if (workloadType === 'video-indexer-arc') {
-            extensions.push(this.catalog.arc_extensions['video-indexer-arc']);
+            extensions.push({
+                ...this.catalog.arc_extensions['video-indexer-arc'],
+                defaultEnabled: true,
+                optional: false
+            });
         } else if (workloadType === 'iot-operations-arc') {
-            extensions.push(this.catalog.arc_extensions['iot-operations']);
+            extensions.push({
+                ...this.catalog.arc_extensions['iot-operations'],
+                defaultEnabled: true,
+                optional: false
+            });
         }
 
         return extensions;
@@ -43,13 +69,32 @@ class ExtensionConfigManager {
         
         if (!listContainer) return;
 
-        listContainer.innerHTML = extensions.map(ext => `
-            <div style="background: white; padding: 12px; border-radius: 4px; border: 1px solid #c8e6c9;">
-                <strong style="color: #2e7d32;">${ext.icon} ${ext.name}</strong>
-                <div style="font-size: 0.85em; color: #666; margin-top: 4px;">${ext.description}</div>
-                ${ext.monthlyCost > 0 ? `<div style="font-size: 0.8em; color: #1976d2; margin-top: 4px;">~$${ext.monthlyCost}/mo</div>` : ''}
-            </div>
-        `).join('');
+        listContainer.innerHTML = extensions.map(ext => {
+            const extId = ext.extensionType.replace(/\./g, '_');
+            const isRequired = !ext.optional;
+            const isEnabled = ext.defaultEnabled;
+            const costBadge = ext.monthlyCost > 0 
+                ? `<span style="font-size: 0.8em; color: #f57c00; font-weight: 600;">+$${ext.monthlyCost}/mo</span>`
+                : `<span style="font-size: 0.8em; color: #4caf50; font-weight: 600;">FREE</span>`;
+            
+            return `
+                <div style="background: white; padding: 12px; border-radius: 4px; border: 1px solid ${isRequired ? '#4caf50' : '#e0e0e0'};">
+                    <div style="display: flex; align-items: start; gap: 8px;">
+                        ${isRequired 
+                            ? `<input type="checkbox" id="ext_enable_${extId}" checked disabled style="margin-top: 2px;">` 
+                            : `<input type="checkbox" id="ext_enable_${extId}" ${isEnabled ? 'checked' : ''} onchange="extensionManager.updateExtensionCosts()" style="margin-top: 2px;">`
+                        }
+                        <div style="flex: 1;">
+                            <strong style="color: ${isRequired ? '#2e7d32' : '#555'};">${ext.icon} ${ext.name}</strong>
+                            ${isRequired ? '<span style="margin-left: 8px; font-size: 0.75em; background: #4caf50; color: white; padding: 2px 6px; border-radius: 3px;">REQUIRED</span>' : ''}
+                            ${ext.optional && !isEnabled ? '<span style="margin-left: 8px; font-size: 0.75em; background: #ff9800; color: white; padding: 2px 6px; border-radius: 3px;">OPTIONAL</span>' : ''}
+                            <div style="font-size: 0.85em; color: #666; margin-top: 4px;">${ext.description}</div>
+                            <div style="margin-top: 4px;">${costBadge}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
 
         // Update summary
         const summaryDiv = document.querySelector('#extensionsList').nextElementSibling;
@@ -297,12 +342,52 @@ class ExtensionConfigManager {
     }
 
     /**
-     * Calculate total monthly cost including extensions
+     * Calculate total monthly cost including only enabled extensions
      */
     calculateTotalCost(workloadType, baseCost) {
         const extensions = this.getExtensionsForWorkload(workloadType);
-        const extensionsCost = extensions.reduce((sum, ext) => sum + ext.monthlyCost, 0);
+        let extensionsCost = 0;
+        
+        extensions.forEach(ext => {
+            const extId = ext.extensionType.replace(/\./g, '_');
+            const checkbox = document.getElementById(`ext_enable_${extId}`);
+            
+            if (checkbox && checkbox.checked) {
+                extensionsCost += ext.monthlyCost;
+            }
+        });
+        
         return baseCost + extensionsCost;
+    }
+
+    /**
+     * Update extension costs when checkboxes change
+     */
+    updateExtensionCosts() {
+        // Update summary count
+        const extensions = this.getExtensionsForWorkload(selectedWorkload);
+        const enabledCount = extensions.filter(ext => {
+            const extId = ext.extensionType.replace(/\./g, '_');
+            const checkbox = document.getElementById(`ext_enable_${extId}`);
+            return checkbox && checkbox.checked;
+        }).length;
+
+        // Update summary text
+        const summaryDiv = document.querySelector('#extensionsList').nextElementSibling;
+        if (summaryDiv) {
+            const requiredCount = extensions.filter(e => !e.optional).length;
+            const optionalEnabledCount = enabledCount - requiredCount;
+            
+            summaryDiv.innerHTML = `
+                <strong>📋 Selected for Deployment:</strong> 
+                1 cluster + ${requiredCount} required extension(s) + ${optionalEnabledCount} optional extension(s)
+            `;
+        }
+
+        // Trigger cost recalculation if cost calculator exists
+        if (typeof updateCostEstimate === 'function') {
+            updateCostEstimate();
+        }
     }
 }
 
