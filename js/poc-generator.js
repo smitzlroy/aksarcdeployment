@@ -655,14 +655,17 @@ function generatePOCDocument(extensionKey) {
 
 /**
  * POC PDF Report Generator Class
- * Similar to ComplianceReportGenerator but for POC documents
+ * Professional POC document with table-based format
  */
 class POCReportGenerator {
     constructor() {
-        this.margin = 20;
+        this.margin = 15;
         this.pageWidth = 210; // A4 width in mm
         this.pageHeight = 297; // A4 height in mm
         this.contentWidth = this.pageWidth - (2 * this.margin);
+        this.primaryColor = [102, 126, 234];
+        this.tableHeaderBg = [102, 126, 234];
+        this.tableAltRowBg = [245, 247, 250];
     }
 
     async generatePDFReport(extensionKey, extensionName) {
@@ -692,94 +695,138 @@ class POCReportGenerator {
         let yPos = this.margin;
 
         // Title Page
-        doc.setFontSize(24);
-        doc.setTextColor(102, 126, 234);
-        yPos = 40;
-        doc.text(template.title, this.pageWidth / 2, yPos, { align: 'center' });
+        this.addCoverPage(doc, template, extensionName);
 
-        doc.setFontSize(14);
-        doc.setTextColor(100, 100, 100);
-        yPos += 15;
-        doc.text(template.extension, this.pageWidth / 2, yPos, { align: 'center' });
-
-        yPos += 20;
-        doc.setFontSize(10);
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, this.pageWidth / 2, yPos, { align: 'center' });
-
-        // Add new page for content
+        // Table of Contents
         doc.addPage();
-        yPos = this.margin;
+        this.addTableOfContents(doc);
 
         // Executive Summary
-        yPos = this.addSection(doc, 'Executive Summary', template.overview, yPos);
-
-        // Prerequisites
-        yPos = this.addSection(doc, 'Prerequisites', null, yPos);
-        template.prerequisites.forEach(req => {
-            yPos = this.addBulletPoint(doc, req, yPos);
-        });
-
-        // Success Criteria
         doc.addPage();
         yPos = this.margin;
-        yPos = this.addHeading(doc, 'Success Criteria', yPos);
+        yPos = this.addSectionHeader(doc, '1. Executive Summary', yPos);
+        yPos = this.addParagraph(doc, template.overview, yPos);
+        yPos += 5;
         
-        template.successCriteria.forEach(phase => {
-            yPos = this.addSubheading(doc, phase.phase, yPos);
-            phase.criteria.forEach(criterion => {
-                yPos = this.addBulletPoint(doc, criterion, yPos, '✓');
-            });
-        });
+        // POC Objectives Table
+        yPos = this.addSubheading(doc, 'POC Objectives', yPos);
+        const objectives = [
+            ['Objective', 'Description'],
+            ['Validate Functionality', 'Confirm all core features work as documented in production-like environment'],
+            ['Assess Performance', 'Measure system performance under realistic workload conditions'],
+            ['Verify Security', 'Validate security controls, authentication, and data protection mechanisms'],
+            ['Test Integration', 'Ensure seamless integration with existing infrastructure and workflows'],
+            ['Evaluate Operations', 'Assess monitoring, maintenance, and troubleshooting capabilities'],
+            ['Prove Production Readiness', 'Demonstrate system meets all requirements for production deployment']
+        ];
+        yPos = this.addTable(doc, objectives, yPos);
 
-        // Test Scenarios
-        template.testScenarios.forEach((scenario, index) => {
+        // Success Criteria by Phase (Table Format)
+        doc.addPage();
+        yPos = this.margin;
+        yPos = this.addSectionHeader(doc, '2. Success Criteria & Validation Plan', yPos);
+        
+        template.successCriteria.forEach((phase, phaseIndex) => {
             if (yPos > 240) {
                 doc.addPage();
                 yPos = this.margin;
             }
-            yPos = this.addSubheading(doc, `Scenario ${index + 1}: ${scenario.name}`, yPos);
-            yPos = this.addText(doc, `Objective: ${scenario.objective}`, yPos);
-            yPos += 3;
-            yPos = this.addText(doc, 'Steps:', yPos);
-            scenario.steps.forEach((step, stepIndex) => {
-                yPos = this.addBulletPoint(doc, `${stepIndex + 1}. ${step}`, yPos);
+            yPos = this.addSubheading(doc, phase.phase, yPos);
+            
+            const phaseTable = [['Activity', 'Success Criteria', 'Validation Method']];
+            phase.criteria.forEach((criterion, idx) => {
+                phaseTable.push([
+                    `${phaseIndex + 1}.${idx + 1}`,
+                    criterion,
+                    'Technical validation + Sign-off'
+                ]);
             });
-            yPos = this.addText(doc, `Expected Result: ${scenario.expectedResult}`, yPos);
-            yPos = this.addText(doc, `Validation: ${scenario.validation}`, yPos);
+            yPos = this.addTable(doc, phaseTable, yPos);
+            yPos += 3;
+        });
+
+        // Test Scenarios (Table Format)
+        doc.addPage();
+        yPos = this.margin;
+        yPos = this.addSectionHeader(doc, '3. Test Scenarios & Validation', yPos);
+        
+        template.testScenarios.forEach((scenario, index) => {
+            if (yPos > 230) {
+                doc.addPage();
+                yPos = this.margin;
+            }
+            
+            yPos = this.addSubheading(doc, `Test Scenario ${index + 1}: ${scenario.name}`, yPos);
+            
+            // Scenario details table
+            const scenarioTable = [
+                ['Attribute', 'Details'],
+                ['Objective', scenario.objective],
+                ['Expected Result', scenario.expectedResult],
+                ['Validation Method', scenario.validation]
+            ];
+            yPos = this.addTable(doc, scenarioTable, yPos, [40, 140]);
+            yPos += 2;
+            
+            // Test steps table
+            yPos = this.addSubheading(doc, 'Test Steps', yPos);
+            const stepsTable = [['Step', 'Action', 'Status']];
+            scenario.steps.forEach((step, stepIdx) => {
+                stepsTable.push([`${stepIdx + 1}`, step, '☐ Not Started']);
+            });
+            yPos = this.addTable(doc, stepsTable, yPos, [15, 145, 20]);
             yPos += 5;
         });
 
-        // Security Validation
+        // Security & Compliance Table
         doc.addPage();
         yPos = this.margin;
-        yPos = this.addHeading(doc, 'Security Validation Checklist', yPos);
+        yPos = this.addSectionHeader(doc, '4. Security & Compliance Validation', yPos);
+        
+        yPos = this.addSubheading(doc, 'Security Validation Checklist', yPos);
+        const securityTable = [['Security Control', 'Validation Method', 'Status']];
         template.securityValidation.forEach(item => {
-            yPos = this.addBulletPoint(doc, item, yPos, '☐');
+            securityTable.push([item, 'Technical test + Documentation review', '☐ Pending']);
         });
-
-        // Compliance
+        yPos = this.addTable(doc, securityTable, yPos, [90, 60, 30]);
+        
+        // Compliance table
+        if (yPos > 200) {
+            doc.addPage();
+            yPos = this.margin;
+        }
         yPos += 5;
-        yPos = this.addHeading(doc, 'Compliance & Regulatory Alignment', yPos);
+        yPos = this.addSubheading(doc, 'Compliance Framework Alignment', yPos);
+        const complianceTable = [['Framework', 'Key Controls', 'Validation Status']];
         template.complianceChecklist.forEach(item => {
-            yPos = this.addText(doc, `${item.framework}: ${item.controls}`, yPos);
-            yPos += 3;
+            complianceTable.push([item.framework, item.controls, '☐ To Be Validated']);
         });
+        yPos = this.addTable(doc, complianceTable, yPos, [40, 100, 40]);
 
         // Production Readiness
         doc.addPage();
         yPos = this.margin;
-        yPos = this.addHeading(doc, 'Production Readiness Criteria', yPos);
+        yPos = this.addSectionHeader(doc, '5. Production Readiness Checklist', yPos);
+        const readinessTable = [['Readiness Criteria', 'Owner', 'Status']];
         template.productionReadinessCriteria.forEach(criterion => {
-            yPos = this.addBulletPoint(doc, criterion, yPos, '☐');
+            readinessTable.push([criterion, 'Technical Lead', '☐ Not Started']);
         });
+        yPos = this.addTable(doc, readinessTable, yPos, [120, 35, 25]);
 
         // References
-        yPos += 10;
-        yPos = this.addHeading(doc, 'References & Documentation', yPos);
+        doc.addPage();
+        yPos = this.margin;
+        yPos = this.addSectionHeader(doc, '6. References & Resources', yPos);
+        const referencesTable = [['Resource', 'URL']];
         template.references.forEach(ref => {
-            yPos = this.addText(doc, ref, yPos, 8);
-            yPos += 2;
+            const parts = ref.split(': ');
+            if (parts.length === 2) {
+                referencesTable.push([parts[0], parts[1]]);
+            } else {
+                referencesTable.push([ref, '']);
+            }
         });
+        yPos = this.addTable(doc, referencesTable, yPos, [60, 120]);
 
         // Save
         const filename = `${extensionName.replace(/[^a-zA-Z0-9]/g, '_')}_POC_Guide_${new Date().toISOString().split('T')[0]}.pdf`;
@@ -787,18 +834,85 @@ class POCReportGenerator {
         return filename;
     }
 
-    addHeading(doc, text, yPos) {
+    addCoverPage(doc, template, extensionName) {
+        // Header box
+        doc.setFillColor(...this.primaryColor);
+        doc.rect(0, 0, this.pageWidth, 60, 'F');
+        
+        // Title
+        doc.setFontSize(28);
+        doc.setTextColor(255, 255, 255);
+        doc.text('PROOF OF CONCEPT', this.pageWidth / 2, 25, { align: 'center' });
+        doc.setFontSize(20);
+        doc.text('Validation Plan', this.pageWidth / 2, 40, { align: 'center' });
+        
+        // Extension name
+        doc.setFontSize(24);
+        doc.setTextColor(...this.primaryColor);
+        doc.text(extensionName, this.pageWidth / 2, 80, { align: 'center' });
+        
+        // Info box
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.rect(30, 100, 150, 60);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(80, 80, 80);
+        doc.text('Document Type:', 35, 110);
+        doc.text('POC Duration:', 35, 125);
+        doc.text('Generated:', 35, 140);
+        doc.text('Version:', 35, 155);
+        
+        doc.setTextColor(0, 0, 0);
+        doc.text('Technical Validation & Readiness Assessment', 75, 110);
+        doc.text('4 weeks (recommended)', 75, 125);
+        doc.text(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), 75, 140);
+        doc.text('1.0', 75, 155);
+        
+        // Footer
+        doc.setFontSize(9);
+        doc.setTextColor(120, 120, 120);
+        doc.text('Based on official Microsoft Learn documentation', this.pageWidth / 2, 270, { align: 'center' });
+        doc.text('Generated by AKS Arc Deployment Tool', this.pageWidth / 2, 277, { align: 'center' });
+        doc.text('https://smitzlroy.github.io/aksarcdeployment/', this.pageWidth / 2, 284, { align: 'center' });
+    }
+
+    addTableOfContents(doc) {
+        let yPos = this.margin;
+        doc.setFontSize(18);
+        doc.setTextColor(...this.primaryColor);
+        doc.text('Table of Contents', this.margin, yPos);
+        yPos += 15;
+        
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        const sections = [
+            '1. Executive Summary',
+            '2. Success Criteria & Validation Plan',
+            '3. Test Scenarios & Validation',
+            '4. Security & Compliance Validation',
+            '5. Production Readiness Checklist',
+            '6. References & Resources'
+        ];
+        
+        sections.forEach(section => {
+            doc.text(section, this.margin + 5, yPos);
+            yPos += 10;
+        });
+    }
+
+    addSectionHeader(doc, text, yPos) {
         if (yPos > 260) {
             doc.addPage();
             yPos = this.margin;
         }
+        doc.setFillColor(...this.primaryColor);
+        doc.rect(this.margin, yPos - 5, this.contentWidth, 10, 'F');
         doc.setFontSize(14);
-        doc.setTextColor(102, 126, 234);
-        doc.text(text, this.margin, yPos);
-        yPos += 8;
-        doc.setFontSize(10);
+        doc.setTextColor(255, 255, 255);
+        doc.text(text, this.margin + 2, yPos + 2);
         doc.setTextColor(0, 0, 0);
-        return yPos;
+        return yPos + 12;
     }
 
     addSubheading(doc, text, yPos) {
@@ -806,46 +920,103 @@ class POCReportGenerator {
             doc.addPage();
             yPos = this.margin;
         }
-        doc.setFontSize(11);
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
         doc.setTextColor(50, 50, 50);
         doc.text(text, this.margin, yPos);
-        yPos += 6;
-        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
         doc.setTextColor(0, 0, 0);
-        return yPos;
+        return yPos + 7;
     }
 
-    addSection(doc, title, text, yPos) {
-        yPos = this.addHeading(doc, title, yPos);
-        if (text) {
-            yPos = this.addText(doc, text, yPos);
-        }
-        return yPos;
-    }
-
-    addText(doc, text, yPos, fontSize = 10) {
+    addParagraph(doc, text, yPos, fontSize = 10) {
         if (yPos > 270) {
             doc.addPage();
             yPos = this.margin;
         }
         doc.setFontSize(fontSize);
+        doc.setTextColor(60, 60, 60);
         const lines = doc.splitTextToSize(text, this.contentWidth);
         doc.text(lines, this.margin, yPos);
-        yPos += lines.length * 5;
-        return yPos;
+        doc.setTextColor(0, 0, 0);
+        return yPos + (lines.length * 5) + 3;
     }
 
-    addBulletPoint(doc, text, yPos, bullet = '•') {
-        if (yPos > 275) {
+    addTable(doc, data, yPos, columnWidths = null) {
+        if (yPos > 250) {
             doc.addPage();
             yPos = this.margin;
         }
-        doc.setFontSize(10);
-        const lines = doc.splitTextToSize(text, this.contentWidth - 10);
-        doc.text(bullet, this.margin + 2, yPos);
-        doc.text(lines, this.margin + 8, yPos);
-        yPos += Math.max(lines.length * 4.5, 5);
-        return yPos;
+
+        const rowHeight = 8;
+        const cellPadding = 2;
+        
+        // Calculate column widths if not provided
+        if (!columnWidths) {
+            const numCols = data[0].length;
+            const availableWidth = this.contentWidth;
+            columnWidths = Array(numCols).fill(availableWidth / numCols);
+        }
+
+        data.forEach((row, rowIndex) => {
+            // Check if we need a new page
+            if (yPos + rowHeight > this.pageHeight - this.margin) {
+                doc.addPage();
+                yPos = this.margin;
+                
+                // Repeat header on new page
+                if (rowIndex > 0) {
+                    this.drawTableRow(doc, data[0], this.margin, yPos, columnWidths, rowHeight, cellPadding, true);
+                    yPos += rowHeight;
+                }
+            }
+
+            const isHeader = rowIndex === 0;
+            this.drawTableRow(doc, row, this.margin, yPos, columnWidths, rowHeight, cellPadding, isHeader);
+            yPos += rowHeight;
+        });
+
+        return yPos + 3;
+    }
+
+    drawTableRow(doc, row, xPos, yPos, columnWidths, rowHeight, cellPadding, isHeader) {
+        let currentX = xPos;
+
+        row.forEach((cell, colIndex) => {
+            // Background color
+            if (isHeader) {
+                doc.setFillColor(...this.tableHeaderBg);
+                doc.rect(currentX, yPos, columnWidths[colIndex], rowHeight, 'F');
+            }
+
+            // Cell border
+            doc.setDrawColor(220, 220, 220);
+            doc.setLineWidth(0.1);
+            doc.rect(currentX, yPos, columnWidths[colIndex], rowHeight);
+
+            // Text
+            doc.setFontSize(9);
+            if (isHeader) {
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(255, 255, 255);
+            } else {
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(50, 50, 50);
+            }
+
+            const cellText = String(cell);
+            const maxWidth = columnWidths[colIndex] - (cellPadding * 2);
+            const lines = doc.splitTextToSize(cellText, maxWidth);
+            
+            // Only show first line if text is too long
+            const displayText = lines[0];
+            doc.text(displayText, currentX + cellPadding, yPos + rowHeight - 2);
+
+            currentX += columnWidths[colIndex];
+        });
+
+        doc.setTextColor(0, 0, 0);
+        doc.setFont(undefined, 'normal');
     }
 }
 
