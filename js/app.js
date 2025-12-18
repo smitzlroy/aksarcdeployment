@@ -593,6 +593,8 @@ function updatePOCSection(workloadType) {
  * Download POC document for selected Arc extension
  */
 function downloadPOCDocument() {
+    console.log('downloadPOCDocument called, selectedWorkload:', selectedWorkload);
+    
     if (!selectedWorkload) {
         alert('Please select an Azure Arc Extension first');
         return;
@@ -600,6 +602,7 @@ function downloadPOCDocument() {
     
     // Check if POC generator is loaded
     if (typeof window.generatePOCDocument !== 'function') {
+        console.error('POC generator not loaded');
         alert('POC generator not loaded. Please refresh the page.');
         return;
     }
@@ -612,16 +615,34 @@ function downloadPOCDocument() {
     }
     
     try {
+        // Validate catalog data
+        if (!catalog || !catalog.workload_presets) {
+            console.error('Catalog not loaded properly:', catalog);
+            alert('Configuration data not loaded. Please refresh the page.');
+            return;
+        }
+        
+        const workloadData = catalog.workload_presets[selectedWorkload];
+        if (!workloadData) {
+            console.error('Workload data not found for:', selectedWorkload);
+            alert('Workload configuration not found. Please try again.');
+            return;
+        }
+        
+        console.log('Generating POC document for:', selectedWorkload);
+        
         // Generate POC document
         const pocMarkdown = window.generatePOCDocument(selectedWorkload);
         
         if (!pocMarkdown) {
+            console.error('POC generator returned null/empty');
             alert('Failed to generate POC document. Please try again.');
             return;
         }
         
+        console.log('POC document generated, length:', pocMarkdown.length);
+        
         // Create download with descriptive filename
-        const workloadData = catalog.workload_presets[selectedWorkload];
         const extensionName = workloadData.name.replace(/[^a-zA-Z0-9]/g, '_');
         const filename = `${extensionName}_POC_Guide_${new Date().toISOString().split('T')[0]}.md`;
         
@@ -638,7 +659,8 @@ function downloadPOCDocument() {
         console.log(`POC document downloaded: ${filename}`);
     } catch (error) {
         console.error('Error generating POC document:', error);
-        alert('Error generating POC document. Please check the console for details.');
+        console.error('Error stack:', error.stack);
+        alert('Error generating POC document: ' + error.message);
     }
 }
 
