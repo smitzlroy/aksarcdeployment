@@ -297,7 +297,7 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
         const agentPoolProfiles = nodePools.map(pool => {
             const profile = {
                 name: pool.name,
-                count: pool.nodeCount,
+                count: `[parameters('${pool.name}NodeCount')]`,
                 vmSize: pool.vmSize,
                 osType: pool.osType || 'Linux'
             };
@@ -450,9 +450,9 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 },
                 location: {
                     type: 'string',
-                    defaultValue: '[resourceGroup().location]',
+                    defaultValue: location || 'eastus',
                     metadata: {
-                        description: 'Azure region for the cluster (defaults to resource group location)'
+                        description: 'Azure region for the cluster (must match the region selected above)'
                     },
                     allowedValues: [
                         'eastus',
@@ -514,6 +514,20 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                         description: 'Comma-separated list of Entra ID group object IDs that will have admin role of the cluster (leave empty if not using Entra ID)'
                     }
                 },
+                ...Object.fromEntries(
+                    nodePools.map(pool => [
+                        `${pool.name}NodeCount`,
+                        {
+                            type: 'int',
+                            defaultValue: pool.nodeCount,
+                            minValue: 1,
+                            maxValue: 100,
+                            metadata: {
+                                description: `Number of VMs in the ${pool.name} node pool (${pool.vmSize})`
+                            }
+                        }
+                    ])
+                ),
                 controlPlaneIP: {
                     type: 'string',
                   defaultValue: controlPlaneIPValue,
