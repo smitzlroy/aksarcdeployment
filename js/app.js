@@ -426,8 +426,66 @@ function selectEnvironment(envType) {
     // Apply environment template settings
     const template = catalog.environment_templates[envType];
     if (template) {
+        // Update cluster sizing fields with defaults from template
+        document.getElementById('selectedStageName').textContent = template.name;
+        document.getElementById('controlPlaneCount').value = template.control_plane_count;
+        document.getElementById('workerNodeCount').value = template.min_nodes;
+        
+        // Update total VM count display
+        updateTotalVmCount();
+        
+        // Store original values for change detection
+        window.originalClusterSizing = {
+            controlPlaneCount: template.control_plane_count,
+            workerNodeCount: template.min_nodes
+        };
+        
         // These will be applied during plan generation
         console.log(`Selected environment: ${template.name}`);
+    }
+}
+
+/**
+ * Update total VM count display
+ */
+function updateTotalVmCount() {
+    const controlPlaneCount = parseInt(document.getElementById('controlPlaneCount').value) || 3;
+    const workerNodeCount = parseInt(document.getElementById('workerNodeCount').value) || 3;
+    const totalVms = controlPlaneCount + workerNodeCount;
+    
+    document.getElementById('totalVmCount').textContent = totalVms;
+    document.getElementById('totalVmBreakdown').textContent = `${controlPlaneCount} control plane + ${workerNodeCount} workers`;
+}
+
+/**
+ * Check if cluster sizing has been changed from defaults
+ */
+function checkClusterSizingChanges() {
+    updateTotalVmCount();
+    
+    if (!window.originalClusterSizing) return;
+    
+    const currentControlPlane = parseInt(document.getElementById('controlPlaneCount').value);
+    const currentWorkerNodes = parseInt(document.getElementById('workerNodeCount').value);
+    
+    const controlPlaneChanged = currentControlPlane !== window.originalClusterSizing.controlPlaneCount;
+    const workerNodesChanged = currentWorkerNodes !== window.originalClusterSizing.workerNodeCount;
+    
+    const warningDiv = document.getElementById('clusterSizingWarning');
+    const detailSpan = document.getElementById('sizingChangeDetail');
+    
+    if (controlPlaneChanged || workerNodesChanged) {
+        const changes = [];
+        if (controlPlaneChanged) {
+            changes.push(`Control plane: ${window.originalClusterSizing.controlPlaneCount} → ${currentControlPlane} VMs`);
+        }
+        if (workerNodesChanged) {
+            changes.push(`Workers: ${window.originalClusterSizing.workerNodeCount} → ${currentWorkerNodes} VMs`);
+        }
+        detailSpan.textContent = changes.join(' | ');
+        warningDiv.style.display = 'block';
+    } else {
+        warningDiv.style.display = 'none';
     }
 }
 
@@ -828,6 +886,12 @@ function generatePlan() {
         gpuCount: parseInt(document.getElementById('gpuCount').value) || 0,
         enableAvailabilitySets: true, // Always enabled by default in AKS Arc
         physicalHostCount: 3, // Default to 3 physical hosts (field removed from UI)
+        
+        // Cluster sizing configuration (from Step 2 UI controls)
+        controlPlaneCountOverride: parseInt(document.getElementById('controlPlaneCount').value),
+        workerNodeCount: parseInt(document.getElementById('workerNodeCount').value),
+        workerNodeVmSize: document.getElementById('workerNodeVmSize').value,
+        controlPlaneVmSize: document.getElementById('controlPlaneVmSize').value,
         
         // Network configuration
         networkPlugin: 'calico', // Fixed: Calico VXLAN is the only CNI for AKS Arc

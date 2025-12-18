@@ -108,13 +108,23 @@
                     <h3>Deployment Stage</h3>
                     <p>Select your target environment to automatically configure appropriate settings</p>
                     
+                    <div class="info-banner" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 12px 16px; margin-bottom: 20px; border-radius: 4px;">
+                        <strong>📘 AKS Arc Architecture:</strong>
+                        <ul style="margin: 8px 0 0 20px; font-size: 0.95em; line-height: 1.6;">
+                            <li><strong>Control Plane VMs:</strong> Run Kubernetes control components (API server, scheduler, etcd). These manage the cluster but don't run your workloads.</li>
+                            <li><strong>Node Pool VMs:</strong> Run your containerized applications and workloads. Each node pool is a group of VMs with the same size and configuration.</li>
+                        </ul>
+                        <small style="display: block; margin-top: 8px; color: #666;">Example: POC = 1 control plane VM + 2 worker node VMs = 3 total VMs</small>
+                    </div>
+                    
                     <div class="environment-cards">
                         <div class="env-card" onclick="selectEnvironment('poc')" id="env-poc">
                             <div class="env-icon">🧪</div>
                             <h4>POC / Dev</h4>
                             <p>Minimal resources for testing</p>
                             <div class="env-details">
-                                <small>1 control plane • 2-3 nodes</small>
+                                <small><strong>1</strong> control plane VM • <strong>2-3</strong> node pool VMs</small>
+                                <div style="font-size: 0.75em; color: #666; margin-top: 4px;">= 3-4 total VMs</div>
                                 <div class="cost-badge">~$247/mo</div>
                             </div>
                         </div>
@@ -124,7 +134,8 @@
                             <h4>Pilot / Test</h4>
                             <p>Basic HA for pre-production</p>
                             <div class="env-details">
-                                <small>3 control planes • 3-10 nodes</small>
+                                <small><strong>3</strong> control plane VMs • <strong>3-10</strong> node pool VMs</small>
+                                <div style="font-size: 0.75em; color: #666; margin-top: 4px;">= 6-13 total VMs</div>
                                 <div class="cost-badge">~$1,834/mo</div>
                             </div>
                         </div>
@@ -134,7 +145,8 @@
                             <h4>Production</h4>
                             <p>Full HA with auto-scaling</p>
                             <div class="env-details">
-                                <small>3 control planes • 3-100 nodes</small>
+                                <small><strong>3</strong> control plane VMs • <strong>3-100</strong> node pool VMs</small>
+                                <div style="font-size: 0.75em; color: #666; margin-top: 4px;">= 6-103 total VMs</div>
                                 <div class="cost-badge">~$4,291/mo</div>
                             </div>
                         </div>
@@ -387,7 +399,68 @@
                         <textarea id="sshPublicKey" rows="3" placeholder="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ..."></textarea>
                         <small>SSH public key for accessing cluster nodes (for troubleshooting and management)</small>
                     </div>
+                </div>
 
+                <!-- Cluster Sizing Section -->
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #dee2e6;">
+                    <h4 style="color: var(--primary-color); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                        <span>⚙️ Cluster Sizing</span>
+                        <span style="font-size: 0.8em; color: #666; font-weight: normal;">(from Deployment Stage: <strong id="selectedStageName">Production</strong>)</span>
+                    </h4>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="controlPlaneCount">Control Plane VMs *</label>
+                            <select id="controlPlaneCount" onchange="checkClusterSizingChanges()">
+                                <option value="1">1 VM (Single node - Dev/Test only)</option>
+                                <option value="3" selected>3 VMs (High Availability - Recommended)</option>
+                                <option value="5">5 VMs (Maximum HA)</option>
+                            </select>
+                            <small>Manages Kubernetes API, scheduling, and cluster state (etcd)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="workerNodeCount">Worker Node Pool VMs *</label>
+                            <input type="number" id="workerNodeCount" min="1" max="100" value="3" onchange="checkClusterSizingChanges()">
+                            <small>Runs your containerized applications and workloads</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="workerNodeVmSize">Worker Node VM Size *</label>
+                            <select id="workerNodeVmSize">
+                                <option value="Standard_A4_v2">Standard_A4_v2 (4 vCPU, 8GB RAM)</option>
+                                <option value="Standard_D4s_v3">Standard_D4s_v3 (4 vCPU, 16GB RAM)</option>
+                                <option value="Standard_D8s_v3" selected>Standard_D8s_v3 (8 vCPU, 32GB RAM)</option>
+                                <option value="Standard_D16s_v3">Standard_D16s_v3 (16 vCPU, 64GB RAM)</option>
+                                <option value="Standard_D32s_v3">Standard_D32s_v3 (32 vCPU, 128GB RAM)</option>
+                                <option value="Standard_D48s_v3">Standard_D48s_v3 (48 vCPU, 192GB RAM)</option>
+                                <option value="Standard_D64s_v3">Standard_D64s_v3 (64 vCPU, 256GB RAM)</option>
+                            </select>
+                            <small>VM size for worker nodes (select based on workload requirements)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="controlPlaneVmSize">Control Plane VM Size *</label>
+                            <select id="controlPlaneVmSize">
+                                <option value="Standard_A4_v2" selected>Standard_A4_v2 (4 vCPU, 8GB RAM)</option>
+                                <option value="Standard_D4s_v3">Standard_D4s_v3 (4 vCPU, 16GB RAM)</option>
+                                <option value="Standard_D8s_v3">Standard_D8s_v3 (8 vCPU, 32GB RAM)</option>
+                            </select>
+                            <small>VM size for control plane nodes (typically smaller than workers)</small>
+                        </div>
+                    </div>
+
+                    <div id="clusterSizingWarning" style="display: none; background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 16px; margin-top: 15px; border-radius: 4px; color: #856404;">
+                        <strong>⚠️ Configuration Changed:</strong> You've modified the cluster sizing from the deployment stage defaults. <span id="sizingChangeDetail"></span>
+                    </div>
+
+                    <div style="background: #e3f2fd; padding: 12px; border-radius: 4px; margin-top: 15px;">
+                        <strong>📊 Total Cluster VMs:</strong> <span id="totalVmCount" style="font-size: 1.2em; color: var(--primary-color); font-weight: bold;">6</span>
+                        <span style="color: #666; margin-left: 8px;">(<span id="totalVmBreakdown">3 control plane + 3 workers</span>)</span>
+                    </div>
+                </div>
+
+                <div class="form-grid">
                     <div class="form-group" id="cpuGroup">
                         <label for="cpuCores">CPU Cores</label>
                         <input type="number" id="cpuCores" min="4" max="128" step="4" value="8">

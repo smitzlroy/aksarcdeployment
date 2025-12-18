@@ -39,6 +39,9 @@ class AKSArcPlanner {
 
         // Determine control plane count (use override if provided)
         const controlPlaneCount = controlPlaneCountOverride || (cpuCores >= 16 ? 3 : 1);
+        
+        // Determine control plane VM size (use override if provided)
+        const controlPlaneVmSize = config.controlPlaneVmSize || 'Standard_A4_v2';
 
         // Plan node pools
         const nodePools = this.planNodePools({
@@ -49,7 +52,9 @@ class AKSArcPlanner {
             workloadType,
             minNodesOverride,
             maxNodesOverride,
-            enableAutoScaling
+            enableAutoScaling,
+            workerNodeCount: config.workerNodeCount,
+            workerNodeVmSize: config.workerNodeVmSize
         });
 
         // Generate availability set configuration (enabled by default in AKS Arc)
@@ -73,7 +78,7 @@ class AKSArcPlanner {
                 azureLocalClusterIP: config.azureLocalClusterIP || '',
                 kubernetesVersion: k8sVersion,
                 controlPlaneCount,
-                controlPlaneVmSize: 'Standard_A4_v2', // Default control plane VM size
+                controlPlaneVmSize: controlPlaneVmSize,
                 nodePools,
                 enableAvailabilitySets: true, // Always enabled by default in AKS Arc
                 physicalHostCount: physicalHostCountValue,
@@ -145,25 +150,36 @@ class AKSArcPlanner {
             workloadType,
             minNodesOverride,
             maxNodesOverride,
-            enableAutoScaling 
+            enableAutoScaling,
+            workerNodeCount,
+            workerNodeVmSize
         } = requirements;
         const nodePools = [];
 
-        // Select VM SKU based on requirements
-        const vmSkus = gpuRequired 
-            ? this.catalog.vm_skus.gpu 
-            : this.catalog.vm_skus.general_purpose;
-
-        const vmSize = this.selectVmSku(vmSkus, cpuCores, memoryGb);
-        const nodeCount = this.calculateNodeCount(cpuCores, memoryGb, vmSize);
+        // Use explicit worker node settings if provided, otherwise calculate
+        let vmSize, nodeCount;
+        
+        if (workerNodeVmSize && workerNodeCount) {
+            // Use explicit values from UI
+            const vmSkuData = this.findVmSkuByName(workerNodeVmSize);
+            vmSize = vmSkuData || { name: workerNodeVmSize, cpu: 8, memory: 32 };
+            nodeCount = workerNodeCount;
+        } else {
+            // Calculate based on requirements
+            const vmSkus = gpuRequired 
+                ? this.catalog.vm_skus.gpu 
+                : this.catalog.vm_skus.general_purpose;
+            vmSize = this.selectVmSku(vmSkus, cpuCores, memoryGb);
+            nodeCount = this.calculateNodeCount(cpuCores, memoryGb, vmSize);
+        }
         
         // Apply environment overrides
-        const finalNodeCount = minNodesOverride || Math.max(3, nodeCount);
+        const finalNodeCount = workerNodeCount || minNodesOverride || Math.max(3, nodeCount);
         const finalMaxNodes = maxNodesOverride || (Math.max(3, nodeCount) * 2);
 
-        // Create primary node pool
+        // Create primary worker pool
         nodePools.push({
-            name: 'nodepool1',
+            name: 'workerpool',
             vmSize: vmSize.name,
             nodeCount: finalNodeCount,
             osType: 'Linux',
@@ -197,6 +213,18 @@ class AKSArcPlanner {
         }
 
         return nodePools;
+    }
+
+    /**
+     * Find VM SKU by name
+     */
+    findVmSkuByName(vmName) {
+        // Search in all SKU categories
+        for (const category of Object.values(this.catalog.vm_skus)) {
+            const sku = category.find(s => s.name === vmName);
+            if (sku) return sku;
+        }
+        return null;
     }
 
     /**
