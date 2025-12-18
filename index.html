@@ -456,15 +456,18 @@
                 <h3 style="margin-top: 30px; color: var(--primary-color); cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 6px;" onclick="toggleSection('networkConfigSection')">
                     <span style="display: flex; align-items: center;">
                         🌐 Network Configuration
-                        <span class="info-icon" onclick="event.stopPropagation();">ⓘ
-                            <span class="info-tooltip">
-                                <strong>Network Security for AKS Arc:</strong><br/>
-                                • Use Calico network policies to control pod-to-pod traffic (defense in depth)<br/>
-                                • Private cluster mode restricts API server to private network only<br/>
-                                • Network segregation prevents lateral movement during attacks<br/>
-                                • Follows NSA/CISA and CIS Kubernetes hardening guidelines
+                        <a href="https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-network-security-book" target="_blank" style="text-decoration: none;" onclick="event.stopPropagation();">
+                            <span class="info-icon">ⓘ
+                                <span class="info-tooltip">
+                                    <strong>Network Security for AKS Arc:</strong><br/>
+                                    • Use Calico network policies to control pod-to-pod traffic (defense in depth)<br/>
+                                    • Private cluster mode restricts API server to private network only<br/>
+                                    • Network segregation prevents lateral movement during attacks<br/>
+                                    • Follows NSA/CISA and CIS Kubernetes hardening guidelines<br/>
+                                    <em style="color: #4fc3f7; margin-top: 8px; display: block;">Click to read full documentation →</em>
+                                </span>
                             </span>
-                        </span>
+                        </a>
                     </span>
                     <span id="networkConfigToggle" style="font-size: 1.2rem; transition: transform 0.3s;">▼</span>
                 </h3>
@@ -567,14 +570,18 @@
                 <h3 style="margin-top: 30px; color: var(--primary-color); cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 6px;" onclick="toggleSection('storageConfigSection')">
                     <span style="display: flex; align-items: center;">
                         💾 Storage Configuration
-                        <span class="info-icon" onclick="event.stopPropagation();">ⓘ
-                            <span class="info-tooltip">
-                                <strong>Storage Security for AKS Arc:</strong><br/>
-                                • BitLocker encryption at rest on Azure Local CSV volumes<br/>
-                                • Secrets stored in Kubernetes encrypted via etcd encryption<br/>
-                                • Volume snapshots for backup/recovery (roadmap feature)<br/>
-                                • Follows NIST SP 800-190 container security guidelines
+                        <a href="https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-data-security-book" target="_blank" style="text-decoration: none;" onclick="event.stopPropagation();">
+                            <span class="info-icon">ⓘ
+                                <span class="info-tooltip">
+                                    <strong>Storage Security for AKS Arc:</strong><br/>
+                                    • BitLocker encryption at rest on Azure Local CSV volumes<br/>
+                                    • Secrets stored in Kubernetes encrypted via etcd encryption<br/>
+                                    • Volume snapshots for backup/recovery (roadmap feature)<br/>
+                                    • Follows NIST SP 800-190 container security guidelines<br/>
+                                    <em style="color: #4fc3f7; margin-top: 8px; display: block;">Click to read full documentation →</em>
+                                </span>
                             </span>
+                        </a>
                         </span>
                     </span>
                     <span id="storageConfigToggle" style="font-size: 1.2rem; transition: transform 0.3s;">▼</span>
@@ -633,16 +640,19 @@
                 <h3 style="margin-top: 30px; color: var(--primary-color); cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 6px;" onclick="toggleSection('identityConfigSection')">
                     <span style="display: flex; align-items: center;">
                         🔐 Identity & Access Control
-                        <span class="info-icon" onclick="event.stopPropagation();">ⓘ
-                            <span class="info-tooltip">
-                                <strong>Identity Security for AKS Arc:</strong><br/>
-                                • Entra ID integration unifies cloud and edge authentication<br/>
-                                • Workload Identity provides pod-level managed identities<br/>
-                                • RBAC enforces least-privilege access controls<br/>
-                                • Pod Security Standards prevent privilege escalation<br/>
-                                • Aligns with Microsoft Zero Trust security framework
+                        <a href="https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-identity-security-book" target="_blank" style="text-decoration: none;" onclick="event.stopPropagation();">
+                            <span class="info-icon">ⓘ
+                                <span class="info-tooltip">
+                                    <strong>Identity Security for AKS Arc:</strong><br/>
+                                    • Entra ID integration unifies cloud and edge authentication<br/>
+                                    • Workload Identity provides pod-level managed identities<br/>
+                                    • RBAC enforces least-privilege access controls<br/>
+                                    • Pod Security Standards prevent privilege escalation<br/>
+                                    • Aligns with Microsoft Zero Trust security framework<br/>
+                                    <em style="color: #4fc3f7; margin-top: 8px; display: block;">Click to read full documentation →</em>
+                                </span>
                             </span>
-                        </span>
+                        </a>
                     </span>
                     <span id="identityConfigToggle" style="font-size: 1.2rem; transition: transform 0.3s;">▼</span>
                 </h3>
@@ -874,15 +884,18 @@ Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</co
                 <h3 style="margin-top: 30px; color: var(--primary-color); cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 6px;" onclick="toggleSection('monitoringConfigSection')">
                     <span style="display: flex; align-items: center;">
                         📊 Monitoring & Observability
-                        <span class="info-icon" onclick="event.stopPropagation();">ⓘ
-                            <span class="info-tooltip">
-                                <strong>Monitoring Best Practices:</strong><br/>
-                                • Azure Monitor Container Insights provides centralized logging<br/>
-                                • Kubernetes audit logs track API server access (compliance)<br/>
-                                • Log retention 90+ days for PCI DSS/HIPAA requirements<br/>
-                                • Prometheus/Grafana for custom metrics and alerting
+                        <a href="https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-operations-security-book" target="_blank" style="text-decoration: none;" onclick="event.stopPropagation();">
+                            <span class="info-icon">ⓘ
+                                <span class="info-tooltip">
+                                    <strong>Monitoring Best Practices:</strong><br/>
+                                    • Azure Monitor Container Insights provides centralized logging<br/>
+                                    • Kubernetes audit logs track API server access (compliance)<br/>
+                                    • Log retention 90+ days for PCI DSS/HIPAA requirements<br/>
+                                    • Prometheus/Grafana for custom metrics and alerting<br/>
+                                    <em style="color: #4fc3f7; margin-top: 8px; display: block;">Click to read full documentation →</em>
+                                </span>
                             </span>
-                        </span>
+                        </a>
                     </span>
                     <span id="monitoringConfigToggle" style="font-size: 1.2rem; transition: transform 0.3s;">▼</span>
                 </h3>
@@ -927,15 +940,18 @@ Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</co
                 <h3 style="margin-top: 30px; color: var(--primary-color); cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 6px;" onclick="toggleSection('securityConfigSection')">
                     <span style="display: flex; align-items: center;">
                         🔒 Security & Compliance (Optional)
-                        <span class="info-icon" onclick="event.stopPropagation();">ⓘ
-                            <span class="info-tooltip">
-                                <strong>Advanced Security Options:</strong><br/>
-                                • Defender for Containers: Real-time threat detection, CVE scanning<br/>
-                                • Azure Policy: Enforce Pod Security Standards and compliance<br/>
-                                • Supports PCI DSS, HIPAA, ISO 27001, SOC 2, FedRAMP frameworks<br/>
-                                • Based on Microsoft Threat Matrix for Kubernetes
+                        <a href="https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-workload-security-book" target="_blank" style="text-decoration: none;" onclick="event.stopPropagation();">
+                            <span class="info-icon">ⓘ
+                                <span class="info-tooltip">
+                                    <strong>Advanced Security Options:</strong><br/>
+                                    • Defender for Containers: Real-time threat detection, CVE scanning<br/>
+                                    • Azure Policy: Enforce Pod Security Standards and compliance<br/>
+                                    • Supports PCI DSS, HIPAA, ISO 27001, SOC 2, FedRAMP frameworks<br/>
+                                    • Based on Microsoft Threat Matrix for Kubernetes<br/>
+                                    <em style="color: #4fc3f7; margin-top: 8px; display: block;">Click to read full documentation →</em>
+                                </span>
                             </span>
-                        </span>
+                        </a>
                     </span>
                     <span id="securityConfigToggle" style="font-size: 1.2rem; transition: transform 0.3s;">▼</span>
                 </h3>
