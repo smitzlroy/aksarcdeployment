@@ -89,17 +89,22 @@
     box-sizing: border-box;
 }
 
-body {
+html, body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     line-height: 1.6;
     direction: ltr !important;
     unicode-bidi: normal !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    -ms-transform: none !important;
 }
 
 .container {
     max-width: 1200px;
+    transform: none !important;
+    direction: ltr !important;
     margin: 0 auto;
     padding: 20px;
 }
@@ -365,6 +370,8 @@ header h1 {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     animation: fadeInSlide 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none !important;
+    direction: ltr !important;
 }
 
 .wizard-step.active {
