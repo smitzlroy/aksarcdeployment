@@ -268,12 +268,14 @@
                 <!-- Azure Local Prerequisites Banner (Compact) -->
                 <div class="info-banner" style="background: linear-gradient(135deg, #0078d4 0%, #00bcf2 100%); color: white; padding: 14px 16px; border-radius: 6px; margin-bottom: 16px; border-left: 4px solid #0063b1;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3 style="margin: 0; color: white; font-size: 1rem;">📋 Azure Local Prerequisites</h3>
+                        <div>
+                            <h3 style="margin: 0; color: white; font-size: 1rem;">📋 Azure Local Prerequisites</h3>
+                            <p style="margin: 8px 0 0 0; font-size: 0.85rem; opacity: 0.95;">
+                                AKS Arc requires: Logical Network (IPs), Custom Location, Storage (CSV volumes)
+                            </p>
+                        </div>
                         <button onclick="toggleSection('prereqDetails')" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Show Details</button>
                     </div>
-                    <p style="margin: 8px 0 0 0; font-size: 0.85rem; opacity: 0.95;">
-                        AKS Arc requires: Logical Network (IPs), Custom Location, Storage (CSV volumes)
-                    </p>
                     <div id="prereqDetails" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3);">
                         <ul style="margin: 0; padding-left: 20px; font-size: 0.85rem; opacity: 0.95;">
                             <li><strong>Logical Network:</strong> Static IP pool (node VMs + 1 upgrade + 1 control plane), DNS, gateway</li>
@@ -288,45 +290,6 @@
                     </div>
                 </div>
                 
-                <!-- Compliance Configuration Presets (Compact) -->
-                <div class="preset-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 16px; border-radius: 6px; margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleSection('quickStartContent')">
-                        <div>
-                            <h3 style="margin: 0; color: white; font-size: 1rem;">⚡ Quick Start Presets</h3>
-                            <p style="margin: 4px 0 0 0; font-size: 0.85rem; opacity: 0.9;">Pre-configured compliance templates - Save 10 minutes!</p>
-                        </div>
-                        <span style="font-size: 1.3rem; transition: transform 0.3s;" id="quickStartToggle">▼</span>
-                    </div>
-                    <div id="quickStartContent" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.3);">
-                    
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button class="preset-btn" onclick="applyPreset('hipaa-healthcare')" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
-                            🏥 HIPAA Healthcare
-                        </button>
-                        <button class="preset-btn" onclick="applyPreset('pci-dss-payment')" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
-                            💳 PCI DSS Payment
-                        </button>
-                        <button class="preset-btn" onclick="applyPreset('manufacturing-iec')" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
-                            🏭 Manufacturing IEC 62443
-                        </button>
-                        <button class="preset-btn" onclick="applyPreset('fedramp-government')" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
-                            🏛️ FedRAMP Government
-                        </button>
-                        <button class="preset-btn" onclick="applyPreset('dev-test-minimal')" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
-                            🧪 Dev/Test Minimal
-                        </button>
-                        <button class="preset-btn" onclick="applyPreset('production-best-practice')" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
-                            ⭐ Production Best Practice
-                        </button>
-                    </div>
-                    
-                    <div id="presetDescription" style="margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.15); border-radius: 4px; display: none;">
-                        <strong id="presetTitle"></strong>
-                        <p id="presetDetails" style="margin: 5px 0 0 0; font-size: 0.9rem;"></p>
-                    </div>
-                    </div>
-                </div>
-
                 <!-- Cost Estimate Card (Compact) -->
                 <div id="costEstimateCard" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 14px 16px; border-radius: 6px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleSection('costEstimateContent')">
