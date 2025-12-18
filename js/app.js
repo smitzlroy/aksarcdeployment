@@ -690,10 +690,10 @@ async function downloadPOCDocument() {
         }
 
         if (btn) {
-            btn.textContent = '⏳ Generating PDF...';
+            btn.textContent = '⏳ Generating Document...';
         }
 
-        console.log('Generating POC PDF for:', extensionKey, workloadData.name);
+        console.log('Generating POC Document for:', extensionKey, workloadData.name);
 
         // Generate PDF report
         const generator = new window.POCReportGenerator();
