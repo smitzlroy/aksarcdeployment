@@ -337,7 +337,7 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                     agentPublicKeyCertificate: '',
                     aadProfile: {
                         enableAzureRBAC: false,
-                        adminGroupObjectIDs: '[parameters(\'adminGroupObjectIDs\')]'
+                        adminGroupObjectIDs: '[if(empty(parameters(\'adminGroupObjectIDs\')), createArray(), split(parameters(\'adminGroupObjectIDs\'), \',\'))]'
                     }
                 }
             },
@@ -450,10 +450,18 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 },
                 location: {
                     type: 'string',
-                    defaultValue: location || 'eastus',
+                    defaultValue: '[resourceGroup().location]',
                     metadata: {
-                        description: 'Azure region for the cluster'
-                    }
+                        description: 'Azure region for the cluster (defaults to resource group location)'
+                    },
+                    allowedValues: [
+                        'eastus',
+                        'westeurope',
+                        'northeurope',
+                        'uksouth',
+                        'australiaeast',
+                        'southeastasia'
+                    ]
                 },
                 kubernetesVersion: {
                     type: 'string',
@@ -500,10 +508,10 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                     }
                 },
                 adminGroupObjectIDs: {
-                    type: 'array',
-                    defaultValue: adminGroupObjectIDsValue,
+                    type: 'string',
+                    defaultValue: adminGroupObjectIDsValue.length > 0 ? adminGroupObjectIDsValue.join(',') : '',
                     metadata: {
-                        description: 'AAD group object IDs that will have admin role of the cluster'
+                        description: 'Comma-separated list of Entra ID group object IDs that will have admin role of the cluster (leave empty if not using Entra ID)'
                     }
                 },
                 controlPlaneIP: {
