@@ -390,6 +390,132 @@
         "gpu_pilot": 3500,
         "gpu_production": 4500
       }
+    },
+    "iot-operations-arc": {
+      "name": "Azure IoT Operations",
+      "description": "Unified data plane for the edge with MQTT broker, OPC UA connectivity, and data transformation. Connects industrial assets to cloud analytics.",
+      "icon": "🏭",
+      "arc_extension_type": "Microsoft.IoTOperations",
+      "requirements": {
+        "minimum_setup": {
+          "vms": 3,
+          "vm_size": "Standard_A4_v2",
+          "vcpus": 4,
+          "memory_gb": 8,
+          "total_cores": 12,
+          "total_memory_gb": 24
+        },
+        "recommended_setup": {
+          "vms": 3,
+          "vm_size": "Standard_D4s_v3",
+          "vcpus": 4,
+          "memory_gb": 16,
+          "total_cores": 12,
+          "total_memory_gb": 48
+        },
+        "production_setup": {
+          "vms": 5,
+          "vm_size": "Standard_D8s_v3",
+          "vcpus": 8,
+          "memory_gb": 32,
+          "total_cores": 40,
+          "total_memory_gb": 160
+        },
+        "min_storage_gb": 50,
+        "recommended_storage_gb": 200,
+        "kubernetes_version": "1.29+",
+        "os": "Ubuntu 22.04 or Azure Linux",
+        "azure_local_version": "2311+",
+        "network_requirements": [
+          "MQTT broker port 1883 (TLS: 8883)",
+          "OPC UA server connectivity",
+          "Internet connectivity for cloud sync"
+        ],
+        "network_endpoints": [
+          "management.azure.com:443",
+          "*.servicebus.windows.net:443 (Event Hubs)",
+          "*.azurecr.io:443 (Container Registry)",
+          "*.blob.core.windows.net:443 (Storage)",
+          "*.eventgrid.azure.net:8883 (MQTT)",
+          "*.fabric.microsoft.com:443 (Microsoft Fabric)"
+        ]
+      },
+      "capabilities": {
+        "components": [
+          "MQTT Broker - Industrial-grade message broker",
+          "Akri Services - Device discovery (OPC UA, ONVIF)",
+          "Connector for OPC UA - Connect to OPC UA servers",
+          "Data Processor - Transform and contextualize data",
+          "Azure Device Registry - Manage edge assets from cloud",
+          "Operations Experience - Web UI for OT users"
+        ],
+        "data_sources": [
+          "OPC UA servers",
+          "MQTT devices",
+          "Modbus devices",
+          "REST APIs",
+          "Custom connectors"
+        ],
+        "cloud_destinations": [
+          "Azure Event Hubs",
+          "Azure Event Grid MQTT",
+          "Microsoft Fabric OneLake",
+          "Azure Data Lake Storage",
+          "Azure Data Explorer",
+          "Kafka endpoints"
+        ],
+        "protocols": ["MQTT 3.1.1", "MQTT 5.0", "OPC UA", "Modbus", "HTTP/REST"],
+        "offline_capability": "Up to 72 hours (with degradation)"
+      },
+      "industry_use_cases": {
+        "manufacturing": [
+          "Equipment monitoring and OEE calculation",
+          "Predictive maintenance with anomaly detection",
+          "Real-time production line visibility",
+          "Quality control data aggregation",
+          "Energy optimization and monitoring"
+        ],
+        "energy": [
+          "SCADA integration and monitoring",
+          "Grid optimization and load balancing",
+          "Renewable energy asset monitoring",
+          "Substation health monitoring",
+          "Regulatory compliance reporting"
+        ],
+        "industrial_iot": [
+          "Multi-site asset management",
+          "Telemetry aggregation and normalization",
+          "Edge-to-cloud data pipelines",
+          "Real-time dashboards for shop floor",
+          "Predictive analytics at the edge"
+        ]
+      },
+      "deployment": {
+        "extension_install_command": "az iot ops init --cluster {cluster_name} --resource-group {resource_group}",
+        "prerequisites": [
+          "Azure subscription",
+          "Arc-enabled Kubernetes cluster on Azure Local",
+          "Azure CLI with IoT Operations extension",
+          "Contributor access to resource group",
+          "Key Vault for secrets management",
+          "Storage account for state persistence"
+        ],
+        "post_deployment_steps": [
+          "Verify IoT Operations deployment status",
+          "Configure MQTT broker settings",
+          "Add OPC UA servers and assets",
+          "Create data flows for cloud connectivity",
+          "Set up operations experience web UI",
+          "Configure monitoring and observability",
+          "Test end-to-end data flow"
+        ]
+      },
+      "compliance_alignment": ["ISO 27001", "IEC 62443", "NERC CIP", "NIST CSF", "GDPR"],
+      "estimated_monthly_cost": {
+        "minimum": 400,
+        "recommended": 800,
+        "production": 1800
+      }
     }
   },
   "environment_templates": {
