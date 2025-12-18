@@ -165,16 +165,26 @@ async function loadCatalog() {
  */
 function initializeEventListeners() {
     // GPU checkbox
-    document.getElementById('gpuRequired').addEventListener('change', (e) => {
-        document.getElementById('gpuCountGroup').style.display = 
-            e.target.checked ? 'block' : 'none';
-    });
+    const gpuRequired = document.getElementById('gpuRequired');
+    if (gpuRequired) {
+        gpuRequired.addEventListener('change', (e) => {
+            const gpuCountGroup = document.getElementById('gpuCountGroup');
+            if (gpuCountGroup) {
+                gpuCountGroup.style.display = e.target.checked ? 'block' : 'none';
+            }
+        });
+    }
 
-    // Rack awareness checkbox
-    document.getElementById('enableRackAwareness').addEventListener('change', (e) => {
-        document.getElementById('rackCountGroup').style.display = 
-            e.target.checked ? 'block' : 'none';
-    });
+    // Rack awareness checkbox (if exists)
+    const rackAwareness = document.getElementById('enableRackAwareness');
+    if (rackAwareness) {
+        rackAwareness.addEventListener('change', (e) => {
+            const rackCountGroup = document.getElementById('rackCountGroup');
+            if (rackCountGroup) {
+                rackCountGroup.style.display = e.target.checked ? 'block' : 'none';
+            }
+        });
+    }
 
     // Identity provider dropdown
     const identityProvider = document.getElementById('identityProvider');
