@@ -800,6 +800,12 @@ function nextStep() {
         currentStep++;
         document.getElementById(`step${currentStep}`).classList.add('active');
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Render extension configuration when entering Step 2
+        if (currentStep === 2 && extensionManager && selectedWorkload) {
+            extensionManager.renderExtensionsList(selectedWorkload);
+            extensionManager.renderSolutionConfig(selectedWorkload);
+        }
     }
 }
 
