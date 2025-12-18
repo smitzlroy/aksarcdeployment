@@ -2475,6 +2475,20 @@ body.dark-theme .info-tooltip::after {
 /* Force LTR on all config sections and their children */
 .config-section-card,
 .config-section-card *,
+#monitoringConfigSection,
+#monitoringConfigSection *,
+#securityConfigSection,
+#securityConfigSection *,
+#networkConfigSection,
+#networkConfigSection *,
+#storageConfigSection,
+#storageConfigSection *,
+#identityConfigSection,
+#identityConfigSection *,
+#arcGatewayConfigSection,
+#arcGatewayConfigSection *,
+#firewallConfigSection,
+#firewallConfigSection *,
 .advanced-section,
 .advanced-section *,
 .form-grid,
@@ -2483,7 +2497,11 @@ body.dark-theme .info-tooltip::after {
 .checkbox-group *,
 .toggle-advanced-btn,
 .info-banner,
-.info-banner * {
+.info-banner *,
+button,
+button *,
+label,
+label * {
     direction: ltr !important;
     unicode-bidi: normal !important;
     transform: none !important;
