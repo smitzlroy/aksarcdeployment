@@ -259,9 +259,9 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
      * Generate ARM template
      */
     static generateARM(plan) {
-        const { clusterConfig, networkConfig, storageConfig } = plan;
+        const { clusterConfig, networkConfig, storageConfig, arcGatewayConfig, identityConfig } = plan;
         const { clusterName, location, kubernetesVersion, controlPlaneCount, controlPlaneVmSize, nodePools, customLocation, logicalNetwork, sshPublicKey } = clusterConfig;
-        const { controlPlaneIP, podCIDR } = networkConfig || {};
+        const { controlPlaneIP, podCIDR, enablePrivateCluster } = networkConfig || {};
         
         // Validation: Check for missing required values
         const missingFields = [];
@@ -287,6 +287,11 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
         const sshPublicKeyValue = sshPublicKey ? String(sshPublicKey) : 'REPLACE_WITH_YOUR_SSH_PUBLIC_KEY';
         const controlPlaneIPValue = controlPlaneIP ? String(controlPlaneIP) : '';
         
+        // Parse Entra ID admin group IDs from comma-separated string to array
+        const adminGroupObjectIDsValue = identityConfig && identityConfig.entraAdminGroupIds
+            ? identityConfig.entraAdminGroupIds.split(',').map(id => id.trim()).filter(id => id.length > 0)
+            : [];
+        
         // Build agent pool profiles array - Match Azure quickstart EXACTLY
         // Only include properties that Azure quickstart uses: name, count, vmSize, osType
         const agentPoolProfiles = nodePools.map(pool => {
@@ -296,8 +301,15 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 vmSize: pool.vmSize,
                 osType: pool.osType || 'Linux'
             };
-            // Don't add osSKU, maxPods, nodeLabels, nodeTaints unless explicitly needed
-            // Azure quickstart template doesn't use these
+            
+            // Add GPU-specific properties if this is a GPU node pool
+            if (pool.labels && pool.labels.gpu === 'true') {
+                profile.nodeLabels = pool.labels;
+                if (pool.taints && pool.taints.length > 0) {
+                    profile.nodeTaints = pool.taints;
+                }
+            }
+            
             return profile;
         });
 
@@ -399,6 +411,23 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
             }
         }
 
+        // Add Arc Gateway configuration to ConnectedCluster if enabled
+        if (arcGatewayConfig && arcGatewayConfig.enabled && arcGatewayConfig.resourceId) {
+            resources[0].properties.arcAgentProfile = {
+                agentAutoUpgrade: 'Enabled',
+                desiredAgentVersion: '',
+                gatewayResourceId: arcGatewayConfig.resourceId
+            };
+        }
+
+        // Add Private Cluster API Server Access Profile if enabled
+        if (enablePrivateCluster) {
+            resources[1].properties.apiServerAccessProfile = {
+                enablePrivateCluster: true,
+                privateDNSZone: 'system'
+            };
+        }
+
         const template = {
             '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#',
             contentVersion: '1.0.0.0',
@@ -472,7 +501,7 @@ ${enableDefender ? `output logAnalyticsWorkspaceId string = logAnalytics.id` : '
                 },
                 adminGroupObjectIDs: {
                     type: 'array',
-                    defaultValue: [],
+                    defaultValue: adminGroupObjectIDsValue,
                     metadata: {
                         description: 'AAD group object IDs that will have admin role of the cluster'
                     }
