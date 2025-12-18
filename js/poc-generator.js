@@ -654,18 +654,12 @@ function generatePOCDocument(extensionKey) {
 }
 
 /**
- * POC PDF Report Generator Class
- * Professional POC document with table-based format
+ * POC Word Document Generator Class
+ * Professional POC document with table-based format in editable Word format
  */
 class POCReportGenerator {
     constructor() {
-        this.margin = 15;
-        this.pageWidth = 210; // A4 width in mm
-        this.pageHeight = 297; // A4 height in mm
-        this.contentWidth = this.pageWidth - (2 * this.margin);
-        this.primaryColor = [102, 126, 234];
-        this.tableHeaderBg = [102, 126, 234];
-        this.tableAltRowBg = [245, 247, 250];
+        this.primaryColor = "667EEA";
     }
 
     async generatePDFReport(extensionKey, extensionName) {
@@ -674,166 +668,515 @@ class POCReportGenerator {
             throw new Error(`No POC template found for: ${extensionKey}`);
         }
 
-        // Wait for jsPDF to be available
+        // Wait for docx library to be available
         let attempts = 0;
-        while (typeof window.jspdf === 'undefined' && attempts < 20) {
+        while (typeof window.docx === 'undefined' && attempts < 20) {
             await new Promise(resolve => setTimeout(resolve, 100));
             attempts++;
         }
 
-        if (typeof window.jspdf === 'undefined') {
-            throw new Error('jsPDF library not loaded');
+        if (typeof window.docx === 'undefined') {
+            throw new Error('docx library not loaded');
         }
 
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-        });
+        const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, 
+                BorderStyle, AlignmentType, HeadingLevel, ShadingType } = window.docx;
 
-        let yPos = this.margin;
+        const sections = [];
 
-        // Title Page
-        this.addCoverPage(doc, template, extensionName);
+        // Cover Page
+        sections.push(
+            new Paragraph({
+                text: "PROOF OF CONCEPT",
+                heading: HeadingLevel.TITLE,
+                alignment: AlignmentType.CENTER,
+                spacing: { before: 400, after: 200 }
+            }),
+            new Paragraph({
+                text: "Validation Plan",
+                heading: HeadingLevel.HEADING_1,
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 400 }
+            }),
+            new Paragraph({
+                text: extensionName,
+                heading: HeadingLevel.HEADING_1,
+                alignment: AlignmentType.CENTER,
+                spacing: { before: 400, after: 400 },
+                shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" }
+            }),
+            new Paragraph({
+                children: [
+                    new TextRun({ text: "Document Type: ", bold: true }),
+                    new TextRun("Technical Validation & Readiness Assessment")
+                ],
+                spacing: { before: 200, after: 100 }
+            }),
+            new Paragraph({
+                children: [
+                    new TextRun({ text: "POC Duration: ", bold: true }),
+                    new TextRun("4 weeks (recommended)")
+                ],
+                spacing: { after: 100 }
+            }),
+            new Paragraph({
+                children: [
+                    new TextRun({ text: "Generated: ", bold: true }),
+                    new TextRun(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }))
+                ],
+                spacing: { after: 100 }
+            }),
+            new Paragraph({
+                children: [
+                    new TextRun({ text: "Version: ", bold: true }),
+                    new TextRun("1.0")
+                ],
+                spacing: { after: 400 }
+            }),
+            new Paragraph({
+                text: "Based on official Microsoft Learn documentation",
+                alignment: AlignmentType.CENTER,
+                italics: true,
+                spacing: { before: 800 }
+            }),
+            new Paragraph({ text: "", pageBreakBefore: true })
+        );
 
         // Table of Contents
-        doc.addPage();
-        this.addTableOfContents(doc);
+        sections.push(
+            new Paragraph({
+                text: "Table of Contents",
+                heading: HeadingLevel.HEADING_1,
+                spacing: { after: 200 }
+            }),
+            new Paragraph({ text: "1. Executive Summary", spacing: { after: 100 } }),
+            new Paragraph({ text: "2. Success Criteria & Validation Plan", spacing: { after: 100 } }),
+            new Paragraph({ text: "3. Test Scenarios & Validation", spacing: { after: 100 } }),
+            new Paragraph({ text: "4. Security & Compliance Validation", spacing: { after: 100 } }),
+            new Paragraph({ text: "5. Production Readiness Checklist", spacing: { after: 100 } }),
+            new Paragraph({ text: "6. References & Resources", spacing: { after: 400 } }),
+            new Paragraph({ text: "", pageBreakBefore: true })
+        );
 
-        // Executive Summary
-        doc.addPage();
-        yPos = this.margin;
-        yPos = this.addSectionHeader(doc, '1. Executive Summary', yPos);
-        yPos = this.addParagraph(doc, template.overview, yPos);
-        yPos += 5;
-        
+        // Section 1: Executive Summary
+        sections.push(
+            new Paragraph({
+                text: "1. Executive Summary",
+                heading: HeadingLevel.HEADING_1,
+                spacing: { after: 200 }
+            }),
+            new Paragraph({
+                text: template.overview,
+                spacing: { after: 300 }
+            }),
+            new Paragraph({
+                text: "POC Objectives",
+                heading: HeadingLevel.HEADING_2,
+                spacing: { before: 200, after: 100 }
+            })
+        );
+
         // POC Objectives Table
-        yPos = this.addSubheading(doc, 'POC Objectives', yPos);
-        const objectives = [
-            ['Objective', 'Description'],
-            ['Validate Functionality', 'Confirm all core features work as documented in production-like environment'],
-            ['Assess Performance', 'Measure system performance under realistic workload conditions'],
-            ['Verify Security', 'Validate security controls, authentication, and data protection mechanisms'],
-            ['Test Integration', 'Ensure seamless integration with existing infrastructure and workflows'],
-            ['Evaluate Operations', 'Assess monitoring, maintenance, and troubleshooting capabilities'],
-            ['Prove Production Readiness', 'Demonstrate system meets all requirements for production deployment']
-        ];
-        yPos = this.addTable(doc, objectives, yPos);
+        const objectivesTable = new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [new Paragraph({ text: "Objective", bold: true })],
+                            shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" }
+                        }),
+                        new TableCell({
+                            children: [new Paragraph({ text: "Description", bold: true })],
+                            shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" }
+                        })
+                    ]
+                }),
+                this.createTableRow("Validate Functionality", "Confirm all core features work as documented in production-like environment"),
+                this.createTableRow("Assess Performance", "Measure system performance under realistic workload conditions"),
+                this.createTableRow("Verify Security", "Validate security controls, authentication, and data protection mechanisms"),
+                this.createTableRow("Test Integration", "Ensure seamless integration with existing infrastructure and workflows"),
+                this.createTableRow("Evaluate Operations", "Assess monitoring, maintenance, and troubleshooting capabilities"),
+                this.createTableRow("Prove Production Readiness", "Demonstrate system meets all requirements for production deployment")
+            ]
+        });
+        sections.push(objectivesTable);
 
-        // Success Criteria by Phase (Table Format)
-        doc.addPage();
-        yPos = this.margin;
-        yPos = this.addSectionHeader(doc, '2. Success Criteria & Validation Plan', yPos);
-        
+        // Section 2: Success Criteria & Validation Plan
+        sections.push(
+            new Paragraph({ text: "", pageBreakBefore: true }),
+            new Paragraph({
+                text: "2. Success Criteria & Validation Plan",
+                heading: HeadingLevel.HEADING_1,
+                spacing: { after: 200 }
+            })
+        );
+
         template.successCriteria.forEach((phase, phaseIndex) => {
-            if (yPos > 240) {
-                doc.addPage();
-                yPos = this.margin;
-            }
-            yPos = this.addSubheading(doc, phase.phase, yPos);
-            
-            const phaseTable = [['Activity', 'Success Criteria', 'Validation Method']];
-            phase.criteria.forEach((criterion, idx) => {
-                phaseTable.push([
-                    `${phaseIndex + 1}.${idx + 1}`,
-                    criterion,
-                    'Technical validation + Sign-off'
-                ]);
-            });
-            yPos = this.addTable(doc, phaseTable, yPos);
-            yPos += 3;
-        });
+            sections.push(
+                new Paragraph({
+                    text: phase.phase,
+                    heading: HeadingLevel.HEADING_2,
+                    spacing: { before: 200, after: 100 }
+                })
+            );
 
-        // Test Scenarios (Table Format)
-        doc.addPage();
-        yPos = this.margin;
-        yPos = this.addSectionHeader(doc, '3. Test Scenarios & Validation', yPos);
-        
-        template.testScenarios.forEach((scenario, index) => {
-            if (yPos > 230) {
-                doc.addPage();
-                yPos = this.margin;
-            }
-            
-            yPos = this.addSubheading(doc, `Test Scenario ${index + 1}: ${scenario.name}`, yPos);
-            
-            // Scenario details table
-            const scenarioTable = [
-                ['Attribute', 'Details'],
-                ['Objective', scenario.objective],
-                ['Expected Result', scenario.expectedResult],
-                ['Validation Method', scenario.validation]
+            const phaseRows = [
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [new Paragraph({ text: "Activity", bold: true })],
+                            shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                            width: { size: 15, type: WidthType.PERCENTAGE }
+                        }),
+                        new TableCell({
+                            children: [new Paragraph({ text: "Success Criteria", bold: true })],
+                            shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                            width: { size: 60, type: WidthType.PERCENTAGE }
+                        }),
+                        new TableCell({
+                            children: [new Paragraph({ text: "Status", bold: true })],
+                            shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                            width: { size: 25, type: WidthType.PERCENTAGE }
+                        })
+                    ]
+                })
             ];
-            yPos = this.addTable(doc, scenarioTable, yPos, [40, 140]);
-            yPos += 2;
-            
-            // Test steps table
-            yPos = this.addSubheading(doc, 'Test Steps', yPos);
-            const stepsTable = [['Step', 'Action', 'Status']];
-            scenario.steps.forEach((step, stepIdx) => {
-                stepsTable.push([`${stepIdx + 1}`, step, '☐ Not Started']);
+
+            phase.criteria.forEach((criterion, idx) => {
+                phaseRows.push(
+                    new TableRow({
+                        children: [
+                            new TableCell({ children: [new Paragraph(`${phaseIndex + 1}.${idx + 1}`)] }),
+                            new TableCell({ children: [new Paragraph(criterion)] }),
+                            new TableCell({ children: [new Paragraph("☐ Not Started")] })
+                        ]
+                    })
+                );
             });
-            yPos = this.addTable(doc, stepsTable, yPos, [15, 145, 20]);
-            yPos += 5;
+
+            sections.push(
+                new Table({
+                    width: { size: 100, type: WidthType.PERCENTAGE },
+                    rows: phaseRows
+                })
+            );
         });
 
-        // Security & Compliance Table
-        doc.addPage();
-        yPos = this.margin;
-        yPos = this.addSectionHeader(doc, '4. Security & Compliance Validation', yPos);
-        
-        yPos = this.addSubheading(doc, 'Security Validation Checklist', yPos);
-        const securityTable = [['Security Control', 'Validation Method', 'Status']];
+        // Section 3: Test Scenarios
+        sections.push(
+            new Paragraph({ text: "", pageBreakBefore: true }),
+            new Paragraph({
+                text: "3. Test Scenarios & Validation",
+                heading: HeadingLevel.HEADING_1,
+                spacing: { after: 200 }
+            })
+        );
+
+        template.testScenarios.forEach((scenario, index) => {
+            sections.push(
+                new Paragraph({
+                    text: `Test Scenario ${index + 1}: ${scenario.name}`,
+                    heading: HeadingLevel.HEADING_2,
+                    spacing: { before: 200, after: 100 }
+                })
+            );
+
+            // Scenario details table
+            sections.push(
+                new Table({
+                    width: { size: 100, type: WidthType.PERCENTAGE },
+                    rows: [
+                        new TableRow({
+                            children: [
+                                new TableCell({
+                                    children: [new Paragraph({ text: "Attribute", bold: true })],
+                                    shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                                    width: { size: 25, type: WidthType.PERCENTAGE }
+                                }),
+                                new TableCell({
+                                    children: [new Paragraph({ text: "Details", bold: true })],
+                                    shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" }
+                                })
+                            ]
+                        }),
+                        this.createTableRow("Objective", scenario.objective),
+                        this.createTableRow("Expected Result", scenario.expectedResult),
+                        this.createTableRow("Validation Method", scenario.validation)
+                    ]
+                }),
+                new Paragraph({
+                    text: "Test Steps",
+                    heading: HeadingLevel.HEADING_3,
+                    spacing: { before: 150, after: 100 }
+                })
+            );
+
+            // Test steps table
+            const stepsRows = [
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [new Paragraph({ text: "Step", bold: true })],
+                            shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                            width: { size: 10, type: WidthType.PERCENTAGE }
+                        }),
+                        new TableCell({
+                            children: [new Paragraph({ text: "Action", bold: true })],
+                            shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                            width: { size: 70, type: WidthType.PERCENTAGE }
+                        }),
+                        new TableCell({
+                            children: [new Paragraph({ text: "Status", bold: true })],
+                            shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                            width: { size: 20, type: WidthType.PERCENTAGE }
+                        })
+                    ]
+                })
+            ];
+
+            scenario.steps.forEach((step, stepIdx) => {
+                stepsRows.push(
+                    new TableRow({
+                        children: [
+                            new TableCell({ children: [new Paragraph(`${stepIdx + 1}`)] }),
+                            new TableCell({ children: [new Paragraph(step)] }),
+                            new TableCell({ children: [new Paragraph("☐ Not Started")] })
+                        ]
+                    })
+                );
+            });
+
+            sections.push(
+                new Table({
+                    width: { size: 100, type: WidthType.PERCENTAGE },
+                    rows: stepsRows
+                })
+            );
+        });
+
+        // Section 4: Security & Compliance
+        sections.push(
+            new Paragraph({ text: "", pageBreakBefore: true }),
+            new Paragraph({
+                text: "4. Security & Compliance Validation",
+                heading: HeadingLevel.HEADING_1,
+                spacing: { after: 200 }
+            }),
+            new Paragraph({
+                text: "Security Validation Checklist",
+                heading: HeadingLevel.HEADING_2,
+                spacing: { before: 100, after: 100 }
+            })
+        );
+
+        const securityRows = [
+            new TableRow({
+                children: [
+                    new TableCell({
+                        children: [new Paragraph({ text: "Security Control", bold: true })],
+                        shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                        width: { size: 60, type: WidthType.PERCENTAGE }
+                    }),
+                    new TableCell({
+                        children: [new Paragraph({ text: "Validation Method", bold: true })],
+                        shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                        width: { size: 25, type: WidthType.PERCENTAGE }
+                    }),
+                    new TableCell({
+                        children: [new Paragraph({ text: "Status", bold: true })],
+                        shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                        width: { size: 15, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            })
+        ];
+
         template.securityValidation.forEach(item => {
-            securityTable.push([item, 'Technical test + Documentation review', '☐ Pending']);
+            securityRows.push(
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph(item)] }),
+                        new TableCell({ children: [new Paragraph("Technical test + Documentation review")] }),
+                        new TableCell({ children: [new Paragraph("☐ Pending")] })
+                    ]
+                })
+            );
         });
-        yPos = this.addTable(doc, securityTable, yPos, [90, 60, 30]);
-        
-        // Compliance table
-        if (yPos > 200) {
-            doc.addPage();
-            yPos = this.margin;
-        }
-        yPos += 5;
-        yPos = this.addSubheading(doc, 'Compliance Framework Alignment', yPos);
-        const complianceTable = [['Framework', 'Key Controls', 'Validation Status']];
+
+        sections.push(
+            new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: securityRows
+            }),
+            new Paragraph({
+                text: "Compliance Framework Alignment",
+                heading: HeadingLevel.HEADING_2,
+                spacing: { before: 200, after: 100 }
+            })
+        );
+
+        const complianceRows = [
+            new TableRow({
+                children: [
+                    new TableCell({
+                        children: [new Paragraph({ text: "Framework", bold: true })],
+                        shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                        width: { size: 25, type: WidthType.PERCENTAGE }
+                    }),
+                    new TableCell({
+                        children: [new Paragraph({ text: "Key Controls", bold: true })],
+                        shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                        width: { size: 55, type: WidthType.PERCENTAGE }
+                    }),
+                    new TableCell({
+                        children: [new Paragraph({ text: "Validation Status", bold: true })],
+                        shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                        width: { size: 20, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            })
+        ];
+
         template.complianceChecklist.forEach(item => {
-            complianceTable.push([item.framework, item.controls, '☐ To Be Validated']);
+            complianceRows.push(
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph(item.framework)] }),
+                        new TableCell({ children: [new Paragraph(item.controls)] }),
+                        new TableCell({ children: [new Paragraph("☐ To Be Validated")] })
+                    ]
+                })
+            );
         });
-        yPos = this.addTable(doc, complianceTable, yPos, [40, 100, 40]);
 
-        // Production Readiness
-        doc.addPage();
-        yPos = this.margin;
-        yPos = this.addSectionHeader(doc, '5. Production Readiness Checklist', yPos);
-        const readinessTable = [['Readiness Criteria', 'Owner', 'Status']];
+        sections.push(
+            new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: complianceRows
+            })
+        );
+
+        // Section 5: Production Readiness
+        sections.push(
+            new Paragraph({ text: "", pageBreakBefore: true }),
+            new Paragraph({
+                text: "5. Production Readiness Checklist",
+                heading: HeadingLevel.HEADING_1,
+                spacing: { after: 200 }
+            })
+        );
+
+        const readinessRows = [
+            new TableRow({
+                children: [
+                    new TableCell({
+                        children: [new Paragraph({ text: "Readiness Criteria", bold: true })],
+                        shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                        width: { size: 60, type: WidthType.PERCENTAGE }
+                    }),
+                    new TableCell({
+                        children: [new Paragraph({ text: "Owner", bold: true })],
+                        shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                        width: { size: 25, type: WidthType.PERCENTAGE }
+                    }),
+                    new TableCell({
+                        children: [new Paragraph({ text: "Status", bold: true })],
+                        shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                        width: { size: 15, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            })
+        ];
+
         template.productionReadinessCriteria.forEach(criterion => {
-            readinessTable.push([criterion, 'Technical Lead', '☐ Not Started']);
+            readinessRows.push(
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph(criterion)] }),
+                        new TableCell({ children: [new Paragraph("Technical Lead")] }),
+                        new TableCell({ children: [new Paragraph("☐ Not Started")] })
+                    ]
+                })
+            );
         });
-        yPos = this.addTable(doc, readinessTable, yPos, [120, 35, 25]);
 
-        // References
-        doc.addPage();
-        yPos = this.margin;
-        yPos = this.addSectionHeader(doc, '6. References & Resources', yPos);
-        const referencesTable = [['Resource', 'URL']];
+        sections.push(
+            new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: readinessRows
+            })
+        );
+
+        // Section 6: References & Resources
+        sections.push(
+            new Paragraph({ text: "", pageBreakBefore: true }),
+            new Paragraph({
+                text: "6. References & Resources",
+                heading: HeadingLevel.HEADING_1,
+                spacing: { after: 200 }
+            })
+        );
+
+        const referencesRows = [
+            new TableRow({
+                children: [
+                    new TableCell({
+                        children: [new Paragraph({ text: "Resource", bold: true })],
+                        shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                        width: { size: 40, type: WidthType.PERCENTAGE }
+                    }),
+                    new TableCell({
+                        children: [new Paragraph({ text: "URL", bold: true })],
+                        shading: { fill: this.primaryColor, type: ShadingType.SOLID, color: "FFFFFF" },
+                        width: { size: 60, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            })
+        ];
+
         template.references.forEach(ref => {
             const parts = ref.split(': ');
             if (parts.length === 2) {
-                referencesTable.push([parts[0], parts[1]]);
+                referencesRows.push(this.createTableRow(parts[0], parts[1]));
             } else {
-                referencesTable.push([ref, '']);
+                referencesRows.push(this.createTableRow(ref, ''));
             }
         });
-        yPos = this.addTable(doc, referencesTable, yPos, [60, 120]);
 
-        // Save
-        const filename = `${extensionName.replace(/[^a-zA-Z0-9]/g, '_')}_POC_Guide_${new Date().toISOString().split('T')[0]}.pdf`;
-        doc.save(filename);
+        sections.push(
+            new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: referencesRows
+            })
+        );
+
+        // Create the document
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: sections
+            }]
+        });
+
+        // Generate and save
+        const blob = await Packer.toBlob(doc);
+        const filename = `${extensionName.replace(/[^a-zA-Z0-9]/g, '_')}_POC_Guide_${new Date().toISOString().split('T')[0]}.docx`;
+        saveAs(blob, filename);
         return filename;
     }
 
+    createTableRow(cell1, cell2) {
+        const { TableRow, TableCell, Paragraph } = window.docx;
+        return new TableRow({
+            children: [
+                new TableCell({ children: [new Paragraph(cell1)] }),
+                new TableCell({ children: [new Paragraph(cell2)] })
+            ]
+        });
+    }
+
+    // Deprecated PDF methods - kept for reference but not used
     addCoverPage(doc, template, extensionName) {
         // Header box
         doc.setFillColor(...this.primaryColor);
