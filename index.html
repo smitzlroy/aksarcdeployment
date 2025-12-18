@@ -352,8 +352,48 @@
                     </div>
                 </div>
 
-                <h3 style="color: var(--primary-color); margin-bottom: 15px;">📋 AKS Arc Cluster Configuration</h3>
-                <p style="color: #666; margin-bottom: 20px;"><em>Configure the Kubernetes cluster that will run on your Azure Local infrastructure</em></p>
+                <h3 style="color: var(--primary-color); margin-bottom: 15px;">🎯 Solution Configuration</h3>
+                <p style="color: #666; margin-bottom: 20px;">
+                    <em>Pre-configured packages include cluster + Arc extensions + security policies + monitoring</em>
+                </p>
+
+                <!-- Solution-Specific Configuration Panel -->
+                <div id="solutionConfigPanel" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); padding: 20px; border-radius: 8px; margin-bottom: 25px; display: none;">
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <span id="solutionConfigTitle">📦 Edge RAG Configuration</span>
+                    </h4>
+                    <div id="solutionConfigContent">
+                        <!-- Dynamically populated based on selected solution -->
+                    </div>
+                </div>
+
+                <!-- Azure Arc Extensions to Deploy -->
+                <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px; border-radius: 4px; margin-bottom: 25px;">
+                    <h4 style="color: #2e7d32; margin: 0 0 12px 0; font-size: 1rem;">
+                        🔌 Arc Extensions Included (Auto-deployed with cluster)
+                    </h4>
+                    <div id="extensionsList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;">
+                        <!-- Dynamically populated -->
+                        <div style="background: white; padding: 12px; border-radius: 4px; border: 1px solid #c8e6c9;">
+                            <strong style="color: #2e7d32;">✓ Azure Monitor</strong>
+                            <div style="font-size: 0.85em; color: #666; margin-top: 4px;">Container Insights + Prometheus metrics</div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 4px; border: 1px solid #c8e6c9;">
+                            <strong style="color: #2e7d32;">✓ Azure Policy</strong>
+                            <div style="font-size: 0.85em; color: #666; margin-top: 4px;">CIS Kubernetes Benchmark policies</div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 4px; border: 1px solid #c8e6c9;">
+                            <strong style="color: #2e7d32;">✓ Defender for Containers</strong>
+                            <div style="font-size: 0.85em; color: #666; margin-top: 4px;">Threat detection + vulnerability scanning</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 12px; font-size: 0.9em; color: #555;">
+                        <strong>📋 Generated:</strong> 1 cluster template + 3 extension templates + 1 policy assignment template
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary-color); margin-bottom: 15px;">📋 Basic Cluster Settings</h3>
+                <p style="color: #666; margin-bottom: 20px;"><em>Essential identifiers and Azure Local connection details</em></p>
                 
                 <div class="form-grid">
                     <div class="form-group">
@@ -372,7 +412,10 @@
                             <option value="eastus">East US</option>
                             <option value="westus">West US</option>
                             <option value="westeurope">West Europe</option>
-                            <option value="eastasia">East Asia</option>
+                            <option value="northeurope">North Europe</option>
+                            <option value="uksouth">UK South</option>
+                            <option value="australiaeast">Australia East</option>
+                            <option value="southeastasia">Southeast Asia</option>
                         </select>
                     </div>
 
@@ -388,12 +431,6 @@
                         <small>Name of your Azure Local logical network (or full ARM resource ID)</small>
                     </div>
 
-                    <div class="form-group" id="azureLocalClusterIPGroup" style="display: none;">
-                        <label for="azureLocalClusterIP">Azure Local Cluster IP (Optional)</label>
-                        <input type="text" id="azureLocalClusterIP" placeholder="192.168.1.10">
-                        <small>⚠️ Only required if Arc Gateway enabled AND AKS VMs on different VLAN than Azure Local management network. Get via: <code>Get-ClusterResource -Name "Cluster IP Address" | Get-ClusterParameter -Name Address</code></small>
-                    </div>
-
                     <div class="form-group">
                         <label for="sshPublicKey">SSH Public Key (Optional)</label>
                         <textarea id="sshPublicKey" rows="3" placeholder="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ..."></textarea>
@@ -401,12 +438,17 @@
                     </div>
                 </div>
 
-                <!-- Cluster Sizing Section -->
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #dee2e6;">
-                    <h4 style="color: var(--primary-color); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                        <span>⚙️ Cluster Sizing</span>
-                        <span style="font-size: 0.8em; color: #666; font-weight: normal;">(from Deployment Stage: <strong id="selectedStageName">Production</strong>)</span>
-                    </h4>
+                <!-- Cluster Sizing Section (Collapsible) -->
+                <h3 style="margin-top: 30px; color: var(--primary-color); cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 6px;" onclick="toggleSection('clusterSizingSection')">
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                        ⚙️ Cluster Sizing & VM Selection
+                        <span style="font-size: 0.8em; color: #666; font-weight: normal;">(Optional - defaults from <strong id="selectedStageName">Production</strong>)</span>
+                    </span>
+                    <span id="clusterSizingToggle" style="font-size: 1.2rem; transition: transform 0.3s;">▼</span>
+                </h3>
+                
+                <div id="clusterSizingSection" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: none;">
+                    <h4 style="color: var(--primary-color); margin-bottom: 15px;">Review and adjust if needed</h4>
                     
                     <div class="form-grid">
                         <div class="form-group">
@@ -458,34 +500,42 @@
                         <strong>📊 Total Cluster VMs:</strong> <span id="totalVmCount" style="font-size: 1.2em; color: var(--primary-color); font-weight: bold;">6</span>
                         <span style="color: #666; margin-left: 8px;">(<span id="totalVmBreakdown">3 control plane + 3 workers</span>)</span>
                     </div>
-                </div>
+                    
+                    <!-- Legacy workload-based sizing (hidden by default) -->
+                    <details style="margin-top: 20px;">
+                        <summary style="cursor: pointer; color: var(--primary-color); font-weight: 600; padding: 8px 0;">
+                            🔧 Advanced: Workload-Based Resource Calculations
+                        </summary>
+                        <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 4px; border: 1px solid #dee2e6;">
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 12px;">
+                                These settings calculate VM sizes based on total workload requirements (legacy method). 
+                                VM selection above provides more direct control.
+                            </p>
+                            <div class="form-grid">
+                                <div class="form-group" id="cpuGroup">
+                                    <label for="cpuCores">CPU Cores</label>
+                                    <input type="number" id="cpuCores" min="4" max="128" step="4" value="8">
+                                </div>
 
-                <div class="form-grid">
-                    <div class="form-group" id="cpuGroup">
-                        <label for="cpuCores">CPU Cores</label>
-                        <input type="number" id="cpuCores" min="4" max="128" step="4" value="8">
-                    </div>
+                                <div class="form-group" id="memoryGroup">
+                                    <label for="memoryGb">Memory (GB)</label>
+                                    <input type="number" id="memoryGb" min="8" max="512" step="8" value="32">
+                                </div>
 
-                    <div class="form-group" id="memoryGroup">
-                        <label for="memoryGb">Memory (GB)</label>
-                        <input type="number" id="memoryGb" min="8" max="512" step="8" value="32">
-                    </div>
+                                <div class="form-group checkbox-group">
+                                    <label>
+                                        <input type="checkbox" id="gpuRequired">
+                                        Require GPU
+                                    </label>
+                                </div>
 
-                    <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" id="gpuRequired">
-                            Require GPU
-                        </label>
-                    </div>
-
-                    <div class="form-group" id="gpuCountGroup" style="display: none;">
-                        <label for="gpuCount">GPU Count</label>
-                        <input type="number" id="gpuCount" min="1" max="8" value="1">
-                    </div>
-
-                    <div class="info-banner" style="background: #e3f2fd; padding: 12px; border-radius: 4px; margin: 16px 0;">
-                        <strong>ℹ️ High Availability:</strong> Configure control plane and node counts below for fault tolerance. Use pod anti-affinity rules in your workload deployments for additional resilience across nodes.
-                    </div>
+                                <div class="form-group" id="gpuCountGroup" style="display: none;">
+                                    <label for="gpuCount">GPU Count</label>
+                                    <input type="number" id="gpuCount" min="1" max="8" value="1">
+                                </div>
+                            </div>
+                        </div>
+                    </details>
                 </div>
 
                 <!-- Network Configuration (Collapsible) -->
