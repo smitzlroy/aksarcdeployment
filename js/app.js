@@ -571,7 +571,7 @@ function selectWorkload(workloadType) {
  */
 function updatePOCSection(workloadType) {
     const pocSection = document.getElementById('pocDocumentSection');
-    const pocExtensionName = document.getElementById('pocExtensionName');
+    const pocDocumentTitle = document.getElementById('pocDocumentTitle');
     
     if (!pocSection) return; // Section not yet in DOM
     
@@ -581,8 +581,8 @@ function updatePOCSection(workloadType) {
     if (arcExtensions.includes(workloadType)) {
         const workloadData = catalog.workload_presets[workloadType];
         pocSection.style.display = 'block';
-        if (workloadData && pocExtensionName) {
-            pocExtensionName.textContent = `POC Guide for ${workloadData.name}`;
+        if (workloadData && pocDocumentTitle) {
+            pocDocumentTitle.textContent = `🚀 ${workloadData.name} - POC Guide`;
         }
     } else {
         pocSection.style.display = 'none';
@@ -620,9 +620,10 @@ function downloadPOCDocument() {
             return;
         }
         
-        // Create download
+        // Create download with descriptive filename
         const workloadData = catalog.workload_presets[selectedWorkload];
-        const filename = `POC_${selectedWorkload.replace(/-/g, '_')}_${new Date().toISOString().split('T')[0]}.md`;
+        const extensionName = workloadData.name.replace(/[^a-zA-Z0-9]/g, '_');
+        const filename = `${extensionName}_POC_Guide_${new Date().toISOString().split('T')[0]}.md`;
         
         const blob = new Blob([pocMarkdown], { type: 'text/markdown' });
         const url = URL.createObjectURL(blob);

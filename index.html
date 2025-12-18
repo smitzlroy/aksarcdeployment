@@ -1166,6 +1166,20 @@ Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</co
                             </button>
                         </div>
                         <div id="deploymentStatus" style="margin-top: 15px; display: none;"></div>
+                        
+                        <!-- POC Document Section (conditionally visible for Arc extensions) -->
+                        <div id="pocDocumentSection" style="margin-top: 25px; padding: 15px; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 6px; border: 2px solid var(--primary-color); display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                                <div style="flex: 1;">
+                                    <h5 id="pocDocumentTitle" style="margin: 0 0 5px 0; color: var(--primary-color);">🚀 Proof of Concept (POC) Guide</h5>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Comprehensive 4-week POC guide with success criteria, test scenarios, security validation, and production readiness checklist</p>
+                                    <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #888;"><em>Based on official Microsoft Learn documentation</em></p>
+                                </div>
+                                <button onclick="downloadPOCDocument()" class="btn btn-primary" style="padding: 10px 18px; font-size: 0.9rem; white-space: nowrap;">
+                                    📄 Download POC Guide
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Templates Tab Content -->
@@ -1223,20 +1237,6 @@ Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</co
                                     </div>
                                     <button onclick="downloadAuditPackage()" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">
                                         Download ZIP
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- POC Document (Only for Arc Extensions) -->
-                            <div id="pocDocumentSection" style="padding: 15px; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 6px; border: 2px solid var(--primary-color); display: none;">
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <h5 style="margin: 0 0 5px 0; color: var(--primary-color);">🚀 Proof of Concept (POC) Document</h5>
-                                        <p style="margin: 0; font-size: 0.85rem; color: #666;">Detailed POC guide with success criteria, testing scenarios, and production readiness checklist</p>
-                                        <p id="pocExtensionName" style="margin: 5px 0 0 0; font-size: 0.8rem; color: var(--primary-color); font-weight: 600;"></p>
-                                    </div>
-                                    <button onclick="downloadPOCDocument()" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">
-                                        Download POC PDF
                                     </button>
                                 </div>
                             </div>
