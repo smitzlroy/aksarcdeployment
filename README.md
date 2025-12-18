@@ -64,7 +64,8 @@ cd aksarcdeployment
 
 **Step 1: Environment & Workload**
 - Industry selection (Manufacturing, Retail, Energy, etc.)
-- Workload presets (Video Analytics, AI/ML, General Purpose)
+- Arc extension solutions (Edge RAG, Video Indexer, IoT Operations)
+- Generic workload presets (AI/ML, Video Analytics, General Purpose)
 - Environment type (Production, Dev/Test, Proof of Concept)
 - Compliance framework recommendations
 
@@ -72,6 +73,11 @@ cd aksarcdeployment
 <td width="50%">
 
 **Step 2: Cluster Configuration**
+- **🔌 Arc Extensions** - Optional/Required extension selection
+  - Azure Monitor (+$150/mo - optional)
+  - Defender for Containers (+$200/mo - optional)
+  - Azure Policy (FREE - always included)
+  - Solution-specific extensions (Edge RAG, Video Indexer, IoT Ops)
 - Control plane sizing (1, 3, or 5 nodes)
 - Node pool configuration (count, VM size, GPU support)
 - Kubernetes version selection (1.31.10, 1.32.6, etc.)
@@ -83,8 +89,13 @@ cd aksarcdeployment
 <td width="50%">
 
 **Step 3: Export & Deploy**
+- **📦 ZIP Bundle Export** - All templates in one download
+  - Cluster template (`aksarc-cluster.json`)
+  - Extension templates (`extension-*.json`)
+  - Orchestrator template (`deploy-all.json`)
+  - Log Analytics workspace (if needed)
+  - README with deployment instructions
 - Generate Bicep templates
-- Export ARM JSON
 - Download Terraform HCL
 - Security compliance scorecard
 - Deployment recommendations
@@ -95,9 +106,10 @@ cd aksarcdeployment
 **Smart Features**
 - Automatic availability set planning
 - Anti-affinity rule validation
+- Cost calculation with extension pricing
 - Resource quota validation
-- Cost estimation
 - Dark/Light theme toggle
+- POC document generation
 
 </td>
 </tr>
@@ -117,10 +129,23 @@ Client-Side Architecture (No Backend Required!)
 │   ├── Anti-Affinity Rules Engine
 │   └── Resource Quota Validator
 │
+├── 🔌 Arc Extension Manager (NEW!)
+│   ├── Dynamic Extension Configuration
+│   ├── Cost-Aware Selection (opt-in for paid)
+│   ├── Solution Package Bundling
+│   └── Workspace Management
+│
 ├── 📝 Multi-Format Template Generators
 │   ├── Bicep (Azure-native IaC)
 │   ├── ARM JSON (Portal-compatible)
-│   └── Terraform HCL (Multi-cloud ready)
+│   ├── Terraform HCL (Multi-cloud ready)
+│   └── Extension Templates (Arc extensions)
+│
+├── 📦 ZIP Bundle Generator (NEW!)
+│   ├── Cluster + Extension Templates
+│   ├── Orchestrator (deploy-all.json)
+│   ├── Workspace Template
+│   └── Deployment README
 │
 └── 📊 Compliance & Security
     ├── Security Scorecard (100-point scale)
@@ -158,6 +183,7 @@ Client-Side Architecture (No Backend Required!)
 | **GPU SKUs** | NC16_A16, NC32_A16, NC4_A16, NC8_A16, NK12, NK6 |
 | **Node Count** | 3-100 nodes per pool |
 | **Authentication** | Local accounts, Azure AD |
+| **Arc Extensions** | Monitor, Policy, Defender, Edge RAG, Video Indexer, IoT Operations |
 
 ---
 
@@ -186,8 +212,9 @@ Client-Side Architecture (No Backend Required!)
 | **Styling** | CSS Custom Properties, CSS Grid, Flexbox |
 | **Hosting** | GitHub Pages (Static) |
 | **CI/CD** | GitHub Actions |
-| **Templates** | Bicep, ARM JSON, Terraform HCL |
-| **No Dependencies** | Zero npm packages, no build step! |
+| **Templates** | Bicep, ARM JSON, Terraform HCL, Extensions |
+| **Libraries** | JSZip (bundling), FileSaver.js (downloads), jsPDF, docx |
+| **No Build Step** | Pure client-side, no npm/webpack required! |
 
 </div>
 
@@ -195,33 +222,107 @@ Client-Side Architecture (No Backend Required!)
 
 ## 📚 Usage Examples
 
-### 🎬 Example 1: Video Analytics Cluster
+### 🎬 Example 1: Edge RAG Solution with Extensions
 
 ```javascript
 // 1. Select "Manufacturing" industry
-// 2. Choose "Video Analytics (Edge AI)" workload
-// 3. Configure:
-//    - 3-node control plane
-//    - 6 worker nodes with GPU (Standard_NC16_A16)
-//    - Kubernetes 1.31.10
-// 4. Export as Bicep
-// 5. Deploy to Azure Local
+// 2. Choose "Edge RAG Arc Extension" workload
+// 3. Arc Extensions auto-populated:
+//    ✓ Azure Policy (FREE - required)
+//    ☐ Azure Monitor (+$150/mo - optional)
+//    ☐ Defender for Containers (+$200/mo - optional)
+//    ✓ Edge RAG Arc Extension (+$500/mo - required)
+// 4. Configure cluster: 3 control plane, 6 workers (GPU)
+// 5. Click "Generate Plan" → "Export ARM Template"
+// 6. Download ZIP bundle with all templates
+// 7. Deploy: az deployment group create --template-file deploy-all.json
 ```
 
-### 🤖 Example 2: AI/ML Training Cluster
+### 🤖 Example 2: Video Analytics with Monitoring
+
+```javascript
+// 1. Select "Manufacturing" industry
+// 2. Choose "Video Indexer Arc Extension" workload
+// 3. Enable optional extensions:
+//    ✓ Azure Monitor (for Container Insights)
+//    ✓ Defender for Containers (for security)
+// 4. Configure cluster with GPU node pool
+// 5. Export ZIP bundle
+// 6. Templates generated:
+//    - aksarc-cluster.json
+//    - extension-azure-monitor.json
+//    - extension-defender-containers.json
+//    - extension-video-indexer-arc.json
+//    - workspace.json (Log Analytics)
+//    - deploy-all.json (orchestrator)
+//    - README.md (instructions)
+```
+
+### 🏭 Example 3: Simple Cluster (No Extensions)
 
 ```javascript
 // 1. Select "General / Other" industry
-// 2. Choose "AI/ML Inference (GPU)" workload
-// 3. Configure:
-//    - 5-node control plane (HA)
-//    - 10 worker nodes with Standard_NC32_A16
-//    - Kubernetes 1.32.6
-// 4. Export as Terraform
-// 5. Deploy with terraform apply
+// 2. Choose "General Purpose" workload
+// 3. Only Azure Policy is enabled (free)
+// 4. Export generates single aksarc-cluster.json
+// 5. Deploy: az deployment group create --template-file aksarc-cluster.json
 ```
 
 ---
+
+## 🚀 Extension Deployment Workflow
+
+### Single-Command Deployment
+
+When you export an ARM template with Arc extensions enabled, you receive a ZIP bundle:
+
+```bash
+# Extract the ZIP
+unzip my-cluster-deployment.zip
+cd my-cluster-deployment
+
+# Deploy everything with one command
+az deployment group create \
+  --resource-group my-rg \
+  --template-file deploy-all.json \
+  --parameters clusterName=my-cluster
+```
+
+**What happens:**
+1. `aksarc-cluster.json` deploys (cluster creation)
+2. `workspace.json` deploys (Log Analytics - if needed)
+3. Extension templates deploy in parallel (after cluster is ready)
+   - `extension-azure-policy.json`
+   - `extension-azure-monitor.json` (if selected)
+   - `extension-defender-containers.json` (if selected)
+   - `extension-edge-rag-arc.json` (if Edge RAG solution)
+
+### Manual Step-by-Step Deployment
+
+For more control, deploy templates individually:
+
+```bash
+# 1. Deploy cluster
+az deployment group create \
+  --resource-group my-rg \
+  --template-file aksarc-cluster.json
+
+# 2. Deploy workspace (if using Monitor or Defender)
+az deployment group create \
+  --resource-group my-rg \
+  --template-file workspace.json
+
+# 3. Deploy extensions one by one
+az deployment group create \
+  --resource-group my-rg \
+  --template-file extension-azure-monitor.json \
+  --parameters clusterName=my-cluster
+
+az deployment group create \
+  --resource-group my-rg \
+  --template-file extension-defender-containers.json \
+  --parameters clusterName=my-cluster
+```
 
 ## 🏭 Production Deployments
 
@@ -230,12 +331,14 @@ Client-Side Architecture (No Backend Required!)
 ✅ **Portal-Generated Templates**: Exact structure match with Azure Portal exports  
 ✅ **Official ARM Schemas**: Validated against Microsoft ARM API schemas  
 ✅ **Azure Local 2511**: Tested with actual platform catalogs  
+✅ **Arc Extensions**: Microsoft.KubernetesConfiguration/extensions API  
 ✅ **Multiple Deployments**: Successfully deployed clusters in production
 
 ### Deployment Success
 
 - **ConnectedClusters API**: `2025-08-01-preview`
 - **ProvisionedClusterInstances API**: `2024-01-01`
+- **KubernetesConfiguration/extensions API**: `2023-05-01`
 - **Availability Sets**: Automatic DifferentNode anti-affinity
 - **Networking**: Integrated with Azure Local logical networks
 
@@ -284,16 +387,24 @@ Contributions are welcome! This project is open source under the MIT license.
 - No backend validation (client-side only)
 - Browser storage for preferences (no cloud sync)
 
+### Recently Added ✨
+
+- [x] **Arc Extension Support** - Dynamic extension configuration with cost awareness
+- [x] **ZIP Bundle Export** - All templates packaged with orchestrator
+- [x] **Extension Templates** - Microsoft.KubernetesConfiguration/extensions generation
+- [x] **Log Analytics Workspace** - Automatic workspace template generation
+- [x] **POC Document Generator** - Edge RAG, Video Indexer solution documents
+
 ### Planned Features
 
 - [ ] Dynamic catalog fetching from Azure APIs
-- [ ] POC document generator (Edge RAG, Video Indexer)
 - [ ] Template validation before download
 - [ ] Multi-cluster deployment planning
 - [ ] Cost calculator with Azure pricing API
 - [ ] Export to Azure DevOps Pipelines
 - [ ] Kubernetes manifest generation
 - [ ] Helm chart creation
+- [ ] Policy assignment template generation
 
 ---
 
