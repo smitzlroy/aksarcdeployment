@@ -653,6 +653,203 @@ function generatePOCDocument(extensionKey) {
     return markdown;
 }
 
-// Export function for use in app.js
+/**
+ * POC PDF Report Generator Class
+ * Similar to ComplianceReportGenerator but for POC documents
+ */
+class POCReportGenerator {
+    constructor() {
+        this.margin = 20;
+        this.pageWidth = 210; // A4 width in mm
+        this.pageHeight = 297; // A4 height in mm
+        this.contentWidth = this.pageWidth - (2 * this.margin);
+    }
+
+    async generatePDFReport(extensionKey, extensionName) {
+        const template = POC_TEMPLATES[extensionKey];
+        if (!template) {
+            throw new Error(`No POC template found for: ${extensionKey}`);
+        }
+
+        // Wait for jsPDF to be available
+        let attempts = 0;
+        while (typeof window.jspdf === 'undefined' && attempts < 20) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+
+        if (typeof window.jspdf === 'undefined') {
+            throw new Error('jsPDF library not loaded');
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        let yPos = this.margin;
+
+        // Title Page
+        doc.setFontSize(24);
+        doc.setTextColor(102, 126, 234);
+        yPos = 40;
+        doc.text(template.title, this.pageWidth / 2, yPos, { align: 'center' });
+
+        doc.setFontSize(14);
+        doc.setTextColor(100, 100, 100);
+        yPos += 15;
+        doc.text(template.extension, this.pageWidth / 2, yPos, { align: 'center' });
+
+        yPos += 20;
+        doc.setFontSize(10);
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, this.pageWidth / 2, yPos, { align: 'center' });
+
+        // Add new page for content
+        doc.addPage();
+        yPos = this.margin;
+
+        // Executive Summary
+        yPos = this.addSection(doc, 'Executive Summary', template.overview, yPos);
+
+        // Prerequisites
+        yPos = this.addSection(doc, 'Prerequisites', null, yPos);
+        template.prerequisites.forEach(req => {
+            yPos = this.addBulletPoint(doc, req, yPos);
+        });
+
+        // Success Criteria
+        doc.addPage();
+        yPos = this.margin;
+        yPos = this.addHeading(doc, 'Success Criteria', yPos);
+        
+        template.successCriteria.forEach(phase => {
+            yPos = this.addSubheading(doc, phase.phase, yPos);
+            phase.criteria.forEach(criterion => {
+                yPos = this.addBulletPoint(doc, criterion, yPos, '✓');
+            });
+        });
+
+        // Test Scenarios
+        template.testScenarios.forEach((scenario, index) => {
+            if (yPos > 240) {
+                doc.addPage();
+                yPos = this.margin;
+            }
+            yPos = this.addSubheading(doc, `Scenario ${index + 1}: ${scenario.name}`, yPos);
+            yPos = this.addText(doc, `Objective: ${scenario.objective}`, yPos);
+            yPos += 3;
+            yPos = this.addText(doc, 'Steps:', yPos);
+            scenario.steps.forEach((step, stepIndex) => {
+                yPos = this.addBulletPoint(doc, `${stepIndex + 1}. ${step}`, yPos);
+            });
+            yPos = this.addText(doc, `Expected Result: ${scenario.expectedResult}`, yPos);
+            yPos = this.addText(doc, `Validation: ${scenario.validation}`, yPos);
+            yPos += 5;
+        });
+
+        // Security Validation
+        doc.addPage();
+        yPos = this.margin;
+        yPos = this.addHeading(doc, 'Security Validation Checklist', yPos);
+        template.securityValidation.forEach(item => {
+            yPos = this.addBulletPoint(doc, item, yPos, '☐');
+        });
+
+        // Compliance
+        yPos += 5;
+        yPos = this.addHeading(doc, 'Compliance & Regulatory Alignment', yPos);
+        template.complianceChecklist.forEach(item => {
+            yPos = this.addText(doc, `${item.framework}: ${item.controls}`, yPos);
+            yPos += 3;
+        });
+
+        // Production Readiness
+        doc.addPage();
+        yPos = this.margin;
+        yPos = this.addHeading(doc, 'Production Readiness Criteria', yPos);
+        template.productionReadinessCriteria.forEach(criterion => {
+            yPos = this.addBulletPoint(doc, criterion, yPos, '☐');
+        });
+
+        // References
+        yPos += 10;
+        yPos = this.addHeading(doc, 'References & Documentation', yPos);
+        template.references.forEach(ref => {
+            yPos = this.addText(doc, ref, yPos, 8);
+            yPos += 2;
+        });
+
+        // Save
+        const filename = `${extensionName.replace(/[^a-zA-Z0-9]/g, '_')}_POC_Guide_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(filename);
+        return filename;
+    }
+
+    addHeading(doc, text, yPos) {
+        if (yPos > 260) {
+            doc.addPage();
+            yPos = this.margin;
+        }
+        doc.setFontSize(14);
+        doc.setTextColor(102, 126, 234);
+        doc.text(text, this.margin, yPos);
+        yPos += 8;
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        return yPos;
+    }
+
+    addSubheading(doc, text, yPos) {
+        if (yPos > 270) {
+            doc.addPage();
+            yPos = this.margin;
+        }
+        doc.setFontSize(11);
+        doc.setTextColor(50, 50, 50);
+        doc.text(text, this.margin, yPos);
+        yPos += 6;
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        return yPos;
+    }
+
+    addSection(doc, title, text, yPos) {
+        yPos = this.addHeading(doc, title, yPos);
+        if (text) {
+            yPos = this.addText(doc, text, yPos);
+        }
+        return yPos;
+    }
+
+    addText(doc, text, yPos, fontSize = 10) {
+        if (yPos > 270) {
+            doc.addPage();
+            yPos = this.margin;
+        }
+        doc.setFontSize(fontSize);
+        const lines = doc.splitTextToSize(text, this.contentWidth);
+        doc.text(lines, this.margin, yPos);
+        yPos += lines.length * 5;
+        return yPos;
+    }
+
+    addBulletPoint(doc, text, yPos, bullet = '•') {
+        if (yPos > 275) {
+            doc.addPage();
+            yPos = this.margin;
+        }
+        doc.setFontSize(10);
+        const lines = doc.splitTextToSize(text, this.contentWidth - 10);
+        doc.text(bullet, this.margin + 2, yPos);
+        doc.text(lines, this.margin + 8, yPos);
+        yPos += Math.max(lines.length * 4.5, 5);
+        return yPos;
+    }
+}
+
+// Export functions for use in app.js
 window.generatePOCDocument = generatePOCDocument;
 window.POC_TEMPLATES = POC_TEMPLATES;
+window.POCReportGenerator = POCReportGenerator;

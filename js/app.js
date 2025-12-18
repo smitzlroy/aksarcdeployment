@@ -592,18 +592,12 @@ function updatePOCSection(workloadType) {
 /**
  * Download POC document for selected Arc extension
  */
-function downloadPOCDocument() {
-    console.log('downloadPOCDocument called, selectedWorkload:', selectedWorkload);
+async function downloadPOCDocument() {
+    console.log('=== Download POC Document Clicked ===');
+    console.log('Selected workload:', selectedWorkload);
     
     if (!selectedWorkload) {
         alert('Please select an Azure Arc Extension first');
-        return;
-    }
-    
-    // Check if POC generator is loaded
-    if (typeof window.generatePOCDocument !== 'function') {
-        console.error('POC generator not loaded');
-        alert('POC generator not loaded. Please refresh the page.');
         return;
     }
     
@@ -613,7 +607,7 @@ function downloadPOCDocument() {
         alert('POC documents are only available for Azure Arc Extensions');
         return;
     }
-    
+
     try {
         // Validate catalog data
         if (!catalog || !catalog.workload_presets) {
@@ -628,39 +622,62 @@ function downloadPOCDocument() {
             alert('Workload configuration not found. Please try again.');
             return;
         }
-        
-        console.log('Generating POC document for:', selectedWorkload);
-        
-        // Generate POC document
-        const pocMarkdown = window.generatePOCDocument(selectedWorkload);
-        
-        if (!pocMarkdown) {
-            console.error('POC generator returned null/empty');
-            alert('Failed to generate POC document. Please try again.');
+
+        // Find and disable button during generation
+        const btn = document.querySelector('#pocDocumentSection button');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '⏳ Loading PDF Generator...';
+        }
+
+        // Wait for POCReportGenerator to be available (with timeout)
+        let attempts = 0;
+        while (typeof window.POCReportGenerator === 'undefined' && attempts < 20) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+
+        // Check if POCReportGenerator is available after waiting
+        if (typeof window.POCReportGenerator === 'undefined') {
+            console.error('POCReportGenerator not loaded after waiting');
+            console.log('Available POC globals:', Object.keys(window).filter(k => k.includes('POC')));
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = '📄 Download POC Guide';
+            }
+            alert('POC report generator not available. Please refresh the page and try again.');
             return;
         }
+
+        if (btn) {
+            btn.textContent = '⏳ Generating PDF...';
+        }
+
+        console.log('Generating POC PDF for:', selectedWorkload, workloadData.name);
+
+        // Generate PDF report
+        const generator = new window.POCReportGenerator();
+        const filename = await generator.generatePDFReport(selectedWorkload, workloadData.name);
+
+        console.log('✅ POC PDF generated successfully:', filename);
         
-        console.log('POC document generated, length:', pocMarkdown.length);
-        
-        // Create download with descriptive filename
-        const extensionName = workloadData.name.replace(/[^a-zA-Z0-9]/g, '_');
-        const filename = `${extensionName}_POC_Guide_${new Date().toISOString().split('T')[0]}.md`;
-        
-        const blob = new Blob([pocMarkdown], { type: 'text/markdown' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        console.log(`POC document downloaded: ${filename}`);
+        // Re-enable button
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '📄 Download POC Guide';
+        }
+
     } catch (error) {
         console.error('Error generating POC document:', error);
         console.error('Error stack:', error.stack);
-        alert('Error generating POC document: ' + error.message);
+        alert(`Failed to generate POC document: ${error.message}`);
+        
+        // Re-enable button
+        const btn = document.querySelector('#pocDocumentSection button');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '📄 Download POC Guide';
+        }
     }
 }
 
