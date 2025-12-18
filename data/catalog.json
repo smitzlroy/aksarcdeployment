@@ -1019,5 +1019,197 @@
         "icon": "⚙️"
       }
     }
+  },
+  "arc_extensions": {
+    "azure-monitor": {
+      "name": "Azure Monitor - Container Insights",
+      "extensionType": "microsoft.azuremonitor.containers",
+      "publisher": "Microsoft",
+      "version": "3.1.0",
+      "icon": "📊",
+      "description": "Container performance monitoring, logs, and Prometheus metrics",
+      "category": "monitoring",
+      "requiresWorkspace": true,
+      "configurationSettings": {
+        "prometheus.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Prometheus metrics collection"
+        },
+        "prometheus.retention": {
+          "type": "string",
+          "default": "7d",
+          "options": ["1d", "7d", "15d", "30d"],
+          "description": "Prometheus metrics retention period"
+        }
+      },
+      "monthlyCost": 150,
+      "requiredFor": ["all"]
+    },
+    "azure-policy": {
+      "name": "Azure Policy",
+      "extensionType": "microsoft.policyinsights",
+      "publisher": "Microsoft",
+      "version": "1.2.0",
+      "icon": "📋",
+      "description": "Enforce organizational standards and assess compliance at scale",
+      "category": "governance",
+      "requiresWorkspace": false,
+      "configurationSettings": {
+        "audit.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable audit mode for policy violations"
+        },
+        "mutation.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow policy to modify resources (use with caution)"
+        }
+      },
+      "policyAssignments": [
+        {
+          "name": "CIS Kubernetes Benchmark",
+          "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/a8640138-9b0a-4a28-b8cb-1666c838647d",
+          "description": "CIS Kubernetes security benchmarks"
+        }
+      ],
+      "monthlyCost": 0,
+      "requiredFor": ["all"]
+    },
+    "defender-containers": {
+      "name": "Microsoft Defender for Containers",
+      "extensionType": "microsoft.azuredefender.kubernetes",
+      "publisher": "Microsoft",
+      "version": "1.0.0",
+      "icon": "🛡️",
+      "description": "Vulnerability assessment, runtime threat detection, and security recommendations",
+      "category": "security",
+      "requiresWorkspace": true,
+      "configurationSettings": {
+        "vulnerabilityAssessment.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Scan container images for vulnerabilities"
+        },
+        "runtimeProtection.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Runtime threat detection and behavioral analytics"
+        }
+      },
+      "monthlyCost": 200,
+      "requiredFor": ["all"]
+    },
+    "edge-rag-arc": {
+      "name": "Edge RAG Arc Extension",
+      "extensionType": "microsoft.edgerag.arc",
+      "publisher": "Microsoft",
+      "version": "1.0.0-preview",
+      "icon": "💬",
+      "description": "AI-powered document search and chat using RAG (Retrieval-Augmented Generation)",
+      "category": "ai-solution",
+      "requiresWorkspace": true,
+      "requiresGPU": false,
+      "configurationSettings": {
+        "compute.type": {
+          "type": "string",
+          "default": "CPU",
+          "options": ["CPU", "GPU"],
+          "description": "Compute type for inference"
+        },
+        "storage.accountName": {
+          "type": "string",
+          "required": true,
+          "description": "Azure Storage account for document storage"
+        },
+        "models.embedding": {
+          "type": "string",
+          "default": "text-embedding-ada-002",
+          "options": ["text-embedding-ada-002", "all-MiniLM-L6-v2"],
+          "description": "Embedding model for semantic search"
+        },
+        "vectordb.type": {
+          "type": "string",
+          "default": "qdrant",
+          "options": ["qdrant", "weaviate", "chromadb"],
+          "description": "Vector database for embeddings"
+        }
+      },
+      "monthlyCost": 500,
+      "requiredFor": ["edge-rag-arc"]
+    },
+    "video-indexer-arc": {
+      "name": "Video Indexer Arc Extension",
+      "extensionType": "microsoft.videoindexer.arc",
+      "publisher": "Microsoft",
+      "version": "1.0.0-preview",
+      "icon": "🎥",
+      "description": "Video and audio AI analysis on edge: face detection, OCR, object tracking",
+      "category": "ai-solution",
+      "requiresWorkspace": true,
+      "requiresGPU": true,
+      "configurationSettings": {
+        "compute.type": {
+          "type": "string",
+          "default": "GPU",
+          "options": ["GPU"],
+          "description": "GPU required for real-time video processing"
+        },
+        "storage.accountName": {
+          "type": "string",
+          "required": true,
+          "description": "Azure Storage account for video ingestion and outputs"
+        },
+        "models.enabled": {
+          "type": "array",
+          "default": ["face-detection", "object-tracking", "ocr"],
+          "options": ["face-detection", "object-tracking", "ocr", "scene-detection", "audio-transcription"],
+          "description": "AI models to enable"
+        },
+        "streaming.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable real-time video stream processing"
+        }
+      },
+      "monthlyCost": 800,
+      "requiredFor": ["video-indexer-arc"]
+    },
+    "iot-operations": {
+      "name": "Azure IoT Operations",
+      "extensionType": "microsoft.iotoperations",
+      "publisher": "Microsoft",
+      "version": "0.5.0-preview",
+      "icon": "🏭",
+      "description": "Unified data plane for IoT: MQTT broker, data processor, asset management",
+      "category": "ai-solution",
+      "requiresWorkspace": true,
+      "requiresGPU": false,
+      "configurationSettings": {
+        "mqtt.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable MQTT broker for device connectivity"
+        },
+        "dataProcessor.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable data processing pipelines"
+        },
+        "assetManagement.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable OPC UA asset discovery and management"
+        },
+        "schemaRegistry.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable schema registry for data standardization"
+        }
+      },
+      "monthlyCost": 300,
+      "requiredFor": ["iot-operations-arc"]
+    }
   }
 }

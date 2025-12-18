@@ -18,6 +18,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeEventListeners();
     updateCatalogBanner();
     initializeTheme();
+    
+    // Initialize extension manager after catalog loads
+    if (typeof ExtensionConfigManager !== 'undefined') {
+        extensionManager = new ExtensionConfigManager(catalog);
+        console.log('Extension manager initialized');
+    }
 });
 
 /**
@@ -625,6 +631,12 @@ function selectWorkload(workloadType) {
     
     // Show/hide POC document section for Arc extensions
     updatePOCSection(workloadType);
+    
+    // Update extension configuration UI
+    if (extensionManager) {
+        extensionManager.renderExtensionsList(workloadType);
+        extensionManager.renderSolutionConfig(workloadType);
+    }
 }
 
 /**
