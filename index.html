@@ -266,11 +266,11 @@
                 <h2>Step 2: Configure Your Deployment</h2>
                 
                 <!-- Azure Local Prerequisites Banner (Compact) -->
-                <div class="info-banner" style="background: linear-gradient(135deg, #0078d4 0%, #00bcf2 100%); color: white; padding: 14px 16px; border-radius: 6px; margin-bottom: 16px; border-left: 4px solid #0063b1;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h3 style="margin: 0; color: white; font-size: 1rem;">📋 Azure Local Prerequisites</h3>
-                            <p style="margin: 8px 0 0 0; font-size: 0.85rem; opacity: 0.95;">
+                <div class="info-banner" style="background: linear-gradient(135deg, #0078d4 0%, #00bcf2 100%); color: white; padding: 14px 16px; border-radius: 6px; margin-bottom: 16px; border-left: 4px solid #0063b1; direction: ltr; writing-mode: horizontal-tb;">
+                    <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
+                        <div style="direction: ltr;">
+                            <h3 style="margin: 0; color: white; font-size: 1rem; direction: ltr;">📋 Azure Local Prerequisites</h3>
+                            <p style="margin: 8px 0 0 0; font-size: 0.85rem; opacity: 0.95; direction: ltr;">
                                 AKS Arc requires: Logical Network (IPs), Custom Location, Storage (CSV volumes)
                             </p>
                         </div>
@@ -291,13 +291,13 @@
                 </div>
                 
                 <!-- Cost Estimate Card (Compact) -->
-                <div id="costEstimateCard" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 14px 16px; border-radius: 6px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleSection('costEstimateContent')">
-                        <div>
-                            <h3 style="margin: 0; color: white; font-size: 1rem; display: flex; align-items: center; gap: 6px;">
+                <div id="costEstimateCard" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 14px 16px; border-radius: 6px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); direction: ltr; writing-mode: horizontal-tb;">
+                    <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleSection('costEstimateContent')">
+                        <div style="direction: ltr;">
+                            <h3 style="margin: 0; color: white; font-size: 1rem; display: flex; align-items: center; gap: 6px; direction: ltr;">
                                 💰 Estimated Cost: <span id="costTotalQuick" style="font-weight: 700;">$0/mo</span>
                             </h3>
-                            <p style="margin: 3px 0 0 0; font-size: 0.8rem; opacity: 0.9;">Live calculation based on your config</p>
+                            <p style="margin: 3px 0 0 0; font-size: 0.8rem; opacity: 0.9; direction: ltr;">Live calculation based on your config</p>
                         </div>
                         <span style="font-size: 1.3rem; transition: transform 0.3s;" id="costEstimateToggle">▼</span>
                     </div>
