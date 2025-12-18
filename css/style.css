@@ -2471,3 +2471,21 @@ body.dark-theme .info-tooltip::after {
         transform: translateY(0);
     }
 }
+
+/* Force LTR on all config sections and their children */
+.config-section-card,
+.config-section-card *,
+.advanced-section,
+.advanced-section *,
+.form-grid,
+.form-grid *,
+.checkbox-group,
+.checkbox-group *,
+.toggle-advanced-btn,
+.info-banner,
+.info-banner * {
+    direction: ltr !important;
+    unicode-bidi: normal !important;
+    transform: none !important;
+    text-align: left !important;
+}
