@@ -561,6 +561,84 @@ function selectWorkload(workloadType) {
                 preset.gpu_required ? 'block' : 'none';
         }
     }
+    
+    // Show/hide POC document section for Arc extensions
+    updatePOCSection(workloadType);
+}
+
+/**
+ * Update POC document section visibility based on selected workload
+ */
+function updatePOCSection(workloadType) {
+    const pocSection = document.getElementById('pocDocumentSection');
+    const pocExtensionName = document.getElementById('pocExtensionName');
+    
+    if (!pocSection) return; // Section not yet in DOM
+    
+    // Check if workload is an Arc extension
+    const arcExtensions = ['video-indexer-arc', 'edge-rag-arc', 'iot-operations-arc'];
+    
+    if (arcExtensions.includes(workloadType)) {
+        const workloadData = catalog.workload_presets[workloadType];
+        pocSection.style.display = 'block';
+        if (workloadData && pocExtensionName) {
+            pocExtensionName.textContent = `POC Guide for ${workloadData.name}`;
+        }
+    } else {
+        pocSection.style.display = 'none';
+    }
+}
+
+/**
+ * Download POC document for selected Arc extension
+ */
+function downloadPOCDocument() {
+    if (!selectedWorkload) {
+        alert('Please select an Azure Arc Extension first');
+        return;
+    }
+    
+    // Check if POC generator is loaded
+    if (typeof window.generatePOCDocument !== 'function') {
+        alert('POC generator not loaded. Please refresh the page.');
+        return;
+    }
+    
+    // Validate Arc extension
+    const arcExtensions = ['video-indexer-arc', 'edge-rag-arc', 'iot-operations-arc'];
+    if (!arcExtensions.includes(selectedWorkload)) {
+        alert('POC documents are only available for Azure Arc Extensions');
+        return;
+    }
+    
+    try {
+        // Generate POC document
+        const pocMarkdown = window.generatePOCDocument(selectedWorkload);
+        
+        if (!pocMarkdown) {
+            alert('Failed to generate POC document. Please try again.');
+            return;
+        }
+        
+        // Create download
+        const workloadData = catalog.workload_presets[selectedWorkload];
+        const filename = `POC_${selectedWorkload.replace(/-/g, '_')}_${new Date().toISOString().split('T')[0]}.md`;
+        
+        const blob = new Blob([pocMarkdown], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        console.log(`POC document downloaded: ${filename}`);
+    } catch (error) {
+        console.error('Error generating POC document:', error);
+        alert('Error generating POC document. Please check the console for details.');
+    }
 }
 
 /**
