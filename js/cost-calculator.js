@@ -166,6 +166,12 @@ function updateCostEstimate() {
 
     document.getElementById('costTotal').textContent = CostCalculator.formatCurrency(costs.total.monthly);
     document.getElementById('costAnnual').textContent = CostCalculator.formatCurrency(costs.total.annual) + ' /year';
+    
+    // Update compact cost display
+    const costQuickElem = document.getElementById('costTotalQuick');
+    if (costQuickElem) {
+        costQuickElem.textContent = CostCalculator.formatCurrency(costs.total.monthly) + '/mo';
+    }
 
     // Update tips
     const tips = CostCalculator.generateTips(config, costs);

@@ -361,18 +361,26 @@ function selectIndustry(industryType) {
     const industry = catalog.industry_compliance[industryType];
     detailsDiv.style.display = 'block';
     
-    // Display regulatory frameworks
+    // Display regulatory frameworks as compact badges
+    const badgesDiv = document.getElementById('complianceFrameworksBadges');
+    let badgesHtml = '';
+    industry.regulatory_frameworks.forEach(framework => {
+        badgesHtml += `<span style="background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 500;">${framework.name}</span>`;
+    });
+    badgesDiv.innerHTML = badgesHtml;
+    
+    // Display full framework details (hidden by default)
     let html = '';
     industry.regulatory_frameworks.forEach(framework => {
         html += `
-            <div class="framework-item">
-                <div class="framework-name">📋 ${framework.name}</div>
-                <div class="framework-description">${framework.description}</div>
-                <div class="framework-scope"><strong>Scope:</strong> ${framework.scope}</div>
-                <details class="framework-requirements">
-                    <summary>Key Requirements (${framework.key_requirements.length})</summary>
-                    <ul>
-                        ${framework.key_requirements.map(req => `<li>${req}</li>`).join('')}
+            <div class="framework-item" style="margin-bottom: 15px; padding: 12px; background: white; border-radius: 4px; border: 1px solid #e0e0e0;">
+                <div style="font-weight: 600; color: var(--primary-color); margin-bottom: 6px; font-size: 0.95rem;">📋 ${framework.name}</div>
+                <div style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">${framework.description}</div>
+                <div style="font-size: 0.85rem; margin-bottom: 8px;"><strong>Scope:</strong> ${framework.scope}</div>
+                <details style="font-size: 0.85rem;">
+                    <summary style="cursor: pointer; color: var(--primary-color); font-weight: 500;">Key Requirements (${framework.key_requirements.length})</summary>
+                    <ul style="margin: 8px 0 0 20px; padding: 0;">
+                        ${framework.key_requirements.map(req => `<li style="margin-bottom: 4px;">${req}</li>`).join('')}
                     </ul>
                 </details>
             </div>
@@ -380,7 +388,27 @@ function selectIndustry(industryType) {
     });
     
     frameworksDiv.innerHTML = html;
+    
+    // Hide details by default
+    document.getElementById('complianceFrameworksDetails').style.display = 'none';
+    
     console.log(`Selected industry: ${industry.name}`);
+}
+
+/**
+ * Toggle compliance framework details
+ */
+function toggleComplianceDetails() {
+    const detailsDiv = document.getElementById('complianceFrameworksDetails');
+    const btn = event.target;
+    
+    if (detailsDiv.style.display === 'none') {
+        detailsDiv.style.display = 'block';
+        btn.textContent = 'Hide Details';
+    } else {
+        detailsDiv.style.display = 'none';
+        btn.textContent = 'View Details';
+    }
 }
 
 /**
@@ -1711,4 +1739,59 @@ function displayNetworkDiagram(plan) {
     } else {
         diagramSection.style.display = 'none';
     }
+}
+
+/**
+ * Switch between export tabs
+ */
+function switchExportTab(tabName) {
+    // Hide all tab contents
+    document.getElementById('deployTabContent').style.display = 'none';
+    document.getElementById('templatesTabContent').style.display = 'none';
+    document.getElementById('complianceTabContent').style.display = 'none';
+    
+    // Remove active state from all tabs
+    document.querySelectorAll('.export-tab').forEach(tab => {
+        tab.style.borderBottomColor = 'transparent';
+        tab.style.color = '#666';
+    });
+    
+    // Show selected tab content
+    if (tabName === 'deploy') {
+        document.getElementById('deployTabContent').style.display = 'block';
+        document.getElementById('tabDeploy').style.borderBottomColor = 'var(--primary-color)';
+        document.getElementById('tabDeploy').style.color = 'var(--primary-color)';
+    } else if (tabName === 'templates') {
+        document.getElementById('templatesTabContent').style.display = 'block';
+        document.getElementById('tabTemplates').style.borderBottomColor = 'var(--primary-color)';
+        document.getElementById('tabTemplates').style.color = 'var(--primary-color)';
+    } else if (tabName === 'compliance') {
+        document.getElementById('complianceTabContent').style.display = 'block';
+        document.getElementById('tabCompliance').style.borderBottomColor = 'var(--primary-color)';
+        document.getElementById('tabCompliance').style.color = 'var(--primary-color)';
+    }
+}
+
+/**
+ * Download complete audit package (ZIP)
+ */
+function downloadAuditPackage() {
+    alert('Audit Package Download:\n\nThis feature will generate a ZIP file containing:\n• Compliance PDF Report\n• Configuration Export (JSON)\n• Gap Analysis Report\n• Remediation Steps\n• Framework-specific checklists\n• Control mapping matrix\n\nImplementation coming soon!');
+}
+
+/**
+ * Download framework-specific checklist
+ */
+function downloadFrameworkChecklist(framework) {
+    const frameworkNames = {
+        'pci-dss': 'PCI DSS 4.0',
+        'hipaa': 'HIPAA',
+        'iso-27001': 'ISO 27001',
+        'soc2': 'SOC 2 Type II',
+        'fedramp': 'FedRAMP',
+        'nist': 'NIST Cybersecurity Framework'
+    };
+    
+    const name = frameworkNames[framework] || framework;
+    alert(`${name} Checklist Download:\n\nThis will generate a framework-specific checklist showing:\n• Required controls mapped to your configuration\n• Compliance status (Met/Not Met/Partial)\n• Evidence locations\n• Remediation recommendations\n\nImplementation coming soon!`);
 }
