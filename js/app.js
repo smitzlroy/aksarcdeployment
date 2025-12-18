@@ -527,6 +527,9 @@ function selectSolution(solutionType) {
         document.getElementById('gpuCount').value = gpu.gpu_vms;
         document.getElementById('gpuCountGroup').style.display = 'block';
     }
+    
+    // Update POC section visibility for Arc extensions
+    updatePOCSection(solutionType);
 }
 
 /**
@@ -567,19 +570,33 @@ function selectWorkload(workloadType) {
 }
 
 /**
- * Update POC document section visibility based on selected workload
+ * Update POC document section visibility based on selected workload or solution
  */
-function updatePOCSection(workloadType) {
+function updatePOCSection(workloadType = null) {
     const pocSection = document.getElementById('pocDocumentSection');
     const pocDocumentTitle = document.getElementById('pocDocumentTitle');
     
     if (!pocSection) return; // Section not yet in DOM
     
-    // Check if workload is an Arc extension
+    // Check if workload or solution is an Arc extension
     const arcExtensions = ['video-indexer-arc', 'edge-rag-arc', 'iot-operations-arc'];
     
-    if (arcExtensions.includes(workloadType)) {
-        const workloadData = catalog.workload_presets[workloadType];
+    // Prioritize selectedSolution, fall back to workloadType parameter
+    const extensionKey = (selectedSolution && arcExtensions.includes(selectedSolution)) 
+        ? selectedSolution 
+        : (workloadType && arcExtensions.includes(workloadType)) 
+            ? workloadType 
+            : null;
+    
+    if (extensionKey) {
+        // Try to get workload data from edge_ai_solutions first, then workload_presets
+        let workloadData = null;
+        if (catalog.edge_ai_solutions && catalog.edge_ai_solutions[extensionKey]) {
+            workloadData = catalog.edge_ai_solutions[extensionKey];
+        } else if (catalog.workload_presets && catalog.workload_presets[extensionKey]) {
+            workloadData = catalog.workload_presets[extensionKey];
+        }
+        
         pocSection.style.display = 'block';
         if (workloadData && pocDocumentTitle) {
             pocDocumentTitle.textContent = `🚀 ${workloadData.name} - POC Guide`;
@@ -595,30 +612,53 @@ function updatePOCSection(workloadType) {
 async function downloadPOCDocument() {
     console.log('=== Download POC Document Clicked ===');
     console.log('Selected workload:', selectedWorkload);
+    console.log('Selected solution:', selectedSolution);
     
-    if (!selectedWorkload) {
-        alert('Please select an Azure Arc Extension first');
-        return;
-    }
-    
-    // Validate Arc extension
+    // Determine which Arc extension to use (prioritize selectedSolution for Arc extensions)
     const arcExtensions = ['video-indexer-arc', 'edge-rag-arc', 'iot-operations-arc'];
-    if (!arcExtensions.includes(selectedWorkload)) {
-        alert('POC documents are only available for Azure Arc Extensions');
+    let extensionKey = null;
+    
+    // Check selectedSolution first (from Edge AI solution selector)
+    if (selectedSolution && arcExtensions.includes(selectedSolution)) {
+        extensionKey = selectedSolution;
+    }
+    // Fall back to selectedWorkload
+    else if (selectedWorkload && arcExtensions.includes(selectedWorkload)) {
+        extensionKey = selectedWorkload;
+    }
+    
+    if (!extensionKey) {
+        alert('Please select an Azure Arc Extension first (Edge RAG, Video Indexer Arc, or IoT Operations)');
         return;
     }
+    
+    console.log('Using extension key:', extensionKey);
 
     try {
-        // Validate catalog data
-        if (!catalog || !catalog.workload_presets) {
-            console.error('Catalog not loaded properly:', catalog);
+        // Validate catalog data - check edge_ai_solutions first, then workload_presets
+        if (!catalog) {
+            console.error('Catalog not loaded');
             alert('Configuration data not loaded. Please refresh the page.');
             return;
         }
         
-        const workloadData = catalog.workload_presets[selectedWorkload];
+        let workloadData = null;
+        
+        // Try edge_ai_solutions first (for Arc extensions selected via solution picker)
+        if (catalog.edge_ai_solutions && catalog.edge_ai_solutions[extensionKey]) {
+            workloadData = catalog.edge_ai_solutions[extensionKey];
+            console.log('Found in edge_ai_solutions:', workloadData.name);
+        }
+        // Fall back to workload_presets
+        else if (catalog.workload_presets && catalog.workload_presets[extensionKey]) {
+            workloadData = catalog.workload_presets[extensionKey];
+            console.log('Found in workload_presets:', workloadData.name);
+        }
+        
         if (!workloadData) {
-            console.error('Workload data not found for:', selectedWorkload);
+            console.error('Workload data not found for:', extensionKey);
+            console.log('Available in edge_ai_solutions:', catalog.edge_ai_solutions ? Object.keys(catalog.edge_ai_solutions) : 'N/A');
+            console.log('Available in workload_presets:', catalog.workload_presets ? Object.keys(catalog.workload_presets) : 'N/A');
             alert('Workload configuration not found. Please try again.');
             return;
         }
@@ -653,11 +693,11 @@ async function downloadPOCDocument() {
             btn.textContent = '⏳ Generating PDF...';
         }
 
-        console.log('Generating POC PDF for:', selectedWorkload, workloadData.name);
+        console.log('Generating POC PDF for:', extensionKey, workloadData.name);
 
         // Generate PDF report
         const generator = new window.POCReportGenerator();
-        const filename = await generator.generatePDFReport(selectedWorkload, workloadData.name);
+        const filename = await generator.generatePDFReport(extensionKey, workloadData.name);
 
         console.log('✅ POC PDF generated successfully:', filename);
         
