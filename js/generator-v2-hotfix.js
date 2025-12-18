@@ -1,8 +1,8 @@
 /**
  * Template Generators - Bicep, ARM, Terraform
- * VERSION: 2025-12-17-2310 (Updated with environment-specific SKUs and K8s versions)
+ * VERSION: 2025-12-18-EXT (Added Arc extension template generation)
  */
-console.log('✅ generator.js loaded - VERSION: 2025-12-17-2310');
+console.log('✅ generator.js loaded - VERSION: 2025-12-18-EXT');
 
 class TemplateGenerator {
     /**
@@ -830,7 +830,203 @@ output "provisioned_cluster_id" {
     }
 
     /**
-     * Download file helper
+     * Generate ARM template for Arc extension
+     */
+    static generateExtensionTemplate(extensionConfig, clusterName) {
+        const { name, extensionType, settings } = extensionConfig;
+        
+        const template = {
+            '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#',
+            contentVersion: '1.0.0.0',
+            metadata: {
+                _generator: {
+                    name: 'AKS Arc Deployment Tool',
+                    version: '2.0.5-20251218-EXT',
+                    templateType: 'Arc Extension',
+                    generatedAt: new Date().toISOString()
+                },
+                description: `ARM template for deploying ${name} extension to AKS Arc cluster`
+            },
+            parameters: {
+                clusterName: {
+                    type: 'string',
+                    defaultValue: clusterName,
+                    metadata: {
+                        description: 'Name of the AKS Arc cluster'
+                    }
+                },
+                extensionName: {
+                    type: 'string',
+                    defaultValue: name,
+                    metadata: {
+                        description: 'Name of the extension'
+                    }
+                }
+            },
+            resources: [
+                {
+                    type: 'Microsoft.KubernetesConfiguration/extensions',
+                    apiVersion: '2023-05-01',
+                    name: '[parameters(\'extensionName\')]',
+                    scope: '[resourceId(\'Microsoft.Kubernetes/ConnectedClusters\', parameters(\'clusterName\'))]',
+                    properties: {
+                        extensionType,
+                        autoUpgradeMinorVersion: true,
+                        configurationSettings: settings || {},
+                        configurationProtectedSettings: {}
+                    }
+                }
+            ],
+            outputs: {
+                extensionId: {
+                    type: 'string',
+                    value: '[resourceId(\'Microsoft.KubernetesConfiguration/extensions\', parameters(\'extensionName\'))]'
+                }
+            }
+        };
+        
+        return JSON.stringify(template, null, 2);
+    }
+
+    /**
+     * Generate orchestrator template that deploys cluster + extensions
+     */
+    static generateOrchestratorTemplate(clusterName, extensionNames) {
+        const template = {
+            '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#',
+            contentVersion: '1.0.0.0',
+            metadata: {
+                _generator: {
+                    name: 'AKS Arc Deployment Tool',
+                    version: '2.0.5-20251218-EXT',
+                    templateType: 'Orchestrator - Cluster + Extensions',
+                    generatedAt: new Date().toISOString()
+                },
+                description: 'Master deployment template that orchestrates cluster and extension deployments'
+            },
+            parameters: {
+                clusterName: {
+                    type: 'string',
+                    defaultValue: clusterName,
+                    metadata: {
+                        description: 'Name of the AKS Arc cluster'
+                    }
+                }
+            },
+            resources: [
+                {
+                    type: 'Microsoft.Resources/deployments',
+                    apiVersion: '2022-09-01',
+                    name: 'clusterDeployment',
+                    properties: {
+                        mode: 'Incremental',
+                        templateLink: {
+                            uri: '[uri(deployment().properties.templateLink.uri, \'aksarc-cluster.json\')]'
+                        },
+                        parameters: {
+                            clusterName: {
+                                value: '[parameters(\'clusterName\')]'
+                            }
+                        }
+                    }
+                },
+                ...extensionNames.map(extName => ({
+                    type: 'Microsoft.Resources/deployments',
+                    apiVersion: '2022-09-01',
+                    name: `${extName}Deployment`,
+                    dependsOn: [
+                        '[resourceId(\'Microsoft.Resources/deployments\', \'clusterDeployment\')]'
+                    ],
+                    properties: {
+                        mode: 'Incremental',
+                        templateLink: {
+                            uri: `[uri(deployment().properties.templateLink.uri, 'extension-${extName}.json')]`
+                        },
+                        parameters: {
+                            clusterName: {
+                                value: '[parameters(\'clusterName\')]'
+                            }
+                        }
+                    }
+                }))
+            ],
+            outputs: {
+                clusterName: {
+                    type: 'string',
+                    value: '[reference(\'clusterDeployment\').outputs.clusterName.value]'
+                }
+            }
+        };
+        
+        return JSON.stringify(template, null, 2);
+    }
+
+    /**
+     * Generate Log Analytics workspace template
+     */
+    static generateWorkspaceTemplate(workspaceName, location) {
+        const template = {
+            '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#',
+            contentVersion: '1.0.0.0',
+            metadata: {
+                _generator: {
+                    name: 'AKS Arc Deployment Tool',
+                    version: '2.0.5-20251218-EXT',
+                    templateType: 'Log Analytics Workspace',
+                    generatedAt: new Date().toISOString()
+                },
+                description: 'ARM template for Log Analytics workspace (required for Azure Monitor and Defender)'
+            },
+            parameters: {
+                workspaceName: {
+                    type: 'string',
+                    defaultValue: workspaceName,
+                    metadata: {
+                        description: 'Name of the Log Analytics workspace'
+                    }
+                },
+                location: {
+                    type: 'string',
+                    defaultValue: location,
+                    metadata: {
+                        description: 'Azure region for the workspace'
+                    }
+                }
+            },
+            resources: [
+                {
+                    type: 'Microsoft.OperationalInsights/workspaces',
+                    apiVersion: '2022-10-01',
+                    name: '[parameters(\'workspaceName\')]',
+                    location: '[parameters(\'location\')]',
+                    properties: {
+                        sku: {
+                            name: 'PerGB2018'
+                        },
+                        retentionInDays: 90,
+                        features: {
+                            enableLogAccessUsingOnlyResourcePermissions: true
+                        }
+                    }
+                }
+            ],
+            outputs: {
+                workspaceId: {
+                    type: 'string',
+                    value: '[resourceId(\'Microsoft.OperationalInsights/workspaces\', parameters(\'workspaceName\'))]'
+                },
+                workspaceResourceId: {
+                    type: 'string',
+                    value: '[reference(parameters(\'workspaceName\'), \'2022-10-01\', \'Full\').resourceId]'
+                }
+            }
+        };
+        
+        return JSON.stringify(template, null, 2);
+    }
+
+    /**
+     * Download generated template as file
      */
     static downloadFile(content, filename, mimeType = 'text/plain') {
         const blob = new Blob([content], { type: mimeType });

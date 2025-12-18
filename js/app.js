@@ -989,6 +989,12 @@ function generatePlan() {
         ? catalog.edge_ai_solutions[selectedSolution]
         : null;
     
+    // Add extension configuration
+    if (extensionManager && selectedWorkload) {
+        deploymentPlan.extensionConfig = extensionManager.getExtensionConfig(selectedWorkload);
+        console.log('Extension config added to plan:', deploymentPlan.extensionConfig);
+    }
+    
     // Run security validation
     const securityResult = securityValidator.validate(deploymentPlan, envTemplate);
     deploymentPlan.securityScore = securityResult;
@@ -1253,13 +1259,22 @@ function displayPlanSummary(plan) {
 /**
  * Export template
  */
-function exportTemplate(format) {
+async function exportTemplate(format) {
     if (!deploymentPlan) {
         alert('No deployment plan available');
         return;
     }
 
     const clusterName = deploymentPlan.clusterConfig.clusterName;
+    const hasExtensions = deploymentPlan.extensionConfig && deploymentPlan.extensionConfig.extensions && deploymentPlan.extensionConfig.extensions.length > 0;
+
+    // For ARM format with extensions, create ZIP bundle
+    if (format === 'arm' && hasExtensions) {
+        await exportARMWithExtensions(clusterName, deploymentPlan);
+        return;
+    }
+
+    // Single file export (no extensions or non-ARM format)
     let content, filename, mimeType;
 
     switch (format) {
@@ -1270,7 +1285,7 @@ function exportTemplate(format) {
             break;
         case 'arm':
             content = TemplateGenerator.generateARM(deploymentPlan);
-            filename = `${clusterName}.json`;
+            filename = `aksarc-cluster.json`;
             mimeType = 'application/json';
             break;
         case 'terraform':
@@ -1284,6 +1299,136 @@ function exportTemplate(format) {
     }
 
     TemplateGenerator.downloadFile(content, filename, mimeType);
+}
+
+/**
+ * Export ARM templates with extensions as ZIP bundle
+ */
+async function exportARMWithExtensions(clusterName, plan) {
+    try {
+        // Load JSZip dynamically
+        if (typeof JSZip === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+            document.head.appendChild(script);
+            await new Promise(resolve => script.onload = resolve);
+        }
+
+        const zip = new JSZip();
+        
+        // 1. Generate main cluster template
+        const clusterTemplate = TemplateGenerator.generateARM(plan);
+        zip.file('aksarc-cluster.json', clusterTemplate);
+        
+        // 2. Generate workspace template if needed
+        if (plan.extensionConfig.workspace && plan.extensionConfig.workspace.create) {
+            const workspaceTemplate = TemplateGenerator.generateWorkspaceTemplate(
+                plan.extensionConfig.workspace.name,
+                plan.clusterConfig.location
+            );
+            zip.file('workspace.json', workspaceTemplate);
+        }
+        
+        // 3. Generate extension templates
+        const extensionNames = [];
+        for (const ext of plan.extensionConfig.extensions) {
+            const extTemplate = TemplateGenerator.generateExtensionTemplate(ext, clusterName);
+            zip.file(`extension-${ext.name}.json`, extTemplate);
+            extensionNames.push(ext.name);
+        }
+        
+        // 4. Generate orchestrator template
+        const orchestratorTemplate = TemplateGenerator.generateOrchestratorTemplate(clusterName, extensionNames);
+        zip.file('deploy-all.json', orchestratorTemplate);
+        
+        // 5. Generate README
+        const readme = generateDeploymentREADME(clusterName, plan);
+        zip.file('README.md', readme);
+        
+        // Generate and download ZIP
+        const content = await zip.generateAsync({ type: 'blob' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = `${clusterName}-deployment.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+        
+        console.log('✅ ZIP bundle generated with', extensionNames.length, 'extensions');
+    } catch (error) {
+        console.error('Failed to generate ZIP bundle:', error);
+        alert('Failed to generate ZIP bundle. Downloading cluster template only.');
+        const clusterTemplate = TemplateGenerator.generateARM(plan);
+        TemplateGenerator.downloadFile(clusterTemplate, 'aksarc-cluster.json', 'application/json');
+    }
+}
+
+/**
+ * Generate README for deployment bundle
+ */
+function generateDeploymentREADME(clusterName, plan) {
+    const extensions = plan.extensionConfig?.extensions || [];
+    const hasWorkspace = plan.extensionConfig?.workspace?.create;
+    
+    return `# AKS Arc Deployment - ${clusterName}
+
+Generated: ${new Date().toISOString()}
+
+## 📦 Contents
+
+- \`aksarc-cluster.json\` - Main AKS Arc cluster template
+${hasWorkspace ? '- `workspace.json` - Log Analytics workspace\n' : ''}${extensions.map(e => `- \`extension-${e.name}.json\` - ${e.extensionType} extension`).join('\n')}
+- \`deploy-all.json\` - Orchestrator template (deploys everything)
+
+## 🚀 Quick Deploy
+
+Deploy everything with a single command:
+
+\`\`\`bash
+az deployment group create \\
+  --resource-group <your-rg> \\
+  --template-file deploy-all.json \\
+  --parameters clusterName=${clusterName}
+\`\`\`
+
+## 📋 Manual Deploy (Step-by-Step)
+
+### 1. Deploy Cluster
+
+\`\`\`bash
+az deployment group create \\
+  --resource-group <your-rg> \\
+  --template-file aksarc-cluster.json
+\`\`\`
+
+${hasWorkspace ? `### 2. Deploy Log Analytics Workspace
+
+\`\`\`bash
+az deployment group create \\
+  --resource-group <your-rg> \\
+  --template-file workspace.json
+\`\`\`
+
+` : ''}### ${hasWorkspace ? '3' : '2'}. Deploy Extensions
+
+${extensions.map((e, i) => `\`\`\`bash
+# ${e.name}
+az deployment group create \\
+  --resource-group <your-rg> \\
+  --template-file extension-${e.name}.json \\
+  --parameters clusterName=${clusterName}
+\`\`\``).join('\n\n')}
+
+## ℹ️ Extension Details
+
+${extensions.map(e => `- **${e.name}**: ${e.extensionType}`).join('\n')}
+
+## 📖 Documentation
+
+- [AKS Arc Documentation](https://learn.microsoft.com/en-us/azure/aks/hybrid/)
+- [Arc Extensions](https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/extensions)
+`;
 }
 
 /**
