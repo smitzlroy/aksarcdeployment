@@ -64,10 +64,15 @@ class ExtensionConfigManager {
      * Render extension list panel
      */
     renderExtensionsList(workloadType) {
+        console.log('renderExtensionsList called with workloadType:', workloadType);
         const extensions = this.getExtensionsForWorkload(workloadType);
+        console.log('Extensions to render:', extensions.length, extensions);
         const listContainer = document.getElementById('extensionsList');
         
-        if (!listContainer) return;
+        if (!listContainer) {
+            console.error('extensionsList container not found!');
+            return;
+        }
 
         listContainer.innerHTML = extensions.map(ext => {
             const extId = ext.extensionType.replace(/\./g, '_');
