@@ -48,6 +48,16 @@
     
     /* Transitions */
     --transition-fast: 150ms ease;
+}
+
+/* Force LTR direction for all elements - prevent text mirroring */
+.force-ltr, .force-ltr * {
+    direction: ltr !important;
+    unicode-bidi: embed !important;
+    text-align: left !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+}
     --transition: 250ms ease;
     --transition-slow: 350ms ease;
 }
