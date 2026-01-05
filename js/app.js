@@ -175,6 +175,17 @@ function initializeEventListeners() {
         });
     }
 
+    // Cluster name input - update extension config display
+    const clusterNameInput = document.getElementById('clusterName');
+    if (clusterNameInput) {
+        clusterNameInput.addEventListener('input', (e) => {
+            const displaySpan = document.getElementById('clusterNameDisplay');
+            if (displaySpan) {
+                displaySpan.textContent = e.target.value || 'my-cluster';
+            }
+        });
+    }
+
     // Rack awareness checkbox (if exists)
     const rackAwareness = document.getElementById('enableRackAwareness');
     if (rackAwareness) {

@@ -1109,7 +1109,7 @@
       "icon": "💬",
       "description": "AI-powered document search and chat using RAG (Retrieval-Augmented Generation)",
       "category": "ai-solution",
-      "requiresWorkspace": true,
+      "requiresWorkspace": false,
       "requiresGPU": false,
       "configurationSettings": {
         "deploymentMode": {
@@ -1143,6 +1143,12 @@
           "required": true,
           "placeholder": "Please input the application ID",
           "description": "Entra application ID for access control"
+        },
+        "entraTenantId": {
+          "type": "string",
+          "required": true,
+          "placeholder": "Please input the tenant ID",
+          "description": "Entra tenant ID for access control"
         }
       },
       "monthlyCost": 500,
@@ -1156,7 +1162,7 @@
       "icon": "🎥",
       "description": "Video and audio AI analysis on edge: face detection, OCR, object tracking",
       "category": "ai-solution",
-      "requiresWorkspace": true,
+      "requiresWorkspace": false,
       "requiresGPU": true,
       "configurationSettings": {
         "storageAccountName": {
