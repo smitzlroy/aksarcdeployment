@@ -1112,28 +1112,37 @@
       "requiresWorkspace": true,
       "requiresGPU": false,
       "configurationSettings": {
-        "compute.type": {
+        "deploymentMode": {
           "type": "string",
           "default": "CPU",
           "options": ["CPU", "GPU"],
-          "description": "Compute type for inference"
+          "required": true,
+          "description": "Deployment mode for the extension"
         },
-        "storage.accountName": {
+        "languageModelName": {
+          "type": "string",
+          "default": "mistralAI/Mistral-7B",
+          "options": ["mistralAI/Mistral-7B", "meta-llama/Llama-2-7b"],
+          "required": true,
+          "description": "Language model for inference"
+        },
+        "sslCname": {
           "type": "string",
           "required": true,
-          "description": "Azure Storage account for document storage"
+          "placeholder": "e.g. arcrag.contoso.com",
+          "description": "SSL CNAME for accessing the Edge RAG service"
         },
-        "models.embedding": {
+        "kubernetesSslSecretName": {
           "type": "string",
-          "default": "text-embedding-ada-002",
-          "options": ["text-embedding-ada-002", "all-MiniLM-L6-v2"],
-          "description": "Embedding model for semantic search"
+          "required": true,
+          "placeholder": "Please input the secret name",
+          "description": "Kubernetes secret containing SSL certificate"
         },
-        "vectordb.type": {
+        "entraApplicationId": {
           "type": "string",
-          "default": "qdrant",
-          "options": ["qdrant", "weaviate", "chromadb"],
-          "description": "Vector database for embeddings"
+          "required": true,
+          "placeholder": "Please input the application ID",
+          "description": "Entra application ID for access control"
         }
       },
       "monthlyCost": 500,
