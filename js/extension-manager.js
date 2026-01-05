@@ -191,7 +191,7 @@ class ExtensionConfigManager {
                 formHtml += `<small>${setting.description}</small>`;
             } else {
                 // Text input
-                const placeholder = setting.required ? 'Required' : 'Optional';
+                const placeholder = setting.placeholder || (setting.required ? 'Required' : 'Optional');
                 const value = setting.default || '';
                 formHtml += `<input type="text" id="${fieldId}" placeholder="${placeholder}" value="${value}" ${setting.required ? 'required' : ''}>`;
                 formHtml += `<small>${setting.description}</small>`;

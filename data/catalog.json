@@ -1159,27 +1159,11 @@
       "requiresWorkspace": true,
       "requiresGPU": true,
       "configurationSettings": {
-        "compute.type": {
-          "type": "string",
-          "default": "GPU",
-          "options": ["GPU"],
-          "description": "GPU required for real-time video processing"
-        },
-        "storage.accountName": {
+        "storageAccountName": {
           "type": "string",
           "required": true,
+          "placeholder": "e.g. myvideostore123",
           "description": "Azure Storage account for video ingestion and outputs"
-        },
-        "models.enabled": {
-          "type": "array",
-          "default": ["face-detection", "object-tracking", "ocr"],
-          "options": ["face-detection", "object-tracking", "ocr", "scene-detection", "audio-transcription"],
-          "description": "AI models to enable"
-        },
-        "streaming.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable real-time video stream processing"
         }
       },
       "monthlyCost": 800,

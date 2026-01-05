@@ -73,11 +73,12 @@ cd aksarcdeployment
 <td width="50%">
 
 **Step 2: Cluster Configuration**
-- **🔌 Arc Extensions** - Optional/Required extension selection
+- **🔌 Arc Extensions** - Minimal configuration for easy deployment
   - Azure Monitor (+$150/mo - optional)
   - Defender for Containers (+$200/mo - optional)
   - Azure Policy (FREE - always included)
-  - Solution-specific extensions (Edge RAG, Video Indexer, IoT Ops)
+  - Solution extensions with streamlined setup (Edge RAG, Video Indexer, IoT Ops)
+  - Only essential deployment parameters required (no optional backend settings)
 - Control plane sizing (1, 3, or 5 nodes)
 - Node pool configuration (count, VM size, GPU support)
 - Kubernetes version selection (1.31.10, 1.32.6, etc.)
