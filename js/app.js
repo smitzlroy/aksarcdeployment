@@ -2017,6 +2017,12 @@ function displayNetworkDiagram(plan) {
     const diagramSection = document.getElementById('networkDiagramSection');
     const diagramContainer = document.getElementById('networkDiagram');
     
+    // Check if elements exist
+    if (!diagramSection || !diagramContainer) {
+        console.log('Network diagram elements not found, skipping');
+        return;
+    }
+    
     // Show diagram section if Arc Gateway is enabled or firewall config exists
     if (plan.arcGatewayConfig || plan.firewallConfig) {
         diagramSection.style.display = 'block';

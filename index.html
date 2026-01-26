@@ -1247,12 +1247,13 @@ Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</co
                 
                 <!-- Network Tab Content -->
                 <div id="step3-content-network" class="step3-tab-content" style="display: none;">
-                    <h3 style="margin-top: 0; color: #61dafb;">🌐 Network Architecture & Traffic Flows</h3>
-                    <p style="color: #d4d4d4; margin-bottom: 20px;">
-                        Understanding how your deployment communicates with Azure is critical for firewall configuration and troubleshooting.
-                    </p>
+                    <div id="networkDiagramSection">
+                        <h3 style="margin-top: 0; color: #61dafb;">Network Architecture & Traffic Flows</h3>
+                        <p style="color: #d4d4d4; margin-bottom: 20px;">
+                            Understanding how your deployment communicates with Azure is critical for firewall configuration and troubleshooting.
+                        </p>
 
-                    <div id="networkDiagram" style="background: #1e1e1e; border-radius: 6px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                        <div id="networkDiagram" style="background: #1e1e1e; border-radius: 6px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
                         <!-- Network diagram will be rendered here -->
                     </div>
 
@@ -1320,6 +1321,7 @@ Get-AzArcGateway -ResourceGroupName "my-rg" | Select-Object Name, GatewayUrl</co
                             Arc Gateway Outbound Connectivity Deep Dive
                         </a>
                     </div>
+                    </div> <!-- Close networkDiagramSection -->
                 </div>
                 
                 <!-- Summary Tab Content -->
