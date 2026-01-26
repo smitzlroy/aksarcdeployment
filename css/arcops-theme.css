@@ -1,0 +1,714 @@
+/**
+ * ArcOps Dark Theme - AKS Arc Deployment Tool
+ * Inspired by ArcOps MCP Architecture v2
+ * Dark navy/blue background with cyan/turquoise accents
+ */
+
+/* ===================================
+   1. CSS VARIABLES - DARK THEME
+   =================================== */
+
+:root {
+    /* Primary Dark Theme Colors */
+    --bg-primary: #0a1628;
+    --bg-secondary: #0f1f35;
+    --bg-card: #132337;
+    --bg-card-hover: #1a2d45;
+    --bg-elevated: #1e3a5f;
+    
+    /* Accent Colors - Cyan/Turquoise */
+    --accent-cyan: #00d4ff;
+    --accent-cyan-dim: #0099cc;
+    --accent-cyan-glow: rgba(0, 212, 255, 0.3);
+    --accent-cyan-subtle: rgba(0, 212, 255, 0.1);
+    
+    /* Status Colors */
+    --status-green: #22c55e;
+    --status-green-bg: rgba(34, 197, 94, 0.15);
+    --status-amber: #f59e0b;
+    --status-amber-bg: rgba(245, 158, 11, 0.15);
+    --status-red: #ef4444;
+    --status-red-bg: rgba(239, 68, 68, 0.15);
+    --status-blue: #3b82f6;
+    --status-blue-bg: rgba(59, 130, 246, 0.15);
+    --status-purple: #a855f7;
+    --status-purple-bg: rgba(168, 85, 247, 0.15);
+    
+    /* Text Colors */
+    --text-primary: #f0f4f8;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --text-accent: var(--accent-cyan);
+    
+    /* Border Colors */
+    --border-default: rgba(255, 255, 255, 0.1);
+    --border-accent: rgba(0, 212, 255, 0.3);
+    --border-hover: rgba(0, 212, 255, 0.5);
+    
+    /* Shadows */
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px var(--accent-cyan-glow);
+    
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    
+    /* Border Radius */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+    
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-normal: 250ms ease;
+    --transition-slow: 400ms ease;
+}
+
+
+/* ===================================
+   2. BASE STYLES
+   =================================== */
+
+body.arcops-theme {
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    color: var(--text-primary);
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+}
+
+body.arcops-theme .container {
+    max-width: 1400px;
+    background: transparent;
+}
+
+
+/* ===================================
+   3. HEADER - MODERNIZED
+   =================================== */
+
+body.arcops-theme header {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl) var(--space-lg);
+    margin-bottom: var(--space-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+body.arcops-theme header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-cyan) 0%, var(--status-purple) 50%, var(--accent-cyan) 100%);
+}
+
+body.arcops-theme header h1 {
+    color: var(--text-primary);
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: var(--space-sm);
+}
+
+body.arcops-theme .subtitle {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+}
+
+body.arcops-theme .header-actions button {
+    background: var(--accent-cyan-subtle);
+    border: 1px solid var(--border-accent);
+    color: var(--accent-cyan);
+    border-radius: var(--radius-full);
+    padding: var(--space-sm) var(--space-md);
+    transition: all var(--transition-fast);
+}
+
+body.arcops-theme .header-actions button:hover {
+    background: var(--accent-cyan);
+    color: var(--bg-primary);
+    box-shadow: var(--shadow-glow);
+}
+
+
+/* ===================================
+   4. WIZARD STEPS - CARD STYLE
+   =================================== */
+
+body.arcops-theme .wizard-step {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    box-shadow: var(--shadow-card);
+}
+
+body.arcops-theme .wizard-step h2 {
+    color: var(--text-primary);
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+body.arcops-theme .wizard-step h2::before {
+    content: '';
+    width: 4px;
+    height: 28px;
+    background: var(--accent-cyan);
+    border-radius: 2px;
+}
+
+
+/* ===================================
+   5. WORKLOAD CARDS - MODERNIZED
+   =================================== */
+
+body.arcops-theme .card,
+body.arcops-theme .industry-card,
+body.arcops-theme .env-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+body.arcops-theme .card:hover,
+body.arcops-theme .industry-card:hover,
+body.arcops-theme .env-card:hover {
+    border-color: var(--border-accent);
+    background: var(--bg-card-hover);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-elevated), 0 0 30px var(--accent-cyan-glow);
+}
+
+body.arcops-theme .card.selected,
+body.arcops-theme .industry-card.selected,
+body.arcops-theme .env-card.selected {
+    border-color: var(--accent-cyan);
+    background: linear-gradient(135deg, var(--bg-card-hover) 0%, rgba(0, 212, 255, 0.05) 100%);
+    box-shadow: var(--shadow-glow);
+}
+
+body.arcops-theme .card.selected::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent-cyan);
+}
+
+body.arcops-theme .card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
+    background: var(--accent-cyan);
+    color: var(--bg-primary);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+body.arcops-theme .card h3 {
+    color: var(--text-primary);
+    font-size: 1.15rem;
+    margin-bottom: var(--space-sm);
+}
+
+body.arcops-theme .card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+body.arcops-theme .card-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-md);
+    filter: drop-shadow(0 0 8px var(--accent-cyan-glow));
+}
+
+body.arcops-theme .card-specs {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-default);
+    margin-top: var(--space-md);
+}
+
+
+/* ===================================
+   6. STATUS BADGES
+   =================================== */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge--green {
+    background: var(--status-green-bg);
+    color: var(--status-green);
+    border: 1px solid var(--status-green);
+}
+
+.status-badge--amber {
+    background: var(--status-amber-bg);
+    color: var(--status-amber);
+    border: 1px solid var(--status-amber);
+}
+
+.status-badge--red {
+    background: var(--status-red-bg);
+    color: var(--status-red);
+    border: 1px solid var(--status-red);
+}
+
+.status-badge--ready {
+    background: var(--status-green-bg);
+    color: var(--status-green);
+    border: 1px solid var(--status-green);
+}
+
+.status-badge--degraded {
+    background: var(--status-amber-bg);
+    color: var(--status-amber);
+    border: 1px solid var(--status-amber);
+}
+
+.status-badge--arc-ext {
+    background: var(--status-purple-bg);
+    color: var(--status-purple);
+    border: 1px solid var(--status-purple);
+}
+
+
+/* ===================================
+   7. FORM ELEMENTS
+   =================================== */
+
+body.arcops-theme .form-group label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: var(--space-sm);
+}
+
+body.arcops-theme .form-group input,
+body.arcops-theme .form-group select,
+body.arcops-theme .form-group textarea {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    transition: all var(--transition-fast);
+}
+
+body.arcops-theme .form-group input:focus,
+body.arcops-theme .form-group select:focus,
+body.arcops-theme .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 0 3px var(--accent-cyan-subtle);
+}
+
+body.arcops-theme .form-group input::placeholder {
+    color: var(--text-muted);
+}
+
+body.arcops-theme .form-group small {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: var(--space-xs);
+}
+
+body.arcops-theme input[type="checkbox"] {
+    accent-color: var(--accent-cyan);
+}
+
+
+/* ===================================
+   8. BUTTONS
+   =================================== */
+
+body.arcops-theme .btn {
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 12px 24px;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    border: none;
+}
+
+body.arcops-theme .btn-primary {
+    background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-cyan-dim) 100%);
+    color: var(--bg-primary);
+    box-shadow: 0 4px 14px rgba(0, 212, 255, 0.3);
+}
+
+body.arcops-theme .btn-primary:hover {
+    background: var(--accent-cyan);
+    box-shadow: var(--shadow-glow), 0 6px 20px rgba(0, 212, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+body.arcops-theme .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border-accent);
+    color: var(--accent-cyan);
+}
+
+body.arcops-theme .btn-secondary:hover {
+    background: var(--accent-cyan-subtle);
+    border-color: var(--accent-cyan);
+}
+
+body.arcops-theme .btn-export {
+    background: var(--status-green-bg);
+    border: 1px solid var(--status-green);
+    color: var(--status-green);
+}
+
+body.arcops-theme .btn-export:hover {
+    background: var(--status-green);
+    color: var(--bg-primary);
+}
+
+
+/* ===================================
+   9. SECURITY SCORECARD
+   =================================== */
+
+body.arcops-theme .security-scorecard {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    margin-bottom: var(--space-xl);
+}
+
+body.arcops-theme .security-scorecard h3 {
+    color: var(--text-primary);
+    margin-bottom: var(--space-lg);
+}
+
+body.arcops-theme .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--accent-cyan) var(--score-percentage, 0%),
+        var(--border-default) var(--score-percentage, 0%)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 0 30px var(--accent-cyan-glow);
+}
+
+body.arcops-theme .score-circle::before {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--bg-card);
+}
+
+body.arcops-theme .score-number {
+    position: relative;
+    z-index: 1;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+}
+
+body.arcops-theme .score-label {
+    position: relative;
+    z-index: 1;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+
+/* ===================================
+   10. COMPLIANCE MATRIX
+   =================================== */
+
+body.arcops-theme .compliance-details,
+body.arcops-theme .plan-summary {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+}
+
+body.arcops-theme .summary-table td {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-default);
+    color: var(--text-secondary);
+}
+
+body.arcops-theme .summary-table td:first-child {
+    color: var(--text-muted);
+}
+
+
+/* ===================================
+   11. ALERTS & INFO BANNERS
+   =================================== */
+
+body.arcops-theme .info-banner,
+body.arcops-theme .alert {
+    background: var(--bg-elevated);
+    border-radius: var(--radius-sm);
+    padding: var(--space-md) var(--space-lg);
+    margin-bottom: var(--space-md);
+}
+
+body.arcops-theme .info-banner {
+    border-left: 4px solid var(--accent-cyan);
+    color: var(--text-secondary);
+}
+
+body.arcops-theme .alert-success {
+    background: var(--status-green-bg);
+    border-left-color: var(--status-green);
+    color: var(--status-green);
+}
+
+body.arcops-theme .alert-warning {
+    background: var(--status-amber-bg);
+    border-left-color: var(--status-amber);
+    color: var(--status-amber);
+}
+
+body.arcops-theme .alert-error {
+    background: var(--status-red-bg);
+    border-left-color: var(--status-red);
+    color: var(--status-red);
+}
+
+
+/* ===================================
+   12. COLLAPSIBLE SECTIONS
+   =================================== */
+
+body.arcops-theme h3[onclick] {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    padding: var(--space-md) var(--space-lg);
+    margin-top: var(--space-xl);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    color: var(--text-primary);
+}
+
+body.arcops-theme h3[onclick]:hover {
+    border-color: var(--border-accent);
+    background: var(--bg-card-hover);
+}
+
+body.arcops-theme .config-section-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+}
+
+
+/* ===================================
+   13. EXTENSION LIST
+   =================================== */
+
+body.arcops-theme #extensionsList > div {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: var(--space-md);
+    transition: all var(--transition-fast);
+}
+
+body.arcops-theme #extensionsList > div:hover {
+    border-color: var(--border-accent);
+}
+
+
+/* ===================================
+   14. EXPORT TABS
+   =================================== */
+
+body.arcops-theme .export-tab {
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-muted);
+    padding: var(--space-sm) var(--space-lg);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+body.arcops-theme .export-tab:hover {
+    color: var(--text-secondary);
+}
+
+body.arcops-theme .export-tab.active-tab {
+    color: var(--accent-cyan);
+    border-bottom-color: var(--accent-cyan);
+}
+
+body.arcops-theme .export-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+}
+
+
+/* ===================================
+   15. FOOTER
+   =================================== */
+
+body.arcops-theme footer {
+    background: transparent;
+    color: var(--text-muted);
+    padding: var(--space-xl);
+    text-align: center;
+    margin-top: var(--space-2xl);
+}
+
+body.arcops-theme footer a {
+    color: var(--accent-cyan);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+body.arcops-theme footer a:hover {
+    color: var(--text-primary);
+}
+
+
+/* ===================================
+   16. SCROLLBAR STYLING
+   =================================== */
+
+body.arcops-theme ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+body.arcops-theme ::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+body.arcops-theme ::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 4px;
+}
+
+body.arcops-theme ::-webkit-scrollbar-thumb:hover {
+    background: var(--border-accent);
+}
+
+
+/* ===================================
+   17. RESPONSIVE ADJUSTMENTS
+   =================================== */
+
+@media (max-width: 768px) {
+    body.arcops-theme header h1 {
+        font-size: 1.6rem;
+    }
+    
+    body.arcops-theme .wizard-step {
+        padding: var(--space-lg);
+    }
+    
+    body.arcops-theme .workload-cards,
+    body.arcops-theme .industry-cards,
+    body.arcops-theme .environment-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ===================================
+   18. LOADING STATES
+   =================================== */
+
+body.arcops-theme .btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+body.arcops-theme .btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--bg-primary);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+
+/* ===================================
+   19. GLOW EFFECTS
+   =================================== */
+
+.glow-cyan {
+    box-shadow: 0 0 20px var(--accent-cyan-glow);
+}
+
+.glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 20px var(--accent-cyan-glow); }
+    50% { box-shadow: 0 0 40px var(--accent-cyan-glow), 0 0 60px var(--accent-cyan-glow); }
+}

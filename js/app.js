@@ -1799,11 +1799,23 @@ function initializeTheme() {
 }
 
 /**
- * Toggle between light and dark theme
+ * Toggle between light, dark, and ArcOps themes
  */
 function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    const body = document.body;
+    const currentTheme = body.classList.contains('arcops-theme') ? 'arcops' :
+                        (document.documentElement.getAttribute('data-theme') || 'light');
+    
+    // Cycle through: light -> dark -> arcops -> light
+    let newTheme;
+    if (currentTheme === 'light') {
+        newTheme = 'dark';
+    } else if (currentTheme === 'dark') {
+        newTheme = 'arcops';
+    } else {
+        newTheme = 'light';
+    }
+    
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
 }
@@ -1812,17 +1824,27 @@ function toggleTheme() {
  * Set theme and update UI
  */
 function setTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    
+    const body = document.body;
     const icon = document.getElementById('themeIcon');
     const label = document.getElementById('themeLabel');
     
+    // Remove all theme classes
+    body.classList.remove('arcops-theme');
+    document.documentElement.removeAttribute('data-theme');
+    
     if (theme === 'dark') {
-        icon.textContent = '☀️';
-        label.textContent = 'Light';
+        document.documentElement.setAttribute('data-theme', 'dark');
+        if (icon) icon.textContent = '🎨';
+        if (label) label.textContent = 'ArcOps';
+    } else if (theme === 'arcops') {
+        body.classList.add('arcops-theme');
+        document.documentElement.setAttribute('data-theme', 'dark');
+        if (icon) icon.textContent = '☀️';
+        if (label) label.textContent = 'Light';
     } else {
-        icon.textContent = '🌙';
-        label.textContent = 'Dark';
+        // Light theme (default)
+        if (icon) icon.textContent = '🌙';
+        if (label) label.textContent = 'Dark';
     }
 }
 

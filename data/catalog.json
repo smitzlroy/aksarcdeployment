@@ -816,6 +816,272 @@
         "Azure Bastion for secure remote access",
         "Azure Site Recovery for disaster recovery"
       ]
+    },
+    "healthcare": {
+      "name": "Healthcare & Life Sciences",
+      "icon": "🏥",
+      "description": "Hospitals, clinics, pharmaceuticals, and medical devices",
+      "regulatory_frameworks": [
+        {
+          "name": "HIPAA",
+          "description": "Health Insurance Portability and Accountability Act",
+          "scope": "Protected Health Information (PHI) security and privacy",
+          "key_requirements": [
+            "Access controls (§164.312(a)(1))",
+            "Audit controls (§164.312(b))",
+            "Integrity controls (§164.312(c)(1))",
+            "Transmission security (§164.312(e)(1))",
+            "Risk assessment (§164.308(a)(1))"
+          ]
+        },
+        {
+          "name": "HITRUST CSF",
+          "description": "Health Information Trust Alliance Common Security Framework",
+          "scope": "Comprehensive healthcare security certification",
+          "key_requirements": [
+            "Information protection program",
+            "Risk management",
+            "Access control management",
+            "Security awareness training",
+            "Incident management"
+          ]
+        },
+        {
+          "name": "FDA 21 CFR Part 11",
+          "description": "Electronic Records and Signatures",
+          "scope": "Electronic records in FDA-regulated industries",
+          "key_requirements": [
+            "Electronic signature validation",
+            "Audit trail requirements",
+            "System access controls",
+            "Record retention and retrieval"
+          ]
+        }
+      ],
+      "security_pillars": [
+        {
+          "pillar": "PHI Protection",
+          "requirements": [
+            "Encryption at rest and in transit",
+            "Minimum necessary access principle",
+            "Business Associate Agreements",
+            "Data loss prevention",
+            "Secure data disposal"
+          ]
+        },
+        {
+          "pillar": "Medical Device Security",
+          "requirements": [
+            "Network segmentation for medical devices",
+            "Vulnerability management",
+            "Secure boot and firmware integrity",
+            "Device identity management",
+            "Continuous monitoring"
+          ]
+        },
+        {
+          "pillar": "Clinical Workflow Security",
+          "requirements": [
+            "Single sign-on with MFA",
+            "Role-based access control",
+            "Emergency access procedures",
+            "Audit logging for PHI access",
+            "Patient consent management"
+          ]
+        }
+      ],
+      "azure_security_services": [
+        "Azure API for FHIR",
+        "Microsoft Cloud for Healthcare",
+        "Azure Purview for data governance",
+        "Microsoft Defender for Cloud",
+        "Azure Key Vault for encryption keys"
+      ]
+    },
+    "financial": {
+      "name": "Financial Services",
+      "icon": "🏦",
+      "description": "Banking, insurance, capital markets, and fintech",
+      "regulatory_frameworks": [
+        {
+          "name": "PCI-DSS",
+          "description": "Payment Card Industry Data Security Standard",
+          "scope": "Payment card data protection",
+          "key_requirements": [
+            "Build and maintain secure networks",
+            "Protect cardholder data",
+            "Maintain vulnerability management",
+            "Implement strong access control",
+            "Regularly test security systems"
+          ]
+        },
+        {
+          "name": "SOX",
+          "description": "Sarbanes-Oxley Act",
+          "scope": "Financial reporting and internal controls",
+          "key_requirements": [
+            "Internal control assessment",
+            "Management certification",
+            "Auditor attestation",
+            "Enhanced disclosure requirements"
+          ]
+        },
+        {
+          "name": "GLBA",
+          "description": "Gramm-Leach-Bliley Act",
+          "scope": "Consumer financial information protection",
+          "key_requirements": [
+            "Financial privacy notices",
+            "Safeguard customer information",
+            "Pretexting protection",
+            "Service provider oversight"
+          ]
+        },
+        {
+          "name": "SOC 2",
+          "description": "Service Organization Control 2",
+          "scope": "Service provider security, availability, and confidentiality",
+          "key_requirements": [
+            "Security (CC series)",
+            "Availability criteria",
+            "Processing integrity",
+            "Confidentiality controls",
+            "Privacy management"
+          ]
+        }
+      ],
+      "security_pillars": [
+        {
+          "pillar": "Transaction Security",
+          "requirements": [
+            "Strong customer authentication",
+            "Transaction monitoring",
+            "Fraud detection systems",
+            "Secure API gateways",
+            "Payment tokenization"
+          ]
+        },
+        {
+          "pillar": "Regulatory Compliance",
+          "requirements": [
+            "Know Your Customer (KYC)",
+            "Anti-money laundering (AML)",
+            "Suspicious activity reporting",
+            "Data retention policies",
+            "Regulatory reporting automation"
+          ]
+        },
+        {
+          "pillar": "Operational Resilience",
+          "requirements": [
+            "Business continuity planning",
+            "Disaster recovery testing",
+            "Third-party risk management",
+            "Incident response procedures",
+            "Crisis communication plans"
+          ]
+        }
+      ],
+      "azure_security_services": [
+        "Azure Confidential Computing",
+        "Azure Managed HSM",
+        "Microsoft Defender for Cloud",
+        "Azure DDoS Protection",
+        "Azure Sentinel for threat detection"
+      ]
+    },
+    "government": {
+      "name": "Government & Public Sector",
+      "icon": "🏛️",
+      "description": "Federal, state, and local government agencies",
+      "regulatory_frameworks": [
+        {
+          "name": "FedRAMP",
+          "description": "Federal Risk and Authorization Management Program",
+          "scope": "Cloud services for US federal agencies",
+          "key_requirements": [
+            "NIST 800-53 control implementation",
+            "Third-party assessment",
+            "Continuous monitoring",
+            "Authorization to Operate (ATO)",
+            "Annual assessments"
+          ]
+        },
+        {
+          "name": "CJIS",
+          "description": "Criminal Justice Information Services Security Policy",
+          "scope": "Criminal justice information protection",
+          "key_requirements": [
+            "Advanced authentication",
+            "Personnel security",
+            "Physical security",
+            "System access control",
+            "Incident response"
+          ]
+        },
+        {
+          "name": "StateRAMP",
+          "description": "State Risk and Authorization Management Program",
+          "scope": "Cloud services for state and local governments",
+          "key_requirements": [
+            "Security assessment",
+            "Continuous monitoring",
+            "Risk management",
+            "Standardized security baseline"
+          ]
+        },
+        {
+          "name": "NIST 800-171",
+          "description": "Protecting Controlled Unclassified Information",
+          "scope": "CUI in non-federal systems",
+          "key_requirements": [
+            "Access control",
+            "Awareness and training",
+            "Configuration management",
+            "Incident response",
+            "System and communications protection"
+          ]
+        }
+      ],
+      "security_pillars": [
+        {
+          "pillar": "Data Sovereignty",
+          "requirements": [
+            "Data residency compliance",
+            "Sovereign cloud deployment",
+            "Cross-border data transfer controls",
+            "Government data classification",
+            "Clearance-based access"
+          ]
+        },
+        {
+          "pillar": "Citizen Data Protection",
+          "requirements": [
+            "Privacy impact assessments",
+            "Consent management",
+            "Data minimization",
+            "Transparent data practices",
+            "Public records retention"
+          ]
+        },
+        {
+          "pillar": "Critical Infrastructure",
+          "requirements": [
+            "Continuous monitoring",
+            "Supply chain security",
+            "Zero trust architecture",
+            "Secure by design principles",
+            "Interagency coordination"
+          ]
+        }
+      ],
+      "azure_security_services": [
+        "Azure Government",
+        "Azure Government Secret",
+        "Microsoft 365 Government",
+        "Azure Policy for compliance",
+        "Microsoft Defender for Government"
+      ]
     }
   },
   "security_baseline": {

@@ -42,20 +42,28 @@ class ComplianceAnalyzer {
                 'ISO 27001': ['A.17.1.1', 'A.17.1.2'],
                 'PCI-DSS': ['2.2', '10.5'],
                 'NIST CSF': ['PR.IP-9', 'PR.PT-5'],
-                'NERC CIP': ['CIP-002-5.1', 'CIP-007-6']
+                'NERC CIP': ['CIP-002-5.1', 'CIP-007-6'],
+                'HIPAA': ['§164.308(a)(7)', '§164.310(a)(2)(i)'],
+                'SOX': ['Section 404'],
+                'FedRAMP': ['CP-7', 'CP-9'],
+                'SOC 2': ['A1.2', 'CC7.5']
             },
             'availability-sets': {
                 'ISO 27001': ['A.17.2.1'],
                 'NERC CIP': ['CIP-009-6'],
-                'IEC 62443': ['SR 7.1', 'SR 7.2']
+                'IEC 62443': ['SR 7.1', 'SR 7.2'],
+                'HIPAA': ['§164.308(a)(7)(ii)(B)'],
+                'FedRAMP': ['CP-6', 'SC-6']
             },
             'auto-scaling': {
                 'ISO 27001': ['A.12.1.3'],
-                'NIST CSF': ['DE.AE-5']
+                'NIST CSF': ['DE.AE-5'],
+                'SOC 2': ['A1.1']
             },
             'min-nodes': {
                 'ISO 27001': ['A.17.1.1'],
-                'PCI-DSS': ['12.10.1']
+                'PCI-DSS': ['12.10.1'],
+                'SOC 2': ['A1.2']
             },
             'monitoring': {
                 'ISO 27001': ['A.12.4.1', 'A.16.1.2'],
@@ -63,20 +71,30 @@ class ComplianceAnalyzer {
                 'GDPR': ['Article 32(1)(d)', 'Article 33'],
                 'CCPA': ['1798.150'],
                 'NERC CIP': ['CIP-007-6 R4'],
-                'NIST CSF': ['DE.CM-1', 'DE.CM-3', 'DE.CM-7']
+                'NIST CSF': ['DE.CM-1', 'DE.CM-3', 'DE.CM-7'],
+                'HIPAA': ['§164.312(b)', '§164.308(a)(1)(ii)(D)'],
+                'SOX': ['Section 302', 'Section 404'],
+                'FedRAMP': ['AU-2', 'AU-6', 'SI-4'],
+                'SOC 2': ['CC7.1', 'CC7.2']
             },
             'backup': {
                 'ISO 27001': ['A.12.3.1', 'A.17.1.2', 'A.17.1.3'],
                 'PCI-DSS': ['3.1', '9.5'],
                 'GDPR': ['Article 32(1)(c)'],
                 'NERC CIP': ['CIP-009-6 R1'],
-                'API 1164': ['Section 7.3']
+                'API 1164': ['Section 7.3'],
+                'HIPAA': ['§164.308(a)(7)(ii)(A)', '§164.310(d)(2)(iv)'],
+                'FedRAMP': ['CP-9', 'CP-10'],
+                'SOC 2': ['A1.2', 'CC7.5']
             },
             'network-policies': {
                 'ISO 27001': ['A.13.1.1', 'A.13.1.3'],
                 'PCI-DSS': ['1.2', '1.3'],
                 'IEC 62443': ['SR 3.1', 'SR 5.1'],
-                'NERC CIP': ['CIP-005-6']
+                'NERC CIP': ['CIP-005-6'],
+                'HIPAA': ['§164.312(e)(1)'],
+                'FedRAMP': ['SC-7', 'AC-4'],
+                'SOC 2': ['CC6.1', 'CC6.6']
             },
             'rbac': {
                 'ISO 27001': ['A.9.1.1', 'A.9.1.2', 'A.9.2.1'],
@@ -84,7 +102,11 @@ class ComplianceAnalyzer {
                 'GDPR': ['Article 32(1)(b)'],
                 'CCPA': ['1798.100(d)'],
                 'TISAX': ['Information Security'],
-                'NERC CIP': ['CIP-004-6']
+                'NERC CIP': ['CIP-004-6'],
+                'HIPAA': ['§164.312(a)(1)', '§164.312(d)'],
+                'SOX': ['Section 404'],
+                'FedRAMP': ['AC-2', 'AC-3', 'AC-6'],
+                'SOC 2': ['CC6.1', 'CC6.2', 'CC6.3']
             },
             'encryption-at-rest': {
                 'ISO 27001': ['A.10.1.1', 'A.10.1.2'],
@@ -92,14 +114,20 @@ class ComplianceAnalyzer {
                 'GDPR': ['Article 32(1)(a)'],
                 'CCPA': ['1798.150'],
                 'IEC 62351': ['Part 3', 'Part 6'],
-                'TISAX': ['Data Protection']
+                'TISAX': ['Data Protection'],
+                'HIPAA': ['§164.312(a)(2)(iv)', '§164.312(e)(2)(ii)'],
+                'FedRAMP': ['SC-28', 'SC-13'],
+                'SOC 2': ['CC6.1', 'CC6.7']
             },
             'network-segmentation': {
                 'ISO 27001': ['A.13.1.3'],
                 'PCI-DSS': ['1.1', '1.3', '11.3'],
                 'IEC 62443': ['SR 3.1', 'SR 5.1', 'SR 5.2'],
                 'NERC CIP': ['CIP-005-6 R1'],
-                'API 1164': ['Section 5.2']
+                'API 1164': ['Section 5.2'],
+                'HIPAA': ['§164.312(e)(1)'],
+                'FedRAMP': ['SC-7', 'SC-32'],
+                'SOC 2': ['CC6.6']
             },
             'audit-logging': {
                 'ISO 27001': ['A.12.4.1', 'A.12.4.3'],
@@ -107,7 +135,49 @@ class ComplianceAnalyzer {
                 'GDPR': ['Article 30', 'Article 32(1)(d)'],
                 'CCPA': ['1798.100(d)'],
                 'NERC CIP': ['CIP-007-6 R4'],
-                'NIST CSF': ['PR.PT-1', 'DE.AE-3']
+                'NIST CSF': ['PR.PT-1', 'DE.AE-3'],
+                'HIPAA': ['§164.312(b)', '§164.308(a)(1)(ii)(D)'],
+                'SOX': ['Section 302', 'Section 404'],
+                'FedRAMP': ['AU-2', 'AU-3', 'AU-6', 'AU-12'],
+                'SOC 2': ['CC7.2', 'CC7.3']
+            },
+            'defender-enabled': {
+                'ISO 27001': ['A.12.6.1', 'A.14.2.8'],
+                'PCI-DSS': ['5.1', '5.2', '6.1'],
+                'NIST CSF': ['DE.CM-4', 'RS.AN-1'],
+                'HIPAA': ['§164.308(a)(5)(ii)(B)'],
+                'FedRAMP': ['SI-3', 'SI-7', 'RA-5'],
+                'SOC 2': ['CC6.8', 'CC7.1']
+            },
+            'policy-enabled': {
+                'ISO 27001': ['A.5.1.1', 'A.18.1.1'],
+                'PCI-DSS': ['12.1', '12.2'],
+                'NIST CSF': ['ID.GV-1', 'ID.GV-3'],
+                'HIPAA': ['§164.308(a)(1)(i)'],
+                'FedRAMP': ['CM-1', 'CM-2', 'CM-6'],
+                'SOC 2': ['CC1.1', 'CC5.1']
+            },
+            'pod-security-standards': {
+                'ISO 27001': ['A.14.1.2', 'A.14.2.1'],
+                'PCI-DSS': ['2.2', '6.2'],
+                'NIST CSF': ['PR.IP-1'],
+                'FedRAMP': ['CM-7', 'SC-3'],
+                'SOC 2': ['CC6.1']
+            },
+            'workload-identity': {
+                'ISO 27001': ['A.9.2.3', 'A.9.4.2'],
+                'PCI-DSS': ['8.1.5', '8.2'],
+                'HIPAA': ['§164.312(d)'],
+                'FedRAMP': ['IA-2', 'IA-5'],
+                'SOC 2': ['CC6.1', 'CC6.2']
+            },
+            'private-cluster': {
+                'ISO 27001': ['A.13.1.1', 'A.13.2.1'],
+                'PCI-DSS': ['1.3.1', '1.3.2'],
+                'NIST CSF': ['PR.AC-5'],
+                'HIPAA': ['§164.312(e)(1)'],
+                'FedRAMP': ['SC-7', 'SC-8'],
+                'SOC 2': ['CC6.6', 'CC6.7']
             }
         };
     }

@@ -10,6 +10,7 @@
     <title>AKS Arc Deployment Tool</title>
     <link rel="stylesheet" href="css/style.css?v=20251218-UI-CLEANUP">
     <link rel="stylesheet" href="css/polish.css?v=180102">
+    <link rel="stylesheet" href="css/arcops-theme.css?v=20260126-REVIEW">
 </head>
 <body>
     <div class="container">
@@ -75,6 +76,36 @@
                             <div class="compliance-tags">
                                 <span class="tag">Critical Infrastructure</span>
                                 <span class="tag">SCADA/ICS</span>
+                            </div>
+                        </div>
+                        
+                        <div class="industry-card" onclick="selectIndustry('healthcare')" id="industry-healthcare">
+                            <div class="industry-icon">🏥</div>
+                            <h4>Healthcare</h4>
+                            <p>HIPAA, HITRUST, FDA 21 CFR Part 11</p>
+                            <div class="compliance-tags">
+                                <span class="tag">PHI Protection</span>
+                                <span class="tag">Medical Devices</span>
+                            </div>
+                        </div>
+                        
+                        <div class="industry-card" onclick="selectIndustry('financial')" id="industry-financial">
+                            <div class="industry-icon">🏦</div>
+                            <h4>Financial Services</h4>
+                            <p>PCI-DSS, SOX, SOC 2, GLBA</p>
+                            <div class="compliance-tags">
+                                <span class="tag">Transaction Security</span>
+                                <span class="tag">Regulatory</span>
+                            </div>
+                        </div>
+                        
+                        <div class="industry-card" onclick="selectIndustry('government')" id="industry-government">
+                            <div class="industry-icon">🏛️</div>
+                            <h4>Government</h4>
+                            <p>FedRAMP, CJIS, NIST 800-171</p>
+                            <div class="compliance-tags">
+                                <span class="tag">Data Sovereignty</span>
+                                <span class="tag">Critical Infra</span>
                             </div>
                         </div>
                         
