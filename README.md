@@ -2,34 +2,93 @@
 
 # 🚀 AKS Arc Deployment Tool
 
-### **Production-Ready IaC Generator for Azure Kubernetes Service on Azure Local 2511**
+### **Sovereign Private Cloud & On-Premises AI Infrastructure**
+### Deploy AKS on Azure Local with Full Data Residency
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-smitzlroy.github.io/aksarcdeployment-0078d4?style=for-the-badge)](https://smitzlroy.github.io/aksarcdeployment)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/Deployed_on-GitHub_Pages-222?style=for-the-badge&logo=github)](https://github.com/smitzlroy/aksarcdeployment)
 
-*Plan, configure, and generate deployment artifacts for AKS Arc clusters with a modern web-based wizard*
+*Plan and generate IaC for sovereign AKS Arc clusters — your data stays on your infrastructure*
 
-[🎯 Try Live Demo](#-quick-start) · [📖 Documentation](#-features) · [🤝 Contributing](#-contributing)
+[🎯 Try Live Demo](#-quick-start) · [🏛️ Sovereign Cloud](#%EF%B8%8F-sovereign-private-cloud--ai) · [📖 Documentation](#-features) · [🤝 Contributing](#-contributing)
 
 </div>
 
 ---
 
+## 🏛️ Sovereign Private Cloud & AI
+
+**AKS Arc on Azure Local** is the foundation for **sovereign private cloud** deployments, enabling organizations to run AI workloads and containerized applications with **complete data residency** while maintaining Azure's management capabilities.
+
+### 🎯 Why AKS Arc for Sovereign Cloud?
+
+| Capability | Benefit |
+|------------|---------|
+| **🔒 Data Sovereignty** | Your data never leaves your premises — only management metadata flows to Azure |
+| **🤖 Foundry Local Ready** | Run Microsoft Foundry Local, SLMs, and AI models entirely on-premises |
+| **🌐 Air-Gap Capable** | Arc Gateway reduces firewall endpoints from 80+ to <30, enabling restricted network deployments |
+| **🏢 Regulatory Compliance** | Meet GDPR, data residency laws, HIPAA, FedRAMP, and industry-specific requirements |
+| **⚡ Edge AI Inference** | GPU-accelerated inference at the edge with full data isolation |
+| **🔐 Zero Trust Ready** | Entra ID integration, workload identity, and Pod Security Standards |
+
+### 🤖 Foundry Local & Sovereign AI
+
+This tool helps you deploy infrastructure for **Microsoft Foundry Local** and sovereign AI workloads:
+
+- **On-Premises LLMs** — Run Phi, Llama, Mistral, and other models locally
+- **Edge RAG** — Document search and AI chat without cloud data egress
+- **Private Inference** — GPU-accelerated AI that never touches public cloud
+- **Data Classification** — Process sensitive data without compliance concerns
+
+### 📊 Sovereign Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     YOUR INFRASTRUCTURE                         │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │                    Azure Local Cluster                     │  │
+│  │  ┌─────────────────┐  ┌─────────────────────────────────┐ │  │
+│  │  │  AKS Arc        │  │  Your Workloads                 │ │  │
+│  │  │  Control Plane  │  │  • Foundry Local / SLMs         │ │  │
+│  │  │  (Kubernetes)   │  │  • Edge RAG & AI Inference      │ │  │
+│  │  └─────────────────┘  │  • Sovereign Applications       │ │  │
+│  │                       │  • IoT & OT Data Processing     │ │  │
+│  │  DATA STAYS HERE ───► │  • Video Analytics              │ │  │
+│  │                       └─────────────────────────────────┘ │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                              │                                   │
+│                              │ Management Only                   │
+│                              │ (Metadata, Telemetry)             │
+│                              ▼                                   │
+└─────────────────────────────────────────────────────────────────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │    Azure Arc        │
+                    │  (Control Plane)    │
+                    │  • Policy           │
+                    │  • Monitoring       │
+                    │  • GitOps           │
+                    └─────────────────────┘
+```
+
+---
+
 ## 🌟 Overview
 
-The **AKS Arc Deployment Tool** is a comprehensive, browser-based deployment planner that generates production-ready Infrastructure as Code (IaC) for Azure Kubernetes Service on Azure Local 2511. No installation required—just open in your browser and start planning your cluster.
+The **AKS Arc Deployment Tool** is a comprehensive, browser-based deployment planner that generates production-ready Infrastructure as Code (IaC) for Azure Kubernetes Service on Azure Local 2511. No installation required—just open in your browser and start planning your sovereign cluster.
 
 ### ✨ What Makes This Special?
 
+- **🏛️ Sovereign by Design** - Data stays on-premises, only management telemetry to Azure
+- **🤖 Foundry Local Ready** - Pre-configured for on-premises AI/ML workloads
 - **🖱️ Zero Installation** - Runs entirely in your browser with GitHub Pages
-- **🎨 Modern UI** - Clean, intuitive wizard with light/dark themes
 - **📦 Multi-Format Export** - Generate Bicep, ARM JSON, and Terraform in one click
-- **🔒 Industry Compliance** - Built-in regulatory framework guidance (ISO 27001, PCI-DSS, GDPR, etc.)
-- **🎯 Workload Presets** - Pre-configured templates for Video Analytics, AI/ML, and more
+- **🔒 Industry Compliance** - Built-in regulatory framework guidance (GDPR, HIPAA, FedRAMP, etc.)
+- **🎯 Workload Presets** - Pre-configured templates for Edge RAG, Video Analytics, AI/ML
 - **⚡ Real-Time Planning** - Intelligent availability set calculations and resource placement
 - **🔐 Security Scoring** - Built-in security scorecard with compliance gap analysis
-- **📊 Smart Recommendations** - CPU/GPU sizing based on workload characteristics
+- **🌐 Air-Gap Support** - Arc Gateway configuration for restricted networks
 
 ---
 
