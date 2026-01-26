@@ -252,6 +252,49 @@ function toggleSection(sectionId) {
 }
 
 /**
+ * Track whether all advanced sections are expanded
+ */
+let allAdvancedExpanded = false;
+
+/**
+ * Toggle all advanced configuration sections in Step 2
+ */
+function toggleAllAdvancedSections() {
+    const advancedSections = [
+        'clusterSizingSection',
+        'networkConfigSection', 
+        'storageConfigSection',
+        'identityConfigSection',
+        'arcGatewayConfigSection',
+        'firewallConfigSection',
+        'monitoringConfigSection',
+        'securityConfigSection'
+    ];
+    
+    allAdvancedExpanded = !allAdvancedExpanded;
+    
+    advancedSections.forEach(sectionId => {
+        const section = document.getElementById(sectionId);
+        const toggleIcon = document.getElementById(sectionId.replace('Section', 'Toggle'));
+        
+        if (section) {
+            section.style.display = allAdvancedExpanded ? 'block' : 'none';
+            if (toggleIcon) {
+                toggleIcon.style.transform = allAdvancedExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+            }
+        }
+    });
+    
+    // Update the toggle button
+    const expandBtn = document.getElementById('expandAllBtn');
+    const expandIcon = document.getElementById('expandAllIcon');
+    const expandText = document.getElementById('expandAllText');
+    
+    if (expandIcon) expandIcon.textContent = allAdvancedExpanded ? '▲' : '▼';
+    if (expandText) expandText.textContent = allAdvancedExpanded ? 'Hide All' : 'Show All';
+}
+
+/**
  * Update identity provider options display
  */
 function updateIdentityOptions() {

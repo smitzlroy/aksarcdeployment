@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArcOps MCP Architecture v2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(180deg, #0a1628 0%, #0d1f3c 50%, #0a1628 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #fff;
+            padding: 40px;
+            overflow-x: auto;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed, #10b981, #00d4ff);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 4s ease infinite;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #5a7a9a;
+            margin-bottom: 50px;
+            font-size: 1rem;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+            100% { background-position: 0% center; }
+        }
+
+        .architecture {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            min-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+
+        /* Columns */
+        .column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .column-wide {
+            gap: 10px;
+        }
+
+        /* Simple horizontal connector */
+        .connector {
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding: 0 5px;
+        }
+
+        .connector-line {
+            width: 60px;
+            height: 3px;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .connector-line::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 5px solid transparent;
+            border-left: 7px solid currentColor;
+        }
+
+        .connector-line .dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 8px currentColor;
+            animation: flow 2s ease-in-out infinite;
+        }
+
+        @keyframes flow {
+            0% { left: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: calc(100% - 8px); opacity: 0; }
+        }
+
+        .step-num {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid currentColor;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .label {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            white-space: nowrap;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid currentColor;
+            opacity: 0.8;
+        }
+
+        /* Branching connectors */
+        .branch-connector {
+            width: 80px;
+            height: 420px;
+            position: relative;
+        }
+
+        .branch-connector svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .branch-connector .step-num {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+        }
+
+        /* Node cards */
+        .node {
+            background: rgba(20, 40, 70, 0.6);
+            border: 1px solid rgba(100, 150, 200, 0.2);
+            border-radius: 12px;
+            padding: 14px;
+            min-width: 170px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .node:hover {
+            border-color: rgba(100, 150, 200, 0.4);
+            transform: scale(1.02);
+        }
+
+        .node-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .node-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .node-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .node-subtitle {
+            font-size: 0.65rem;
+            color: #5a7a9a;
+        }
+
+        .node-content {
+            font-size: 0.7rem;
+            color: #8aa8c8;
+            line-height: 1.4;
+        }
+
+        /* Node colors */
+        .node-user .node-icon { background: linear-gradient(135deg, #00d4ff, #0099cc); }
+        .node-llm .node-icon { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
+        .node-mcp .node-icon { background: linear-gradient(135deg, #10b981, #059669); }
+        .node-tool .node-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .node-data .node-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .node-pack .node-icon { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .node-artifact .node-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+
+        /* Smaller nodes */
+        .node-sm {
+            min-width: 130px;
+            padding: 10px;
+        }
+
+        .node-sm .node-icon {
+            width: 26px;
+            height: 26px;
+            font-size: 0.9rem;
+        }
+
+        .node-sm .node-title {
+            font-size: 0.8rem;
+        }
+
+        .node-sm .node-subtitle {
+            font-size: 0.6rem;
+        }
+
+        /* Model badges */
+        .badges {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .badge {
+            background: rgba(124, 58, 237, 0.2);
+            border: 1px solid rgba(124, 58, 237, 0.4);
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 0.6rem;
+            color: #a78bfa;
+        }
+
+        .badge.active {
+            background: rgba(124, 58, 237, 0.4);
+            color: #fff;
+        }
+
+        /* Section headers */
+        .section-label {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid;
+            border-radius: 6px;
+            padding: 6px 12px;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+
+        .section-label.orange { border-color: rgba(245, 158, 11, 0.5); color: #f59e0b; }
+        .section-label.teal { border-color: rgba(6, 182, 212, 0.5); color: #06b6d4; }
+        .section-label.purple { border-color: rgba(139, 92, 246, 0.5); color: #8b5cf6; }
+        .section-label.red { border-color: rgba(239, 68, 68, 0.5); color: #ef4444; }
+
+        /* Verdict badges */
+        .verdicts {
+            display: flex;
+            gap: 3px;
+            margin-top: 4px;
+        }
+        .verdict {
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.55rem;
+            font-weight: 600;
+        }
+        .verdict-green { background: rgba(16, 185, 129, 0.3); color: #10b981; }
+        .verdict-amber { background: rgba(245, 158, 11, 0.3); color: #f59e0b; }
+        .verdict-red { background: rgba(239, 68, 68, 0.3); color: #ef4444; }
+
+        /* Tool groups */
+        .tool-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Output column with two groups */
+        .output-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .output-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: #5a7a9a;
+        }
+
+        .legend-line {
+            width: 25px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        /* Colors */
+        .cyan { color: #00d4ff; background: #00d4ff; }
+        .purple { color: #7c3aed; background: #7c3aed; }
+        .green { color: #10b981; background: #10b981; }
+        .orange { color: #f59e0b; background: #f59e0b; }
+        .teal { color: #06b6d4; background: #06b6d4; }
+        .violet { color: #8b5cf6; background: #8b5cf6; }
+        .red { color: #ef4444; background: #ef4444; }
+    </style>
+</head>
+<body>
+    <h1>ArcOps MCP Architecture v2</h1>
+    <p class="subtitle">Edge AI Readiness, Trust & Safety Platform for Azure Local & AKS Arc</p>
+
+    <div class="architecture">
+        <!-- User -->
+        <div class="column">
+            <div class="node node-user">
+                <div class="node-header">
+                    <div class="node-icon">👤</div>
+                    <div>
+                        <div class="node-title">User / Agent</div>
+                        <div class="node-subtitle">Natural language query</div>
+                    </div>
+                </div>
+                <div class="node-content">
+                    <em>"Is my cluster ready for AI?"</em>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connector 1 -->
+        <div class="connector">
+            <div class="connector-line cyan" style="color: #00d4ff;">
+                <span class="step-num">1</span>
+                <span class="dot" style="background: #00d4ff;"></span>
+            </div>
+        </div>
+
+        <!-- LLM -->
+        <div class="column">
+            <div class="node node-llm">
+                <div class="node-header">
+                    <div class="node-icon">🧠</div>
+                    <div>
+                        <div class="node-title">LLM Engine</div>
+                        <div class="node-subtitle">Foundry Local / OpenAI</div>
+                    </div>
+                </div>
+                <div class="node-content">Orchestrates tools</div>
+                <div class="badges">
+                    <span class="badge active">Qwen 2.5</span>
+                    <span class="badge">Phi-4</span>
+                    <span class="badge">Llama</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connector 2 -->
+        <div class="connector">
+            <div class="connector-line purple" style="color: #7c3aed;">
+                <span class="step-num">2</span>
+                <span class="dot" style="background: #7c3aed; animation-delay: 0.3s;"></span>
+                <span class="label">MCP</span>
+            </div>
+        </div>
+
+        <!-- MCP Server -->
+        <div class="column">
+            <div class="node node-mcp">
+                <div class="node-header">
+                    <div class="node-icon">🔌</div>
+                    <div>
+                        <div class="node-title">ArcOps MCP</div>
+                        <div class="node-subtitle">Tool Router</div>
+                    </div>
+                </div>
+                <div class="node-content">14 tools · 2 categories</div>
+            </div>
+        </div>
+
+        <!-- Branching Connector 3 -->
+        <div class="branch-connector">
+            <svg viewBox="0 0 80 420" fill="none">
+                <!-- Main line from center -->
+                <line x1="0" y1="210" x2="25" y2="210" stroke="#10b981" stroke-width="3"/>
+                
+                <!-- Branch up to Diagnostic Tools -->
+                <path d="M25,210 L25,80 L70,80" stroke="#f59e0b" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <polygon points="70,76 70,84 78,80" fill="#f59e0b"/>
+                
+                <!-- Branch down to Readiness Packs -->
+                <path d="M25,210 L25,340 L70,340" stroke="#06b6d4" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <polygon points="70,336 70,344 78,340" fill="#06b6d4"/>
+                
+                <!-- Animated dots -->
+                <circle r="4" fill="#f59e0b">
+                    <animateMotion dur="1.5s" repeatCount="indefinite" path="M0,210 L25,210 L25,80 L70,80"/>
+                </circle>
+                <circle r="4" fill="#06b6d4">
+                    <animateMotion dur="1.5s" repeatCount="indefinite" path="M0,210 L25,210 L25,340 L70,340" begin="0.5s"/>
+                </circle>
+            </svg>
+            <span class="step-num green" style="color: #10b981; border-color: #10b981;">3</span>
+        </div>
+
+        <!-- Tools Column -->
+        <div class="column column-wide">
+            <!-- Diagnostic Tools -->
+            <div class="tool-column">
+                <div class="section-label orange">⚙️ Diagnostic Tools</div>
+                <div class="node node-sm node-tool">
+                    <div class="node-header">
+                        <div class="node-icon">📚</div>
+                        <div>
+                            <div class="node-title">TSG Search</div>
+                            <div class="node-subtitle">149 guides</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="node node-sm node-tool">
+                    <div class="node-header">
+                        <div class="node-icon">✅</div>
+                        <div>
+                            <div class="node-title">EnvCheck</div>
+                            <div class="node-subtitle">Cluster health</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="node node-sm node-tool">
+                    <div class="node-header">
+                        <div class="node-icon">🌐</div>
+                        <div>
+                            <div class="node-title">Egress Check</div>
+                            <div class="node-subtitle">Connectivity</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spacer -->
+            <div style="height: 40px;"></div>
+
+            <!-- Readiness Packs -->
+            <div class="tool-column">
+                <div class="section-label teal">🎯 Readiness Packs</div>
+                <div class="node node-sm node-pack">
+                    <div class="node-header">
+                        <div class="node-icon">🔐</div>
+                        <div>
+                            <div class="node-title">Supply-Chain Gate</div>
+                            <div class="node-subtitle">BYO model trust</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="node node-sm node-pack">
+                    <div class="node-header">
+                        <div class="node-icon">🛡️</div>
+                        <div>
+                            <div class="node-title">Network Safety</div>
+                            <div class="node-subtitle">Policy validation</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="node node-sm node-pack">
+                    <div class="node-header">
+                        <div class="node-icon">🎮</div>
+                        <div>
+                            <div class="node-title">GPU Check</div>
+                            <div class="node-subtitle">Hardware ready</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="node node-sm node-pack">
+                    <div class="node-header">
+                        <div class="node-icon">⚡</div>
+                        <div>
+                            <div class="node-title">Foundry Validate</div>
+                            <div class="node-subtitle">Inference test</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Branching Connector 4 -->
+        <div class="branch-connector">
+            <svg viewBox="0 0 80 420" fill="none">
+                <!-- From Diagnostic Tools center to Data Sources -->
+                <path d="M0,80 L70,80" stroke="#ef4444" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <polygon points="70,76 70,84 78,80" fill="#ef4444"/>
+                
+                <!-- From Readiness Packs to Artifact 1 (Approval) -->
+                <path d="M0,300 L40,300 L40,260 L70,260" stroke="#8b5cf6" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <polygon points="70,256 70,264 78,260" fill="#8b5cf6"/>
+                
+                <!-- From Readiness Packs to Artifact 2 (Safety) -->
+                <path d="M0,340 L70,340" stroke="#8b5cf6" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <polygon points="70,336 70,344 78,340" fill="#8b5cf6"/>
+                
+                <!-- From Readiness Packs to Artifact 3 (GPU) -->
+                <path d="M0,380 L40,380 L40,410 L70,410" stroke="#8b5cf6" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <polygon points="70,406 70,414 78,410" fill="#8b5cf6"/>
+                
+                <!-- Animated dots -->
+                <circle r="4" fill="#ef4444">
+                    <animateMotion dur="1.5s" repeatCount="indefinite" path="M0,80 L70,80" begin="0.7s"/>
+                </circle>
+                <circle r="4" fill="#8b5cf6">
+                    <animateMotion dur="1.5s" repeatCount="indefinite" path="M0,340 L70,340" begin="0.9s"/>
+                </circle>
+            </svg>
+            <span class="step-num violet" style="color: #8b5cf6; border-color: #8b5cf6; top: 60%;">4</span>
+        </div>
+
+        <!-- Outputs Column -->
+        <div class="output-column">
+            <!-- Data Sources -->
+            <div class="output-group">
+                <div class="section-label red">📊 Data Sources</div>
+                <div class="node node-sm node-data">
+                    <div class="node-header">
+                        <div class="node-icon">📖</div>
+                        <div>
+                            <div class="node-title">GitHub TSGs</div>
+                            <div class="node-subtitle">Azure supportability</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spacer -->
+            <div style="height: 60px;"></div>
+
+            <!-- Signed Artifacts -->
+            <div class="output-group">
+                <div class="section-label purple">📜 Signed Artifacts</div>
+                <div class="node node-sm node-artifact">
+                    <div class="node-header">
+                        <div class="node-icon">✅</div>
+                        <div>
+                            <div class="node-title">Approval</div>
+                            <div class="node-subtitle">SHA-256 signed</div>
+                        </div>
+                    </div>
+                    <div class="verdicts">
+                        <span class="verdict verdict-green">GREEN</span>
+                        <span class="verdict verdict-amber">AMBER</span>
+                        <span class="verdict verdict-red">RED</span>
+                    </div>
+                </div>
+                <div class="node node-sm node-artifact">
+                    <div class="node-header">
+                        <div class="node-icon">🛡️</div>
+                        <div>
+                            <div class="node-title">Safety Report</div>
+                            <div class="node-subtitle">Network policy</div>
+                        </div>
+                    </div>
+                    <div class="verdicts">
+                        <span class="verdict verdict-green">PASS</span>
+                        <span class="verdict verdict-amber">WARN</span>
+                        <span class="verdict verdict-red">FAIL</span>
+                    </div>
+                </div>
+                <div class="node node-sm node-artifact">
+                    <div class="node-header">
+                        <div class="node-icon">🎮</div>
+                        <div>
+                            <div class="node-title">GPU Readiness</div>
+                            <div class="node-subtitle">Hardware status</div>
+                        </div>
+                    </div>
+                    <div class="verdicts">
+                        <span class="verdict verdict-green">READY</span>
+                        <span class="verdict verdict-amber">DEGRADED</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-line cyan"></div>
+            ① User Query
+        </div>
+        <div class="legend-item">
+            <div class="legend-line purple"></div>
+            ② MCP Protocol
+        </div>
+        <div class="legend-item">
+            <div class="legend-line green"></div>
+            ③ Tool Routing
+        </div>
+        <div class="legend-item">
+            <div class="legend-line orange"></div>
+            Diagnostic Tools
+        </div>
+        <div class="legend-item">
+            <div class="legend-line teal"></div>
+            Readiness Packs
+        </div>
+        <div class="legend-item">
+            <div class="legend-line violet"></div>
+            ④ Signed Artifacts
+        </div>
+    </div>
+</body>
+</html>
