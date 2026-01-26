@@ -618,3 +618,73 @@ body.arcops-theme .form-group label {
 body.arcops-theme .form-group small {
     font-size: 0.75rem !important;
 }
+
+
+/* ===================================
+   CONFIGURATION TABS
+   =================================== */
+
+body.arcops-theme .config-tabs-container {
+    background: rgba(20, 40, 70, 0.4);
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+body.arcops-theme .config-tab {
+    background: rgba(20, 40, 70, 0.5);
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+body.arcops-theme .config-tab:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: rgba(30, 50, 80, 0.6);
+}
+
+body.arcops-theme .config-tab.active {
+    background: rgba(0, 212, 255, 0.15);
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    font-weight: 600;
+}
+
+body.arcops-theme .config-tab-content {
+    background: rgba(15, 31, 60, 0.5);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 20px;
+    min-height: 200px;
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+body.arcops-theme .config-tab-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+body.arcops-theme .config-tab-content::-webkit-scrollbar-track {
+    background: rgba(20, 40, 70, 0.3);
+    border-radius: 3px;
+}
+
+body.arcops-theme .config-tab-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 212, 255, 0.3);
+    border-radius: 3px;
+}
+
+body.arcops-theme .config-tab-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 212, 255, 0.5);
+}
+
+/* Hide original accordion sections when using tabs */
+body.arcops-theme .accordion-section-hidden {
+    display: none !important;
+}

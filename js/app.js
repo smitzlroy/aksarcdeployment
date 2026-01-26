@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadCatalog();
     initializeEventListeners();
     updateCatalogBanner();
-    initializeTheme();
+    initConfigTabs();
     
     // Initialize extension manager after catalog loads
     if (typeof ExtensionConfigManager !== 'undefined') {
@@ -292,6 +292,100 @@ function toggleAllAdvancedSections() {
     
     if (expandIcon) expandIcon.textContent = allAdvancedExpanded ? '▲' : '▼';
     if (expandText) expandText.textContent = allAdvancedExpanded ? 'Hide All' : 'Show All';
+}
+
+/**
+ * Current active configuration tab
+ */
+let activeConfigTab = 'sizing';
+
+/**
+ * Configuration tab content definitions
+ */
+const configTabContent = {
+    sizing: {
+        title: 'Cluster Sizing & VM Selection',
+        sectionId: 'clusterSizingSection'
+    },
+    network: {
+        title: 'Network Configuration', 
+        sectionId: 'networkConfigSection'
+    },
+    storage: {
+        title: 'Storage Configuration',
+        sectionId: 'storageConfigSection'
+    },
+    identity: {
+        title: 'Identity & Access Control',
+        sectionId: 'identityConfigSection'
+    },
+    gateway: {
+        title: 'Arc Gateway & Network Connectivity',
+        sectionId: 'arcGatewayConfigSection'
+    },
+    firewall: {
+        title: 'Firewall Requirements',
+        sectionId: 'firewallConfigSection'
+    },
+    monitoring: {
+        title: 'Monitoring & Observability',
+        sectionId: 'monitoringConfigSection'
+    },
+    security: {
+        title: 'Security & Compliance',
+        sectionId: 'securityConfigSection'
+    }
+};
+
+/**
+ * Show a specific configuration tab
+ */
+function showConfigTab(tabName) {
+    activeConfigTab = tabName;
+    
+    // Update tab buttons
+    document.querySelectorAll('.config-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    const activeTabBtn = document.getElementById(`tab-${tabName}`);
+    if (activeTabBtn) activeTabBtn.classList.add('active');
+    
+    // Get the content container
+    const contentContainer = document.getElementById('config-tab-content');
+    if (!contentContainer) return;
+    
+    // Get the source section
+    const tabConfig = configTabContent[tabName];
+    if (!tabConfig) return;
+    
+    const sourceSection = document.getElementById(tabConfig.sectionId);
+    if (sourceSection) {
+        // Clone the content and display it
+        contentContainer.innerHTML = sourceSection.innerHTML;
+    } else {
+        contentContainer.innerHTML = `<p style="color: var(--text-muted);">Loading ${tabConfig.title}...</p>`;
+    }
+}
+
+/**
+ * Initialize configuration tabs on page load
+ */
+function initConfigTabs() {
+    // Hide the original accordion sections
+    Object.values(configTabContent).forEach(config => {
+        const section = document.getElementById(config.sectionId);
+        if (section) {
+            section.classList.add('accordion-section-hidden');
+            // Also hide the h3 trigger
+            const trigger = section.previousElementSibling;
+            if (trigger && trigger.tagName === 'H3') {
+                trigger.classList.add('accordion-section-hidden');
+            }
+        }
+    });
+    
+    // Show the first tab by default
+    showConfigTab('sizing');
 }
 
 /**
