@@ -2027,305 +2027,161 @@ function displayNetworkDiagram(plan) {
     if (plan.arcGatewayConfig || plan.firewallConfig) {
         diagramSection.style.display = 'block';
         
-        // Create professional network architecture diagram matching screenshot style
         const arcGatewayEnabled = plan.arcGatewayConfig?.enabled || false;
         const regionName = plan.firewallConfig?.regionName || 'West Europe';
         const totalEndpoints = plan.firewallConfig?.totalEndpoints || '80+';
+        const nodeCount = plan.clusterConfig?.nodePools?.reduce((sum, pool) => sum + pool.nodeCount, 0) || 3;
+        const controlPlaneCount = plan.clusterConfig?.controlPlaneCount || 3;
         
         let html = `
-            <style>
-                .network-boundary {
-                    border: 2px solid #444;
-                    border-radius: 12px;
-                    padding: 20px;
-                    background: #2d2d30;
-                    position: relative;
-                    margin: 10px;
-                }
-                .network-label {
-                    position: absolute;
-                    top: -12px;
-                    left: 15px;
-                    background: #2d2d30;
-                    padding: 2px 10px;
-                    font-size: 11px;
-                    font-weight: bold;
-                    color: #61dafb;
-                    letter-spacing: 0.5px;
-                }
-                .component-box {
-                    background: #1e1e1e;
-                    border: 1px solid #555;
-                    border-radius: 6px;
-                    padding: 12px;
-                    text-align: center;
-                    min-width: 100px;
-                    font-size: 11px;
-                    color: #d4d4d4;
-                }
-                .component-icon {
-                    font-size: 28px;
-                    margin-bottom: 6px;
-                }
-                .component-title {
-                    font-weight: bold;
-                    color: #ffffff;
-                    margin-bottom: 2px;
-                    font-size: 12px;
-                }
-                .component-subtitle {
-                    color: #8e8e8e;
-                    font-size: 10px;
-                }
-                .flow-arrow {
-                    color: #61dafb;
-                    font-size: 20px;
-                    margin: 0 10px;
-                }
-                .flow-label {
-                    position: absolute;
-                    font-size: 9px;
-                    color: #4ec9b0;
-                    background: #2d2d30;
-                    padding: 2px 6px;
-                    border-radius: 3px;
-                    white-space: nowrap;
-                }
-                .service-endpoint {
-                    display: inline-block;
-                    background: #0078d4;
-                    color: white;
-                    padding: 4px 10px;
-                    border-radius: 4px;
-                    margin: 3px;
-                    font-size: 10px;
-                    font-weight: 500;
-                }
-                .gateway-box {
-                    background: linear-gradient(135deg, #0e7c7b 0%, #17b978 100%);
-                    border: 2px solid #17b978;
-                    color: white;
-                }
-                .firewall-box {
-                    background: linear-gradient(135deg, #c94b4b 0%, #e55039 100%);
-                    border: 2px solid #e55039;
-                    color: white;
-                }
-                .azure-box {
-                    background: linear-gradient(135deg, #0078d4 0%, #00bcf2 100%);
-                    border: 2px solid #00bcf2;
-                    color: white;
-                }
-                .internet-box {
-                    background: linear-gradient(135deg, #5f27cd 0%, #341f97 100%);
-                    border: 2px solid #5f27cd;
-                    color: white;
-                }
-            </style>
-            
-            <div style="background: #1e1e1e; border-radius: 8px; padding: 25px; color: #d4d4d4; font-family: 'Segoe UI', sans-serif;">
+            <div style="font-family: 'Segoe UI', system-ui, sans-serif;">
                 
-                <!-- Main Architecture Diagram -->
-                <div style="display: flex; align-items: stretch; gap: 15px; justify-content: center; margin-bottom: 25px; flex-wrap: wrap;">
+                <!-- Diagram Title -->
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <h4 style="color: #00d4ff; margin: 0 0 8px 0; font-size: 1.1rem;">
+                        ${arcGatewayEnabled ? 'Arc Gateway Enabled Architecture' : 'Standard Firewall Architecture'}
+                    </h4>
+                    <p style="color: #8aa8c8; margin: 0; font-size: 0.85rem;">
+                        ${arcGatewayEnabled ? 'Simplified connectivity with reduced firewall rules' : 'All traffic routed through enterprise firewall'}
+                    </p>
+                </div>
+                
+                <!-- Main Diagram Container -->
+                <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: start;">
                     
-                    <!-- Left: On-Premises Network -->
-                    <div class="network-boundary" style="flex: 1; min-width: 280px; max-width: 380px;">
-                        <div class="network-label">On-premises network</div>
+                    <!-- LEFT: On-Premises Infrastructure -->
+                    <div style="background: linear-gradient(180deg, rgba(20,40,70,0.8) 0%, rgba(15,30,55,0.9) 100%); border: 2px solid #1a5276; border-radius: 12px; padding: 16px; position: relative;">
+                        <div style="position: absolute; top: -10px; left: 16px; background: #0a1628; padding: 2px 12px; font-size: 0.75rem; color: #3498db; font-weight: 600; letter-spacing: 0.5px;">YOUR INFRASTRUCTURE</div>
                         
-                        <!-- Azure Local Instance -->
-                        <div style="background: #2d2d30; border: 1px solid #555; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                                <div style="font-size: 24px;">📦</div>
-                                <div>
-                                    <div style="font-weight: bold; color: #ffffff; font-size: 13px;">Azure Local Instance</div>
-                                </div>
+                        <!-- Azure Local Cluster -->
+                        <div style="background: rgba(10,22,40,0.7); border: 1px solid #2c3e50; border-radius: 8px; padding: 12px; margin-top: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #2c3e50;">
+                                <span style="font-size: 1.2rem;">🖥️</span>
+                                <span style="color: #fff; font-weight: 600; font-size: 0.9rem;">Azure Local Cluster</span>
                             </div>
                             
-                            <!-- Node1 -->
-                            <div style="background: #1e1e1e; border: 1px solid #3794ff; border-radius: 4px; padding: 10px; margin-bottom: 8px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div style="font-size: 20px;">💻</div>
-                                    <div>
-                                        <div class="component-title" style="font-size: 11px;">Node1</div>
-                                        <div class="component-subtitle">HTTPS traffic<br/>to customer<br/>proxy/firewall</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Arc Agent, Arc Proxy -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-                                <div class="component-box" style="padding: 8px;">
-                                    <div class="component-icon" style="font-size: 20px;">🔌</div>
-                                    <div class="component-title" style="font-size: 10px;">Arc agent</div>
-                                    <div class="component-subtitle">Arc proxy</div>
-                                </div>
-                                <div class="component-box" style="padding: 8px;">
-                                    <div class="component-icon" style="font-size: 20px;">🌐</div>
-                                    <div class="component-title" style="font-size: 10px;">OS HTTPS<br/>traffic</div>
-                                    <div class="component-subtitle">over Arc proxy</div>
-                                </div>
-                            </div>
-                            
-                            <!-- Cluster IP & Subnets -->
-                            <div style="background: #252526; border: 1px solid #4ec9b0; border-radius: 4px; padding: 10px; margin-bottom: 8px;">
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                                    <div style="font-size: 18px;">🔗</div>
-                                    <div class="component-title" style="font-size: 11px;">Cluster IP</div>
-                                </div>
-                                <div style="font-size: 9px; color: #8e8e8e;">
-                                    TCP destination ports<br/>
-                                    40343, 55000, 65000
-                                </div>
-                            </div>
-                            
-                            <!-- AKS Resources -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                <div style="background: #7b2cbf; border: 1px solid #9d4edd; border-radius: 4px; padding: 10px;">
+                            <!-- Control Plane -->
+                            <div style="background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.4); border-radius: 6px; padding: 10px; margin-bottom: 8px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
                                     <div style="display: flex; align-items: center; gap: 6px;">
-                                        <div style="font-size: 18px;">🎯</div>
-                                        <div>
-                                            <div class="component-title" style="font-size: 10px;">Arc resource<br/>bridge VM</div>
-                                            <div class="component-subtitle">using cluster IP as<br/>Arc proxy</div>
-                                        </div>
+                                        <span style="font-size: 0.9rem;">⚙️</span>
+                                        <span style="color: #a78bfa; font-size: 0.8rem; font-weight: 500;">Control Plane</span>
                                     </div>
+                                    <span style="background: #7c3aed; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem;">${controlPlaneCount} VMs</span>
                                 </div>
-                                <div style="background: #6a0dad; border: 1px solid #9d4edd; border-radius: 4px; padding: 10px;">
+                            </div>
+                            
+                            <!-- Worker Nodes -->
+                            <div style="background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); border-radius: 6px; padding: 10px; margin-bottom: 8px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
                                     <div style="display: flex; align-items: center; gap: 6px;">
-                                        <div style="font-size: 18px;">☸️</div>
-                                        <div>
-                                            <div class="component-title" style="font-size: 10px;">AKS subnet</div>
-                                            <div class="component-subtitle">Pods<br/>AKS cluster</div>
-                                        </div>
+                                        <span style="font-size: 0.9rem;">☸️</span>
+                                        <span style="color: #00d4ff; font-size: 0.8rem; font-weight: 500;">AKS Worker Nodes</span>
                                     </div>
+                                    <span style="background: #0891b2; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem;">${nodeCount} VMs</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Arc Resource Bridge -->
+                            <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 6px; padding: 10px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 0.9rem;">🌉</span>
+                                    <span style="color: #10b981; font-size: 0.8rem; font-weight: 500;">Arc Resource Bridge</span>
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- Intranet Services -->
-                        <div class="component-box" style="background: #1a472a; border: 1px solid #2d7a4f;">
-                            <div class="component-title" style="font-size: 11px;">Intranet Services</div>
-                            <div class="component-subtitle">DNS, Active Directory<br/>File Services, Others</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Middle: Arrows & Connectivity -->
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 20px 0;">
-                        <div style="position: relative;">
-                            <div class="flow-arrow" style="font-size: 32px;">→</div>
-                            <div class="flow-label" style="top: -20px; left: 50%; transform: translateX(-50%);">
-                                ${arcGatewayEnabled ? 'Arc gateway allowed HTTPS<br/>endpoints' : 'All traffic'}
+                        <!-- Ports Info -->
+                        <div style="margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 6px;">
+                            <div style="color: #8aa8c8; font-size: 0.7rem; margin-bottom: 6px; font-weight: 600;">OUTBOUND PORTS:</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                <span style="background: #1e3a5f; color: #60a5fa; padding: 2px 6px; border-radius: 3px; font-size: 0.65rem;">443 HTTPS</span>
+                                <span style="background: #1e3a5f; color: #60a5fa; padding: 2px 6px; border-radius: 3px; font-size: 0.65rem;">40343 Arc</span>
+                                <span style="background: #1e3a5f; color: #60a5fa; padding: 2px 6px; border-radius: 3px; font-size: 0.65rem;">55000 gRPC</span>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Right: Internet & Azure -->
-                    <div style="flex: 1; min-width: 280px; max-width: 380px; display: flex; flex-direction: column; gap: 15px;">
+                    <!-- CENTER: Connection Flow -->
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 8px; min-width: 100px;">
                         
-                        <!-- Internet -->
-                        <div class="network-boundary" style="flex: 0 0 auto;">
-                            <div class="network-label">Internet</div>
-                            <div class="component-box internet-box" style="padding: 20px;">
-                                <div class="component-icon" style="font-size: 32px;">🌍</div>
-                            </div>
+                        <!-- Data Flow Indicator -->
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <div style="color: #10b981; font-size: 0.7rem; font-weight: 600; margin-bottom: 4px;">DATA STAYS</div>
+                            <div style="color: #10b981; font-size: 0.7rem; font-weight: 600;">ON-PREM</div>
+                            <div style="font-size: 1.2rem; margin-top: 4px;">🔒</div>
                         </div>
                         
-                        <!-- Customer Firewall/Proxy or Arc Gateway -->
-                        <div class="network-boundary" style="flex: 0 0 auto;">
-                            <div class="network-label">${arcGatewayEnabled ? 'Arc gateway public endpoint' : 'Customer firewall/proxy'}</div>
-                            ${arcGatewayEnabled ? `
-                            <div class="component-box gateway-box" style="padding: 20px;">
-                                <div class="component-icon" style="font-size: 32px;">🚪</div>
-                                <div class="component-title">Arc Gateway</div>
-                                <div class="component-subtitle">Port 40343 tunnel<br/>HTTPS endpoints only</div>
-                            </div>
-                            ` : `
-                            <div class="component-box firewall-box" style="padding: 20px;">
-                                <div class="component-icon" style="font-size: 32px;">🔥</div>
-                                <div class="component-title">Enterprise Firewall</div>
-                                <div class="component-subtitle">${totalEndpoints} endpoints<br/>HTTP + HTTPS</div>
-                            </div>
-                            `}
+                        <!-- Arrow -->
+                        <div style="width: 60px; height: 2px; background: linear-gradient(90deg, #00d4ff, #7c3aed); position: relative; margin: 16px 0;">
+                            <div style="position: absolute; right: -6px; top: -4px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 8px solid #7c3aed;"></div>
                         </div>
                         
-                        <!-- Azure -->
-                        <div class="network-boundary" style="flex: 1;">
-                            <div class="network-label">Azure services endpoints</div>
-                            <div class="component-box azure-box" style="padding: 15px; margin-bottom: 12px;">
-                                <div class="component-icon" style="font-size: 32px;">☁️</div>
-                                <div class="component-title" style="font-size: 13px;">Microsoft Azure</div>
-                                <div class="component-subtitle">${regionName}</div>
+                        <!-- Management Only -->
+                        <div style="text-align: center; margin-top: 16px;">
+                            <div style="color: #f59e0b; font-size: 0.65rem; font-weight: 600;">MANAGEMENT</div>
+                            <div style="color: #f59e0b; font-size: 0.65rem; font-weight: 600;">ONLY</div>
+                            <div style="color: #8aa8c8; font-size: 0.6rem; margin-top: 4px;">Metadata<br/>Telemetry</div>
+                        </div>
+                    </div>
+                    
+                    <!-- RIGHT: Azure & Internet -->
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        
+                        <!-- Firewall/Gateway -->
+                        <div style="background: ${arcGatewayEnabled ? 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(6,182,212,0.2) 100%)' : 'linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(245,158,11,0.2) 100%)'}; border: 2px solid ${arcGatewayEnabled ? '#10b981' : '#ef4444'}; border-radius: 10px; padding: 14px; text-align: center;">
+                            <div style="font-size: 1.5rem; margin-bottom: 6px;">${arcGatewayEnabled ? '🚪' : '🔥'}</div>
+                            <div style="color: ${arcGatewayEnabled ? '#10b981' : '#ef4444'}; font-weight: 600; font-size: 0.85rem;">${arcGatewayEnabled ? 'Arc Gateway' : 'Enterprise Firewall'}</div>
+                            <div style="color: #8aa8c8; font-size: 0.7rem; margin-top: 4px;">
+                                ${arcGatewayEnabled ? 'Port 40343 tunnel' : `${totalEndpoints} endpoints`}
+                            </div>
+                            ${arcGatewayEnabled ? `<div style="background: #10b981; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.65rem; margin-top: 8px; display: inline-block;">~65% FEWER RULES</div>` : ''}
+                        </div>
+                        
+                        <!-- Azure Cloud -->
+                        <div style="background: linear-gradient(180deg, rgba(0,120,212,0.15) 0%, rgba(0,188,242,0.1) 100%); border: 2px solid #0078d4; border-radius: 10px; padding: 14px; position: relative;">
+                            <div style="position: absolute; top: -10px; left: 16px; background: #0a1628; padding: 2px 12px; font-size: 0.75rem; color: #00bcf2; font-weight: 600;">AZURE CLOUD</div>
+                            
+                            <div style="text-align: center; margin-top: 8px; margin-bottom: 12px;">
+                                <span style="font-size: 1.8rem;">☁️</span>
+                                <div style="color: #00bcf2; font-weight: 600; font-size: 0.9rem; margin-top: 4px;">Microsoft Azure</div>
+                                <div style="color: #8aa8c8; font-size: 0.7rem;">${regionName}</div>
                             </div>
                             
-                            <!-- Service Endpoints -->
-                            <div style="text-align: left; font-size: 10px; color: #61dafb; margin-top: 10px;">
-                                <div style="font-weight: bold; margin-bottom: 8px; font-size: 11px;">Key Services:</div>
-                                <div style="display: flex; flex-wrap: wrap; gap: 4px;">
-                                    <span class="service-endpoint">Entra ID</span>
-                                    <span class="service-endpoint">Extensions</span>
-                                    <span class="service-endpoint">Blob</span>
-                                    <span class="service-endpoint">Other services</span>
-                                </div>
+                            <!-- Azure Services -->
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;">
+                                <span style="background: #0078d4; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.65rem;">Azure Arc</span>
+                                <span style="background: #0078d4; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.65rem;">Entra ID</span>
+                                <span style="background: #0078d4; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.65rem;">Monitor</span>
+                                <span style="background: #0078d4; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.65rem;">Policy</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Key Statistics -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
-                    <div style="padding: 15px; background: #2d2d30; border: 1px solid ${arcGatewayEnabled ? '#17b978' : '#f39c12'}; border-left: 4px solid ${arcGatewayEnabled ? '#17b978' : '#f39c12'}; border-radius: 4px; text-align: left;">
-                        <div style="font-size: 24px; font-weight: bold; color: ${arcGatewayEnabled ? '#17b978' : '#f39c12'}; margin-bottom: 4px;">
-                            ${totalEndpoints}
-                        </div>
-                        <div style="font-size: 13px; color: #d4d4d4;">
-                            Firewall Endpoints Required
-                        </div>
+                <!-- Traffic Flow Legend -->
+                <div style="margin-top: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                    <div style="background: rgba(16,185,129,0.1); border-left: 3px solid #10b981; padding: 10px 12px; border-radius: 0 6px 6px 0;">
+                        <div style="color: #10b981; font-weight: 600; font-size: 0.8rem; margin-bottom: 4px;">✓ Data Sovereignty</div>
+                        <div style="color: #8aa8c8; font-size: 0.7rem;">Your data never leaves your infrastructure</div>
                     </div>
-                    
-                    ${arcGatewayEnabled ? `
-                    <div style="padding: 15px; background: #2d2d30; border: 1px solid #17b978; border-left: 4px solid #17b978; border-radius: 4px; text-align: left;">
-                        <div style="font-size: 24px; font-weight: bold; color: #17b978; margin-bottom: 4px;">
-                            ~65%
-                        </div>
-                        <div style="font-size: 13px; color: #d4d4d4;">
-                            Endpoint Reduction with Gateway
-                        </div>
+                    <div style="background: rgba(0,212,255,0.1); border-left: 3px solid #00d4ff; padding: 10px 12px; border-radius: 0 6px 6px 0;">
+                        <div style="color: #00d4ff; font-weight: 600; font-size: 0.8rem; margin-bottom: 4px;">⚡ Management Plane</div>
+                        <div style="color: #8aa8c8; font-size: 0.7rem;">Only metadata & telemetry to Azure</div>
                     </div>
-                    ` : ''}
-                    
-                    <div style="padding: 15px; background: #2d2d30; border: 1px solid #0078d4; border-left: 4px solid #0078d4; border-radius: 4px; text-align: left;">
-                        <div style="font-size: 24px; font-weight: bold; color: #61dafb; margin-bottom: 4px;">
-                            ${plan.clusterConfig.nodePools.reduce((sum, pool) => sum + pool.nodeCount, 0)}
-                        </div>
-                        <div style="font-size: 13px; color: #d4d4d4;">
-                            AKS Nodes Connecting to Azure
-                        </div>
+                    <div style="background: rgba(124,58,237,0.1); border-left: 3px solid #7c3aed; padding: 10px 12px; border-radius: 0 6px 6px 0;">
+                        <div style="color: #a78bfa; font-weight: 600; font-size: 0.8rem; margin-bottom: 4px;">🔐 Zero Trust</div>
+                        <div style="color: #8aa8c8; font-size: 0.7rem;">Entra ID + Pod Security Standards</div>
                     </div>
-                </div>
-                
-                <!-- Traffic Flow Explanation -->
-                <div style="margin-top: 25px; text-align: left; padding: 15px; background: #252526; border-radius: 6px; border: 1px solid #444;">
-                    <h5 style="margin-top: 0; color: #61dafb; margin-bottom: 12px;">📊 Traffic Flow Summary:</h5>
-                    <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #d4d4d4;">
-                        ${arcGatewayEnabled ? `
-                        <li><strong>✅ HTTPS via Arc Gateway:</strong> Most Azure endpoints (ARM, Key Vault, Arc services) tunnel securely through gateway</li>
-                        <li><strong>⚠️ HTTP via Firewall:</strong> Windows Update, CRLs still require direct firewall access (Arc Gateway doesn't support HTTP)</li>
-                        <li><strong>🔒 AKS Clusters:</strong> Control plane and worker VMs proxy through Cluster IP (port 40343) to Arc Gateway</li>
-                        <li><strong>🔄 Arc Resource Bridge:</strong> Uses Cluster IP as proxy for all Azure connectivity</li>
-                        ` : `
-                        <li><strong>🔓 All Traffic via Firewall:</strong> Every endpoint (80+) must be explicitly allowed in firewall rules</li>
-                        <li><strong>⚠️ Management Overhead:</strong> Maintaining firewall rules for all Azure services, Arc agents, AKS, ARB</li>
-                        <li><strong>💡 Recommendation:</strong> Enable Arc Gateway to reduce endpoints by ~65% and simplify management</li>
-                        `}
-                        <li><strong>🌐 Required Ports:</strong> 40343 (Arc Gateway), 55000/65000 (gRPC), 443 (HTTPS), 80 (HTTP), 123 (NTP)</li>
-                    </ul>
                 </div>
                 
                 ${!arcGatewayEnabled ? `
-                <div style="margin-top: 15px; padding: 15px; background: #3a2f0f; border: 1px solid #f39c12; border-left: 4px solid #f39c12; border-radius: 4px; text-align: left;">
-                    <strong style="color: #f39c12;">💡 Consider enabling Arc Gateway:</strong> <span style="color: #d4d4d4;">Reduce required endpoints from ${totalEndpoints} to <30, simplify firewall management, and improve security posture.</span>
-                    <a href="#" onclick="document.getElementById('step2').scrollIntoView({behavior: 'smooth'}); return false;" style="color: #61dafb; text-decoration: underline; font-weight: bold;">
-                        Go back to configure Arc Gateway
-                    </a>
+                <div style="margin-top: 16px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 1.3rem;">💡</span>
+                    <div style="flex: 1;">
+                        <div style="color: #f59e0b; font-weight: 600; font-size: 0.85rem;">Enable Arc Gateway for Simplified Connectivity</div>
+                        <div style="color: #8aa8c8; font-size: 0.75rem;">Reduce firewall endpoints from ${totalEndpoints} to &lt;30 and improve security posture.</div>
+                    </div>
                 </div>
                 ` : ''}
             </div>

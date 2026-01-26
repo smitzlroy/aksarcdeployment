@@ -724,8 +724,6 @@ body.arcops-theme .step3-tab-content {
     border: 1px solid var(--border-default);
     border-radius: 8px;
     padding: 20px;
-    max-height: 550px;
-    overflow-y: auto;
 }
 
 body.arcops-theme .step3-tab-content::-webkit-scrollbar {
