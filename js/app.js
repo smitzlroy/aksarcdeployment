@@ -389,6 +389,31 @@ function initConfigTabs() {
 }
 
 /**
+ * Show a specific Step 3 tab
+ */
+function showStep3Tab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.step3-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    const activeTabBtn = document.getElementById(`step3-tab-${tabName}`);
+    if (activeTabBtn) activeTabBtn.classList.add('active');
+    
+    // Hide all tab contents
+    document.querySelectorAll('.step3-tab-content').forEach(content => {
+        content.style.display = 'none';
+        content.classList.remove('active');
+    });
+    
+    // Show selected tab content
+    const activeContent = document.getElementById(`step3-content-${tabName}`);
+    if (activeContent) {
+        activeContent.style.display = 'block';
+        activeContent.classList.add('active');
+    }
+}
+
+/**
  * Update identity provider options display
  */
 function updateIdentityOptions() {

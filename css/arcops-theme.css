@@ -688,3 +688,241 @@ body.arcops-theme .config-tab-content::-webkit-scrollbar-thumb:hover {
 body.arcops-theme .accordion-section-hidden {
     display: none !important;
 }
+
+
+/* ===================================
+   STEP 3 TABS
+   =================================== */
+
+body.arcops-theme .step3-tab {
+    background: rgba(20, 40, 70, 0.5);
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+body.arcops-theme .step3-tab:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: rgba(30, 50, 80, 0.6);
+}
+
+body.arcops-theme .step3-tab.active {
+    background: rgba(0, 212, 255, 0.15);
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    font-weight: 600;
+}
+
+body.arcops-theme .step3-tab-content {
+    background: rgba(15, 31, 60, 0.5);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 20px;
+    max-height: 550px;
+    overflow-y: auto;
+}
+
+body.arcops-theme .step3-tab-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+body.arcops-theme .step3-tab-content::-webkit-scrollbar-track {
+    background: rgba(20, 40, 70, 0.3);
+    border-radius: 3px;
+}
+
+body.arcops-theme .step3-tab-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 212, 255, 0.3);
+    border-radius: 3px;
+}
+
+
+/* ===================================
+   STEP 3 SECURITY SCORECARD FIX
+   =================================== */
+
+body.arcops-theme .security-scorecard {
+    background: rgba(20, 40, 70, 0.6) !important;
+    border: 1px solid var(--border-default) !important;
+    color: var(--text-primary) !important;
+}
+
+body.arcops-theme .security-scorecard h3 {
+    color: var(--accent-cyan) !important;
+}
+
+body.arcops-theme .score-circle {
+    background: rgba(10, 22, 40, 0.8) !important;
+    border-color: var(--accent-orange) !important;
+}
+
+body.arcops-theme .score-number {
+    color: var(--accent-orange) !important;
+}
+
+body.arcops-theme .score-label {
+    color: var(--text-muted) !important;
+}
+
+body.arcops-theme .score-rating {
+    color: var(--accent-orange) !important;
+}
+
+body.arcops-theme .score-subtitle {
+    color: var(--text-muted) !important;
+}
+
+body.arcops-theme .security-checks {
+    background: transparent !important;
+}
+
+body.arcops-theme .security-check-item,
+body.arcops-theme [class*="check-item"] {
+    background: rgba(20, 40, 70, 0.5) !important;
+    border: 1px solid var(--border-default) !important;
+    color: var(--text-primary) !important;
+}
+
+body.arcops-theme .security-check-item h4,
+body.arcops-theme [class*="check-item"] h4 {
+    color: var(--text-primary) !important;
+}
+
+body.arcops-theme .security-check-item p,
+body.arcops-theme [class*="check-item"] p {
+    color: var(--text-secondary) !important;
+}
+
+
+/* ===================================
+   STEP 3 CATEGORY BREAKDOWN FIX
+   =================================== */
+
+body.arcops-theme #categoryBreakdown > div,
+body.arcops-theme [style*="background: white"],
+body.arcops-theme [style*="background: #fff"] {
+    background: rgba(20, 40, 70, 0.6) !important;
+    border-color: var(--border-default) !important;
+    color: var(--text-primary) !important;
+}
+
+body.arcops-theme #categoryBreakdown h4,
+body.arcops-theme #categoryBreakdown h5 {
+    color: var(--text-primary) !important;
+}
+
+body.arcops-theme #categoryBreakdown p,
+body.arcops-theme #categoryBreakdown span {
+    color: var(--text-secondary) !important;
+}
+
+
+/* ===================================
+   STEP 3 COMPLIANCE GAP ANALYSIS FIX
+   =================================== */
+
+body.arcops-theme #complianceGapAnalysis,
+body.arcops-theme #complianceMatrix {
+    background: rgba(20, 40, 70, 0.4) !important;
+    border: 1px solid var(--border-default) !important;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+body.arcops-theme #complianceGapAnalysis h3,
+body.arcops-theme #complianceGapAnalysis h4,
+body.arcops-theme #complianceMatrix h3,
+body.arcops-theme #complianceMatrix h4 {
+    color: var(--text-primary) !important;
+}
+
+body.arcops-theme #complianceGapAnalysis p,
+body.arcops-theme #complianceMatrix p {
+    color: var(--text-secondary) !important;
+}
+
+
+/* ===================================
+   STEP 3 EXPORT SECTION FIX
+   =================================== */
+
+body.arcops-theme .export-section,
+body.arcops-theme .export-section-inner {
+    background: rgba(20, 40, 70, 0.4) !important;
+    border: 1px solid var(--border-default) !important;
+}
+
+body.arcops-theme .export-tab {
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+    border-bottom-color: transparent !important;
+}
+
+body.arcops-theme .export-tab:hover {
+    color: var(--text-primary) !important;
+}
+
+body.arcops-theme .export-tab.active-tab {
+    color: var(--accent-cyan) !important;
+    border-bottom-color: var(--accent-cyan) !important;
+}
+
+body.arcops-theme .export-tab-content h4 {
+    color: var(--accent-cyan) !important;
+}
+
+body.arcops-theme .export-tab-content p {
+    color: var(--text-secondary) !important;
+}
+
+body.arcops-theme .btn-export {
+    background: rgba(20, 40, 70, 0.6) !important;
+    border: 1px solid var(--border-default) !important;
+    color: var(--text-primary) !important;
+}
+
+body.arcops-theme .btn-export:hover {
+    border-color: var(--accent-cyan) !important;
+    background: rgba(0, 212, 255, 0.1) !important;
+}
+
+body.arcops-theme .btn-export span {
+    color: var(--text-secondary) !important;
+}
+
+
+/* ===================================
+   STEP 3 PLAN SUMMARY FIX
+   =================================== */
+
+body.arcops-theme .plan-summary,
+body.arcops-theme #planSummary {
+    background: rgba(20, 40, 70, 0.5) !important;
+    border: 1px solid var(--border-default) !important;
+    color: var(--text-primary) !important;
+}
+
+body.arcops-theme .plan-summary h3,
+body.arcops-theme .plan-summary h4 {
+    color: var(--accent-cyan) !important;
+}
+
+body.arcops-theme .plan-summary table {
+    color: var(--text-primary) !important;
+}
+
+body.arcops-theme .plan-summary td,
+body.arcops-theme .plan-summary th {
+    border-color: var(--border-default) !important;
+    color: var(--text-secondary) !important;
+}
+
+body.arcops-theme .plan-summary td:first-child {
+    color: var(--text-primary) !important;
+}

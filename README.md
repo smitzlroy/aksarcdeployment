@@ -2,7 +2,7 @@
 
 # 🚀 AKS Arc Deployment Tool
 
-### **Sovereign Private Cloud & On-Premises AI Infrastructure**
+### **Sovereign Private Cloud & Sovereign AI Infrastructure**
 ### Deploy AKS on Azure Local with Full Data Residency
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-smitzlroy.github.io/aksarcdeployment-0078d4?style=for-the-badge)](https://smitzlroy.github.io/aksarcdeployment)
