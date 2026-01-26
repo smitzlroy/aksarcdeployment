@@ -80,9 +80,10 @@ cd aksarcdeployment
 
 **Step 1: Environment & Workload**
 - Industry selection (Manufacturing, Retail, Energy, Healthcare, Financial, Government)
+- **Data Residency selector** with country-specific regulations (EU, Germany, France, UK, US, Canada, Australia, APAC)
+- **AI/ML workload toggle** with AI compliance guidance (EU AI Act, NIST AI RMF, ISO 42001)
 - Arc extension solutions (Edge RAG, Video Indexer, IoT Operations)
 - Environment type (Production, Pilot, POC)
-- Compliance framework recommendations
 
 **Step 2: Cluster Configuration**
 - Control plane sizing (1, 3, or 5 nodes)
@@ -92,10 +93,34 @@ cd aksarcdeployment
 
 **Step 3: Review & Export**
 - Security compliance scorecard (100-point scale)
-- Compliance gap analysis
+- Compliance gap analysis with data sovereignty context
 - Network architecture diagram
 - Export: Bicep, ARM JSON, Terraform
 - ZIP bundle with all templates
+
+### Data Sovereignty & Privacy
+
+| Region | Key Regulations | Why On-Premises Matters |
+|--------|-----------------|------------------------|
+| **EU** | GDPR, EU Data Boundary | Eliminates cross-border transfer concerns under Schrems II |
+| **Germany** | BDSG, C5 | German regulators are strict on cloud data |
+| **France** | CNIL, SecNumCloud | CNIL aggressive on US cloud transfers |
+| **UK** | UK GDPR, Cyber Essentials | Future-proof against UK-EU data rule changes |
+| **US** | CCPA/CPRA, FedRAMP | State privacy laws vary; on-prem simplifies compliance |
+| **Australia** | Privacy Act, IRAP | IRAP PROTECTED often requires on-premises |
+| **Canada** | PIPEDA, Provincial Laws | Quebec Law 25 has strict requirements |
+
+### AI/ML Compliance
+
+For organizations running AI workloads on-premises:
+
+| Framework | Scope | Why Sovereign AI? |
+|-----------|-------|-------------------|
+| **EU AI Act** | EU AI systems (effective Aug 2025) | Complete control over AI data, training data provenance |
+| **NIST AI RMF** | US voluntary framework | Full visibility into AI behavior and outputs |
+| **FDA AI/ML** | Medical AI devices | PHI never leaves hospital network during inference |
+| **ISO/IEC 42001** | Global AI management | Demonstrable control for certification |
+| **Financial AI** | Banking/trading models | Sensitive data and models stay on-premises |
 
 ### Supported Configurations
 

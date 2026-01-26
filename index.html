@@ -145,6 +145,58 @@
                     </div>
                 </div>
 
+                <!-- Data Sovereignty / Region Selector -->
+                <div class="sovereignty-selector" style="margin-top: 25px;">
+                    <h3>🌍 Data Residency & Sovereignty</h3>
+                    <p>Select your region to see applicable data protection regulations and why on-premises matters</p>
+                    
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+                        <select id="regionSelector" onchange="selectRegion(this.value)" style="padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.95rem; min-width: 200px; cursor: pointer;">
+                            <option value="">Select your region...</option>
+                            <option value="eu">🇪🇺 European Union</option>
+                            <option value="germany">🇩🇪 Germany</option>
+                            <option value="france">🇫🇷 France</option>
+                            <option value="uk">🇬🇧 United Kingdom</option>
+                            <option value="us">🇺🇸 United States</option>
+                            <option value="canada">🇨🇦 Canada</option>
+                            <option value="australia">🇦🇺 Australia</option>
+                            <option value="apac">🌏 Asia Pacific</option>
+                            <option value="global">🌍 Global / Multi-Region</option>
+                        </select>
+                    </div>
+                    
+                    <div id="sovereigntyDetails" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.2); border-radius: 8px;">
+                        <div id="sovereigntyContent"></div>
+                    </div>
+                </div>
+                
+                <!-- AI Workloads Compliance -->
+                <div class="ai-compliance-selector" style="margin-top: 25px;">
+                    <h3>🤖 AI/ML Workloads</h3>
+                    <p>Will you run AI or machine learning workloads on this cluster?</p>
+                    
+                    <div style="display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap;">
+                        <label class="ai-option" style="display: flex; align-items: center; gap: 10px; padding: 12px 20px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                            <input type="radio" name="aiWorkloads" value="yes" onchange="selectAIWorkloads(true)" style="width: 18px; height: 18px;">
+                            <div>
+                                <strong>Yes - AI/ML Workloads</strong>
+                                <small style="display: block; color: var(--text-muted);">Foundry Local, RAG, SLMs, inference</small>
+                            </div>
+                        </label>
+                        <label class="ai-option" style="display: flex; align-items: center; gap: 10px; padding: 12px 20px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                            <input type="radio" name="aiWorkloads" value="no" onchange="selectAIWorkloads(false)" checked style="width: 18px; height: 18px;">
+                            <div>
+                                <strong>No - Standard Workloads</strong>
+                                <small style="display: block; color: var(--text-muted);">Containers, microservices, apps</small>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div id="aiComplianceDetails" style="display: none; margin-top: 15px; padding: 15px; background: rgba(124,58,237,0.05); border: 1px solid rgba(124,58,237,0.2); border-radius: 8px;">
+                        <div id="aiComplianceContent"></div>
+                    </div>
+                </div>
+
                 <hr style="margin: 30px 0; border: none; border-top: 1px solid var(--border-color);">
 
                 <!-- Environment Selector -->
